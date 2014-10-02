@@ -1,0 +1,31 @@
+framework:
+    secret: tester
+    test: ~
+    validation:      { enable_annotations: true }
+    csrf_protection: false
+    session:
+        storage_id: session.storage.mock_file
+    profiler:
+        collect: false
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+
+doctrine:
+    dbal:
+        default_connection: default
+        connections:
+            default:
+                driver: pdo_sqlite
+                memory: true
+    orm:
+        entity_managers:
+            default:
+                connection: default
+                metadata_cache_driver: array
+                query_cache_driver: array
+                result_cache_driver: array
+                mappings:
+                    LemonRestBundle:
+                        type: annotation
+                        prefix: Lemon\RestBundle\Tests\Fixtures\
+                        dir: %kernel.root_dir%/Fixtures/

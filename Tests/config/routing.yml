@@ -1,0 +1,2 @@
+higher_things_rest:
+    resource: "@LemonRestBundle/Resources/config/routing.yml"
