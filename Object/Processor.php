@@ -1,22 +1,22 @@
 <?php
 namespace Lemon\RestBundle\Object;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
 use Doctrine\ORM\UnitOfWork;
 use Metadata\MetadataFactory;
 
 class Processor
 {
     /**
-     * @var Registry
+     * @var \Doctrine\Bundle\DoctrineBundle\Registry
      */
     protected $doctrine;
     /**
-     * @var MetadataFactory
+     * @var \Metadata\MetadataFactory
      */
     protected $metadataFactory;
 
-    public function __construct(Registry $doctrine, MetadataFactory $metadataFactory)
+    public function __construct(Doctrine $doctrine, MetadataFactory $metadataFactory)
     {
         $this->doctrine = $doctrine;
         $this->metadataFactory = $metadataFactory;
@@ -30,8 +30,6 @@ class Processor
 
     /**
      * @todo Must go beyond second depth
-     * @todo Must handle one-to-one relationships
-     * @todo Evaluating missing values should reflect identifier rather than use a get
      * @param $object
      * @param null $entity
      */
@@ -141,9 +139,10 @@ class Processor
 
                 if ($property->getValue($object)) {
                     foreach ($property->getValue($object) as $i => $value) {
+                        $v = $property->getValue($entity);
                         $this->processExclusions(
                             $value,
-                            $property->getValue($entity)[$i]
+                            $v[$i]
                         );
                     }
                 }

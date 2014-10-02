@@ -37,7 +37,7 @@ class RegisterResourcePass implements CompilerPassInterface
                     $expandedNamespace = substr($file->getPath(), strlen($dir) + 1);
 
                     // If we are in a sub namespace add a trailing separation
-                    $expandedNamespace = $expandedNamespace == false ? '' : $expandedNamespace . '\\';
+                    $expandedNamespace = $expandedNamespace === false ? '' : $expandedNamespace . '\\';
 
                     $className = $baseNamespace . $expandedNamespace .  $file->getBasename('.php');
 
@@ -48,7 +48,7 @@ class RegisterResourcePass implements CompilerPassInterface
                             if ($annotation instanceof Resource) {
                                 $name = $annotation->name ?: lcfirst($reflectionClass->getShortName());
 
-                                $registry->addMethodCall('addClass', [$name, $className]);
+                                $registry->addMethodCall('addClass', array($name, $className));
                             }
                         }
                     }

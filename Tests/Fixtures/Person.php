@@ -38,7 +38,7 @@ class Person
     public $mother;
 
     /**
-     * @var \Lemon\RestBundle\Tests\Fixtures\Car[]
+     * @var \Doctrine\Common\Collections\ArrayCollection|\Lemon\RestBundle\Tests\Fixtures\Car[]
      * @ORM\OneToMany(
      *  targetEntity="Lemon\RestBundle\Tests\Fixtures\Car",
      *  mappedBy="person",

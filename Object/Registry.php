@@ -5,6 +5,10 @@ class Registry
 {
     protected $classes = array();
 
+    /**
+     * @param string $name
+     * @param string $class
+     */
     public function addClass($name, $class)
     {
         if (!class_exists($class)) {
@@ -18,6 +22,10 @@ class Registry
         return $this->classes;
     }
 
+    /**
+     * @param string $name
+     * @return string
+     */
     public function getClass($name)
     {
         if (!$this->hasClass($name)) {
@@ -26,6 +34,10 @@ class Registry
         return $this->classes[$name];
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function hasClass($name)
     {
         return array_key_exists($name, $this->classes);

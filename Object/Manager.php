@@ -15,6 +15,11 @@ class Manager
     protected $eventDispatcher;
     protected $class;
 
+    /**
+     * @param Doctrine $doctrine
+     * @param EventDispatcher $eventDispatcher
+     * @param string $class
+     */
     public function __construct(
         Doctrine $doctrine,
         EventDispatcher $eventDispatcher,
@@ -49,7 +54,7 @@ class Manager
 
     /**
      * @param Criteria $criteria
-     * @return array
+     * @return SearchResults
      */
     public function search(Criteria $criteria)
     {

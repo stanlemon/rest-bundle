@@ -9,11 +9,22 @@ php:
 
 matrix:
   allow_failures:
-    - php: 5.3
-    - php: 5.6
     - php: hhvm
+  include:
+    - php: hhvm
+      env: DOCTRINE_VERSION='doctrine/dbal=~2.5@dev doctrine/orm=~2.5@dev doctrine/doctrine-bundle=~1.3@dev'
 
-install:
-  - composer install --no-interaction --dev --prefer-source
+before_script:
+  - composer self-update
+  - sh -c 'if [ "$DOCTRINE_VERSION" != "" ]; then composer require --no-update $DOCTRINE_VERSION; fi;'
+  - composer update --prefer-source
 
-script: ./vendor/bin/phpunit
+script: ./vendor/bin/phpunit  --coverage-clover=coverage.clover
+
+after_script:
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+
+notifications:
+  email:
+    - stosh1985@gmail.com

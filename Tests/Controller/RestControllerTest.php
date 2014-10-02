@@ -54,6 +54,12 @@ class RestControllerTest extends WebTestCase
         $this->doctrine->getConnection()->rollback();
     }
 
+    /**
+     * @param string $method
+     * @param string $uri
+     * @param string|null $content
+     * @return Request
+     */
     protected function makeRequest($method, $uri, $content = null)
     {
         $request = Request::create(
@@ -76,10 +82,11 @@ class RestControllerTest extends WebTestCase
 
         $person = new Person();
         $person->name = "Stan Lemon";
+        $person->ssn = '123-45-678';
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $request = $this->makeRequest('GET', '/person/' . $person->id);
 
@@ -90,6 +97,7 @@ class RestControllerTest extends WebTestCase
 
         $this->assertEquals($person->id, $data->id);
         $this->assertEquals($person->name, $data->name);
+        $this->assertEquals($person->ssn, $data->ssn, "Our read-only property is still readable");
     }
 
     public function testPostAction()
@@ -128,7 +136,7 @@ class RestControllerTest extends WebTestCase
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $request = $this->makeRequest(
             'PUT',
@@ -162,7 +170,7 @@ class RestControllerTest extends WebTestCase
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $request = $this->makeRequest('DELETE', '/person/1');
 
@@ -194,7 +202,7 @@ class RestControllerTest extends WebTestCase
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $request = $this->makeRequest(
             'PUT',
@@ -305,7 +313,7 @@ class RestControllerTest extends WebTestCase
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $request = $this->makeRequest(
             'PUT',
@@ -353,7 +361,7 @@ class RestControllerTest extends WebTestCase
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $request = $this->makeRequest(
             'PUT',
@@ -397,22 +405,26 @@ class RestControllerTest extends WebTestCase
     {
         $controller = $this->container->get('lemon.rest.controller');
 
+        $person = new Person();
+        $person->name = "Stan Lemon";
+
         $car1 = new Car();
         $car1->name = 'Honda';
         $car1->year = 2006;
+        $car1->person = $person;
+
+        $person->cars->add($car1);
 
         $car2 = new Car();
         $car2->name = 'Mercedes Benz';
         $car2->year = 2013;
+        $car2->person = $person;
 
-        $person = new Person();
-        $person->name = "Stan Lemon";
-        $person->cars[] = $car1;
-        $person->cars[] = $car2;
+        $person->cars->add($car2);
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
@@ -420,7 +432,7 @@ class RestControllerTest extends WebTestCase
 
         $this->assertCount(2, $refresh->cars);
 
-        $this->em->clear($refresh);
+        $this->em->clear();
 
         $request = $this->makeRequest(
             'PUT',
@@ -458,22 +470,26 @@ class RestControllerTest extends WebTestCase
     {
         $controller = $this->container->get('lemon.rest.controller');
 
+        $person = new Person();
+        $person->name = "Stan Lemon";
+
         $car1 = new Car();
         $car1->name = 'Honda';
         $car1->year = 2006;
+        $car1->person = $person;
+
+        $person->cars->add($car1);
 
         $car2 = new Car();
         $car2->name = 'Mercedes Benz';
         $car2->year = 2013;
+        $car2->person = $person;
 
-        $person = new Person();
-        $person->name = "Stan Lemon";
-        $person->cars[] = $car1;
-        $person->cars[] = $car2;
+        $person->cars->add($car2);
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
@@ -481,13 +497,14 @@ class RestControllerTest extends WebTestCase
 
         $this->assertCount(2, $refresh->cars);
 
-        $this->em->clear($refresh);
+        $this->em->clear();
 
         $request = $this->makeRequest(
             'PUT',
             '/person/' . $person->id,
             json_encode(array(
                 'name' => $person->name,
+                'cars' => array(),
             ))
         );
 
@@ -519,7 +536,7 @@ class RestControllerTest extends WebTestCase
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $request = $this->makeRequest(
             'PUT',
@@ -560,7 +577,7 @@ class RestControllerTest extends WebTestCase
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $request = $this->makeRequest(
             'PUT',
@@ -626,7 +643,7 @@ class RestControllerTest extends WebTestCase
 
         $this->em->persist($person);
         $this->em->flush($person);
-        $this->em->clear($person);
+        $this->em->clear();
 
         $request = $this->makeRequest(
             'POST',
@@ -645,27 +662,5 @@ class RestControllerTest extends WebTestCase
 
         $this->assertNotNull($refresh);
         $this->assertEquals($person->name, $refresh->name);
-    }
-
-    public function testGetActionWithReadOnly()
-    {
-        $controller = $this->container->get('lemon.rest.controller');
-
-        $person = new Person();
-        $person->name = "Stan Lemon";
-        $person->ssn = '123-45-678';
-
-        $this->em->persist($person);
-        $this->em->flush($person);
-        $this->em->clear($person);
-
-        $request = $this->makeRequest('GET', '/person/' . $person->id);
-
-        /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->getAction($request, 'person', 1);
-
-        $data = json_decode($response->getContent());
-
-        $this->assertEquals($person->ssn, $data->ssn);
     }
 }

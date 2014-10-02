@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use JMS\Serializer\SerializerInterface;
-use Negotiation\NegotiatorInterface;
+use Negotiation\FormatNegotiatorInterface;
 
 class Handler
 {
@@ -30,7 +30,7 @@ class Handler
 
     public function __construct(
         SerializerInterface $serializer,
-        NegotiatorInterface $negotiator,
+        FormatNegotiatorInterface $negotiator,
         LoggerInterface $logger
     ) {
         $this->serializer = $serializer;
@@ -38,6 +38,13 @@ class Handler
         $this->logger = $logger;
     }
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param string $class
+     * @param \Closure $callback
+     * @return Response
+     */
     public function handle(Request $request, Response $response, $class, $callback)
     {
         $format = $this->negotiator->getBestFormat(

@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RestController
 {
+    protected $managerFactory;
+    protected $handler;
+
     public function __construct(
         ManagerFactory $managerFactory,
         Handler $handler
