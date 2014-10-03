@@ -4,6 +4,7 @@ namespace Lemon\RestBundle\Request;
 
 use Lemon\RestBundle\Object\Exception\InvalidException;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
+use Lemon\RestBundle\Object\ManagerFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,10 @@ use Negotiation\FormatNegotiatorInterface;
 
 class Handler
 {
+    /**
+     * @var \Lemon\RestBundle\Object\ManagerFactory
+     */
+    protected $managerFactory;
     /**
      * @var \JMS\Serializer\SerializerInterface
      */
@@ -29,10 +34,12 @@ class Handler
     protected $logger;
 
     public function __construct(
+        ManagerFactory $managerFactory,
         SerializerInterface $serializer,
         FormatNegotiatorInterface $negotiator,
         LoggerInterface $logger
     ) {
+        $this->managerFactory = $managerFactory;
         $this->serializer = $serializer;
         $this->negotiator = $negotiator;
         $this->logger = $logger;
@@ -45,8 +52,11 @@ class Handler
      * @param \Closure $callback
      * @return Response
      */
-    public function handle(Request $request, Response $response, $class, $callback)
+    public function handle(Request $request, Response $response, $resource, $callback)
     {
+        $manager = $this->managerFactory->create($resource);
+        $class = $manager->getClass();
+
         $format = $this->negotiator->getBestFormat(
             $request->headers->get('Accept')
         );
@@ -60,7 +70,7 @@ class Handler
                 $format
             );
 
-            $data = $callback($object);
+            $data = $callback($manager, $object);
         } catch (InvalidException $e) {
             $response->setStatusCode(400);
             $data = array(

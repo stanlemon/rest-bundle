@@ -2,21 +2,17 @@
 namespace Lemon\RestBundle\Controller;
 
 use Lemon\RestBundle\Object\Criteria;
-use Lemon\RestBundle\Object\ManagerFactory;
 use Lemon\RestBundle\Request\Handler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class RestController
 {
-    protected $managerFactory;
     protected $handler;
 
     public function __construct(
-        ManagerFactory $managerFactory,
         Handler $handler
     ) {
-        $this->managerFactory = $managerFactory;
         $this->handler = $handler;
     }
 
@@ -24,13 +20,11 @@ class RestController
     {
         $response = new Response();
 
-        $manager = $this->managerFactory->create($resource);
-
         return $this->handler->handle(
             $request,
             $response,
-            $manager->getClass(),
-            function () use ($manager, $request) {
+            $resource,
+            function ($manager) use ($request) {
                 $criteria = new Criteria($request->query->all());
 
                 return $manager->search($criteria);
@@ -42,13 +36,11 @@ class RestController
     {
         $response = new Response();
 
-        $manager = $this->managerFactory->create($resource);
-
         return $this->handler->handle(
             $request,
             $response,
-            $manager->getClass(),
-            function () use ($manager, $id) {
+            $resource,
+            function ($manager) use ($id) {
                 return $manager->retrieve($id);
             }
         );
@@ -58,13 +50,11 @@ class RestController
     {
         $response = new Response();
 
-        $manager = $this->managerFactory->create($resource);
-
         return $this->handler->handle(
             $request,
             $response,
-            $manager->getClass(),
-            function ($object) use ($manager) {
+            $resource,
+            function ($manager, $object) {
                 return $manager->create($object);
             }
         );
@@ -74,13 +64,11 @@ class RestController
     {
         $response = new Response();
 
-        $manager = $this->managerFactory->create($resource);
-
         return $this->handler->handle(
             $request,
             $response,
-            $manager->getClass(),
-            function ($object) use ($manager, $id) {
+            $resource,
+            function ($manager, $object) use ($id) {
                 $reflection = new \ReflectionObject($object);
                 $property = $reflection->getProperty('id');
                 $property->setAccessible(true);
@@ -97,13 +85,11 @@ class RestController
     {
         $response = new Response();
 
-        $manager = $this->managerFactory->create($resource);
-
         return $this->handler->handle(
             $request,
             $response,
-            $manager->getClass(),
-            function () use ($response, $manager, $id) {
+            $resource,
+            function ($manager) use ($response, $id) {
                 $response->setStatusCode(204);
 
                 $manager->delete($id);

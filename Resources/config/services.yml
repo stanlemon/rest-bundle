@@ -2,12 +2,12 @@ services:
     lemon.rest.controller:
         class: Lemon\RestBundle\Controller\RestController
         arguments:
-            - @lemon.rest.object_manager_factory
             - @lemon.rest.handler
 
     lemon.rest.handler:
         class: Lemon\RestBundle\Request\Handler
         arguments:
+            - @lemon.rest.object_manager_factory
             - @jms_serializer
             - @lemon.rest.format_negotiator
             - @logger
