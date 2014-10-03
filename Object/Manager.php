@@ -78,9 +78,7 @@ class Manager
             }
         }
 
-        if (!($objects = $this->getRepository()->findBy($criteria->toArray(), $orderBy, $limit, $offset))) {
-            throw new NotFoundException("Object not found");
-        }
+        $objects = $this->getRepository()->findBy($criteria->toArray(), $orderBy, $limit, $offset);
 
         $results = new SearchResults($objects);
         return $results;
