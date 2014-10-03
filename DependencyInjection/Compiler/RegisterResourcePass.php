@@ -27,7 +27,6 @@ class RegisterResourcePass implements CompilerPassInterface
                 $iterator = $finder
                     ->files()
                     ->name('*.php')
-                    ->size('>= 1K')
                     ->in($dir)
                 ;
 
