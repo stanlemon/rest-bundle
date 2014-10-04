@@ -276,6 +276,49 @@ class RestControllerTest extends WebTestCase
         $this->assertEquals(2006, $refresh->cars[0]->year);
     }
 
+    public function testPostActionWithNestedCollectionAndId0()
+    {
+        $controller = $this->container->get('lemon_rest.controller');
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person',
+            json_encode(array(
+                'id' => 0,
+                'name' => 'Stan Lemon',
+                'cars' => array(
+                    array(
+                        'id' => 0,
+                        'name' => 'Honda',
+                        'year' => 2006,
+                    )
+                )
+            ))
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $controller->postAction($request, 'person');
+
+        $data = json_decode($response->getContent());
+
+        $this->assertEquals($data->name, "Stan Lemon");
+
+        $this->em->clear();
+
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $data->id
+        ));
+
+        $this->assertNotNull($refresh);
+        $this->assertNotEquals(0, $refresh->id);
+        $this->assertEquals("Stan Lemon", $refresh->name);
+        $this->assertCount(1, $refresh->cars);
+        $this->assertNotEquals(0, $refresh->cars[0]->id);
+        $this->assertEquals("Honda", $refresh->cars[0]->name);
+        $this->assertEquals(2006, $refresh->cars[0]->year);
+        $this->assertCount(1, $refresh->cars);
+    }
+
     public function testPostActionWithNestedEntity()
     {
         $controller = $this->container->get('lemon_rest.controller');
@@ -410,6 +453,50 @@ class RestControllerTest extends WebTestCase
         $this->assertEquals(2006, $refresh->cars[0]->year);
         $this->assertEquals("Mercedes Benz 300c", $refresh->cars[1]->name);
         $this->assertEquals(2013, $refresh->cars[1]->year);
+    }
+
+    public function testPutActionWithNestedCollectionAndNewItemWithId0()
+    {
+        $controller = $this->container->get('lemon_rest.controller');
+
+        $person = new Person();
+        $person->name = "Stan Lemon";
+
+        $this->em->persist($person);
+        $this->em->flush($person);
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'PUT',
+            '/person/' . $person->id,
+            json_encode(array(
+                'name' => $person->name,
+                'cars' => array(
+                    array(
+                        'id' => 0,
+                        'name' => "Honda Odyssey",
+                        'year' => 2006,
+                    )
+                )
+            ))
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $controller->putAction($request, 'person', 1);
+
+        $data = json_decode($response->getContent());
+
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $data->id
+        ));
+
+        $this->assertNotNull($refresh);
+        $this->assertEquals($person->id, $refresh->id);
+        $this->assertEquals($person->name, $refresh->name);
+        $this->assertCount(1, $refresh->cars);
+        $this->assertNotEquals(0, $refresh->cars[0]->id);
+        $this->assertEquals("Honda Odyssey", $refresh->cars[0]->name);
+        $this->assertEquals(2006, $refresh->cars[0]->year);
     }
 
     public function testPutActionWithNestedCollectionAndRemoveExistingItem()
@@ -573,6 +660,77 @@ class RestControllerTest extends WebTestCase
         $this->assertNotNull($refresh->mother);
         $this->assertEquals($person->mother->id, $refresh->mother->id);
         $this->assertEquals($person->mother->name, $refresh->mother->name);
+    }
+
+    public function testPutActionWithNestedEntityThatHasANestedCollection()
+    {
+        $controller = $this->container->get('lemon_rest.controller');
+
+        $car1 = new Car();
+        $car1->name = "Chrysler Caravan";
+        $car1->year = 2003;
+
+        $car2 = new Car();
+        $car2->name = "Suzuki Sidekick";
+        $car2->year = 1999;
+
+        $mother = new Person();
+        $mother->name = "Sharon Lemon";
+        $mother->cars->add($car1);
+        $mother->cars->add($car2);
+
+        $person = new Person();
+        $person->name = "Stan Lemon";
+        $person->mother = $mother;
+
+        $this->em->persist($person);
+        $this->em->flush($person);
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'PUT',
+            '/person/' . $person->id,
+            json_encode(array(
+                'name' => $person->name,
+                'mother' => array(
+                    'id' => $mother->id,
+                    'name' => $mother->name,
+                    'mother' => array(
+                        'name' => 'Arbutus',
+                    ),
+                    'cars' => array(
+                        array(
+                            'id' => $car1->id,
+                            'name' => $car1->name,
+                            'year' => $car1->year,
+                        ),
+                        array(
+                            'name' => 'Ford Fusion',
+                            'year' => 2013,
+                        ),
+                    ),
+                )
+            ))
+        );
+
+        $controller->putAction($request, 'person', 1);
+
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $person->id
+        ));
+
+        $this->assertNotNull($refresh);
+        $this->assertEquals($person->id, $refresh->id);
+        $this->assertEquals($person->name, $refresh->name);
+        $this->assertNotNull($refresh->mother);
+        $this->assertEquals($person->mother->id, $refresh->mother->id);
+        $this->assertEquals($person->mother->name, $refresh->mother->name);
+        $this->assertNotNull($refresh->mother->mother);
+        $this->assertCount(2, $refresh->mother->cars);
+        $this->assertEquals($car1->name, $refresh->mother->cars[0]->name);
+        $this->assertEquals($car1->year, $refresh->mother->cars[0]->year);
+        $this->assertEquals("Ford Fusion", $refresh->mother->cars[1]->name);
+        $this->assertEquals(2013, $refresh->mother->cars[1]->year);
     }
 
     public function testPutActionWithNestedEntityRemoved()

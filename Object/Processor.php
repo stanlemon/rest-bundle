@@ -2,6 +2,7 @@
 namespace Lemon\RestBundle\Object;
 
 use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
+use Doctrine\Common\Util\Debug;
 use Doctrine\ORM\UnitOfWork;
 use Metadata\MetadataFactory;
 
@@ -24,23 +25,22 @@ class Processor
 
     public function process($object, $entity = null)
     {
+        $this->processIds($object);
         $this->processRelationships($object, $entity);
         $this->processExclusions($object, $entity);
     }
 
-    /**
-     * @todo Must go beyond second depth
-     * @param $object
-     * @param null $entity
-     */
-    public function processRelationships($object, $entity = null)
+    public function processIds($object)
     {
+        $id = IdHelper::getId($object);
+
+        if ($id !== null && empty($id)) {
+            IdHelper::setId($object, null);
+        }
+
         $class = get_class($object);
-
-        $em = $this->doctrine->getManagerForClass($class);
-
         $reflection = new \ReflectionClass($class);
-
+        $em = $this->doctrine->getManagerForClass($class);
         /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
         $metadata = $em->getMetadataFactory()->getMetadataFor($class);
 
@@ -57,6 +57,40 @@ class Processor
                 }
 
                 foreach ($value as $v) {
+                    IdHelper::setId($v, null);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $object
+     * @param null $entity
+     */
+    public function processRelationships($object, $entity = null)
+    {
+        $class = get_class($object);
+
+        $em = $this->doctrine->getManagerForClass($class);
+
+        $reflection = new \ReflectionClass($class);
+
+        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
+        $metadata = $em->getMetadataFactory()->getMetadataFor($class);
+
+        // Look for relationships, compare against preloaded entity
+        foreach ($metadata->getAssociationMappings() as $association) {
+            $property = $reflection->getProperty($association['fieldName']);
+            $property->setAccessible(true);
+
+            $value = $property->getValue($object);
+
+            if (!$value) {
+                continue;
+            }
+
+            if (in_array($association['type'], array(4, 8))) {
+                foreach ($value as $v) {
                     // If the parent object is new, or if the relation has already been persisted
                     // set the mappedBy to the current object so that ids fill in properly
                     if ($this->isNew($object)) {
@@ -72,14 +106,19 @@ class Processor
                     $original = $property->getValue($entity);
 
                     foreach ($original as $v) {
-                        $exists = function ($key, $element) use ($v) {
+                        $checkIfExists = function ($key, $element) use ($v) {
                             return IdHelper::getId($v) == IdHelper::getId($element);
                         };
-                        if ($value && $value != $object && !$value->exists($exists)) {
+                        $exists = $value->exists($checkIfExists);
+                        if ($value && $value != $object && !$exists) {
                             $em->remove($v);
+                        } elseif ($exists) {
+                            $this->processRelationships($value, $v);
                         }
                     }
                 }
+            } else {
+                $this->processRelationships($value, $entity ? $property->getValue($entity) : null);
             }
         }
     }
