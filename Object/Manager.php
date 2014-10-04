@@ -65,6 +65,23 @@ class Manager
     {
         $this->eventDispatcher->dispatch(RestEvents::PRE_SEARCH, new PreSearchEvent($criteria));
 
+        /** @var \Doctrine\ORM\QueryBuilder $qb */
+        $qb = $this->getManager()->createQueryBuilder('o');
+        $qb->select($qb->expr()->count('o'))
+            ->from($this->class, 'o');
+
+        $metadata = $this->getManager()->getClassMetadata($this->class);
+
+        foreach ($criteria as $key => $value) {
+            if ($metadata->hasField($key)) {
+                $qb->andWhere($key . ' = ?' . $key);
+                $qb->setParameter($key, $value);
+            } // Should we throw an Exception here?
+        }
+        $query = $qb->getQuery();
+
+        $total = $query->getSingleScalarResult();
+
         $objects = $this->getRepository()->findBy(
             $criteria->toArray(),
             $criteria->getOrderBy(),
@@ -72,7 +89,7 @@ class Manager
             $criteria->getOffset()
         );
 
-        $results = new SearchResults($objects);
+        $results = new SearchResults($objects, $total);
 
         $this->eventDispatcher->dispatch(RestEvents::POST_SEARCH, new PostSearchEvent($results));
 
