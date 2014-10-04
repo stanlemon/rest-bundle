@@ -191,7 +191,7 @@ class RestControllerTest extends WebTestCase
 
         $this->assertNotNull($person);
 
-        /** @var \Symfony\Component\HttpFoundation\Response() $response */
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
         $response = $controller->deleteAction($request, 'person', 1);
 
         $this->assertEquals("null", $response->getContent());

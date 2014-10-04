@@ -48,7 +48,7 @@ class Handler
     /**
      * @param Request $request
      * @param Response $response
-     * @param string $class
+     * @param string $resource
      * @param \Closure $callback
      * @return Response
      */
