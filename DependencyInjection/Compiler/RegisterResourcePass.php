@@ -13,7 +13,7 @@ class RegisterResourcePass implements CompilerPassInterface
     {
         $bundles = $container->getParameter('kernel.bundles');
         $reader   = $container->get('annotation_reader');
-        $registry = $container->getDefinition('lemon.rest.object_registry');
+        $registry = $container->getDefinition('lemon_rest.object_registry');
 
         foreach ($bundles as $name => $bundle) {
             $reflection = new \ReflectionClass($bundle);

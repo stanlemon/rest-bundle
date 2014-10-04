@@ -76,7 +76,7 @@ There are currently two ways you can add entities to be used as REST resources.
             public $name;
         }
         
-  2. Use the object registry, retrieve the _lemon.rest.object_registry_ service from the dependency injection container and then
+  2. Use the object registry, retrieve the _lemon_rest.object_registry_ service from the dependency injection container and then
   
         $objectRegistry->addClass('person', 'Lemon\TestBundle\Entity\Person');
 

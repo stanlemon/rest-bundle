@@ -1,53 +1,57 @@
 services:
-    lemon.rest.controller:
+    lemon_rest.controller:
         class: Lemon\RestBundle\Controller\RestController
         arguments:
-            - @lemon.rest.handler
+            - @lemon_rest.handler
 
-    lemon.rest.handler:
+    lemon_rest.handler:
         class: Lemon\RestBundle\Request\Handler
         arguments:
-            - @lemon.rest.object_manager_factory
+            - @lemon_rest.object_manager_factory
             - @jms_serializer
-            - @lemon.rest.format_negotiator
+            - @lemon_rest.format_negotiator
             - @logger
 
-    lemon.rest.format_negotiator:
+    lemon_rest.format_negotiator:
         class: Negotiation\FormatNegotiator
 
-    lemon.rest.event_dispatcher:
-        class: Symfony\Component\EventDispatcher\EventDispatcher
-        calls:
-            - [ addSubscriber , [@lemon.rest.event.processor_subscriber] ]
-            - [ addSubscriber , [@lemon.rest.event.validator_subscriber] ]
+    lemon_rest.event_dispatcher:
+        class: Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher
+        arguments:
+            - @service_container
 
-    lemon.rest.event.processor_subscriber:
+    lemon_rest.event.processor_subscriber:
         class: Lemon\RestBundle\Event\ProcessorSubscriber
         arguments:
-            - @lemon.rest.object_processor
+            - @lemon_rest.object_processor
+        tags:
+            - { name: lemon_rest.event_subscriber }
 
-    lemon.rest.event.validator_subscriber:
+    lemon_rest.event.validator_subscriber:
         class: Lemon\RestBundle\Event\ValidatorSubscriber
         arguments:
-            - @lemon.rest.object_validator
+            - @lemon_rest.object_validator
+        tags:
+            - { name: lemon_rest.event_subscriber }
 
-    lemon.rest.object_manager_factory:
+
+    lemon_rest.object_manager_factory:
         class: Lemon\RestBundle\Object\ManagerFactory
         arguments:
-            - @lemon.rest.object_registry
+            - @lemon_rest.object_registry
             - @doctrine
-            - @lemon.rest.event_dispatcher
+            - @lemon_rest.event_dispatcher
 
-    lemon.rest.object_processor:
+    lemon_rest.object_processor:
         class: Lemon\RestBundle\Object\Processor
         arguments:
             - @doctrine
             - @jms_serializer.metadata_factory
 
-    lemon.rest.object_validator:
+    lemon_rest.object_validator:
         class: Lemon\RestBundle\Object\Validator
         arguments:
             - @validator
 
-    lemon.rest.object_registry:
+    lemon_rest.object_registry:
         class: Lemon\RestBundle\Object\Registry
