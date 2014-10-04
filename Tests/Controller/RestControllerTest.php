@@ -45,7 +45,7 @@ class RestControllerTest extends WebTestCase
 
         $this->doctrine->getConnection()->beginTransaction();
 
-        $registry = $this->container->get('lemon.rest.object_registry');
+        $registry = $this->container->get('lemon_rest.object_registry');
         $registry->addClass('person', 'Lemon\RestBundle\Tests\Fixtures\Person');
     }
 
@@ -78,7 +78,7 @@ class RestControllerTest extends WebTestCase
 
     public function testGetAction()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $person = new Person();
         $person->name = "Stan Lemon";
@@ -95,6 +95,8 @@ class RestControllerTest extends WebTestCase
 
         $data = json_decode($response->getContent());
 
+        $this->assertTrue(!isset($data->created), "Excluded fields should not appear");
+
         $this->assertEquals($person->id, $data->id);
         $this->assertEquals($person->name, $data->name);
         $this->assertEquals($person->ssn, $data->ssn, "Our read-only property is still readable");
@@ -102,12 +104,12 @@ class RestControllerTest extends WebTestCase
 
     public function testPostAction()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $request = $this->makeRequest(
             'POST',
             '/person',
-            json_encode(array('name' => 'Stan Lemon'))
+            json_encode(array('name' => 'Stan Lemon', 'created' => date('Y-m-d H:i:s')))
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
@@ -125,14 +127,17 @@ class RestControllerTest extends WebTestCase
 
         $this->assertNotNull($refresh);
         $this->assertEquals("Stan Lemon", $refresh->name);
+        $this->assertNull($refresh->created, "Excluded properties, even when passed should not be set");
     }
 
     public function testPutAction()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $person = new Person();
         $person->name = "Stan Lemon";
+        $person->created = new \DateTime("-1 day");
+        $person->updated = new \DateTime("-12 hours");
 
         $this->em->persist($person);
         $this->em->flush($person);
@@ -141,7 +146,11 @@ class RestControllerTest extends WebTestCase
         $request = $this->makeRequest(
             'PUT',
             '/person/' . $person->id,
-            json_encode(array('id' => $person->id, 'name' => $person->name))
+            json_encode(array(
+                'id' => $person->id,
+                'name' => $person->name,
+                'created' => date('Y-m-d H:i:s'),
+            ))
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
@@ -159,11 +168,13 @@ class RestControllerTest extends WebTestCase
         $this->assertNotNull($refresh);
         $this->assertEquals($person->id, $refresh->id);
         $this->assertEquals($person->name, $refresh->name);
+        $this->assertEquals($person->created, $refresh->created, "Excluded fields do not get updated when passed in");
+        $this->assertEquals($person->updated, $refresh->updated, "Excluded fields not get updated when not passed in");
     }
 
     public function testDeleteAction()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $person = new Person();
         $person->name = "Stan Lemon";
@@ -195,7 +206,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithoutIdInPayload()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $person = new Person();
         $person->name = "Stan Lemon";
@@ -229,7 +240,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPostActionWithNestedCollection()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $request = $this->makeRequest(
             'POST',
@@ -267,7 +278,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPostActionWithNestedEntity()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $request = $this->makeRequest(
             'POST',
@@ -301,7 +312,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedCollectionAndExistingItem()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $car = new Car();
         $car->name = 'Honda';
@@ -349,7 +360,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedCollectionAndExistingItemAndNewItem()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $car = new Car();
         $car->name = 'Honda';
@@ -403,7 +414,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedCollectionAndRemoveExistingItem()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $person = new Person();
         $person->name = "Stan Lemon";
@@ -468,7 +479,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedCollectionAndRemoveAllExistingItems()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $person = new Person();
         $person->name = "Stan Lemon";
@@ -525,7 +536,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedEntity()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $mother = new Person();
         $mother->name = "Sharon Lemon";
@@ -566,7 +577,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedEntityRemoved()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $mother = new Person();
         $mother->name = "Sharon Lemon";
@@ -613,7 +624,7 @@ class RestControllerTest extends WebTestCase
         $query = $this->em->createQuery("SELECT COUNT(p.id) FROM Lemon\RestBundle\Tests\Fixtures\Person p");
         $total = $query->execute(array(), AbstractQuery::HYDRATE_SINGLE_SCALAR);
 
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $request = $this->makeRequest(
             'POST',
@@ -636,7 +647,7 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithInvalidAttribute()
     {
-        $controller = $this->container->get('lemon.rest.controller');
+        $controller = $this->container->get('lemon_rest.controller');
 
         $person = new Person();
         $person->name = "Stan Lemon";

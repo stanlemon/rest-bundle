@@ -32,6 +32,18 @@ class Person
     public $ssn;
 
     /**
+     * @ORM\Column(name="created", type="datetime", nullable=true)
+     * @Serializer\ReadOnly()
+     */
+    public $created;
+
+    /**
+     * @ORM\Column(name="updated", type="datetime", nullable=true)
+     * @Serializer\ReadOnly()
+     */
+    public $updated;
+
+    /**
      * @var \Lemon\RestBundle\Tests\Fixtures\Person
      * @ORM\OneToOne(targetEntity="Lemon\RestBundle\Tests\Fixtures\Person", cascade={"all"})
      */
