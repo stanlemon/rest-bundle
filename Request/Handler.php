@@ -106,12 +106,4 @@ class Handler
 
         return $response;
     }
-
-    protected function forceId($id, $object)
-    {
-        $reflection = new \ReflectionObject($object);
-        $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
-        $property->setValue($object, $id);
-    }
 }

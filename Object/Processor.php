@@ -73,11 +73,7 @@ class Processor
 
                     foreach ($original as $v) {
                         $exists = function ($key, $element) use ($v) {
-                            $reflection = new \ReflectionObject($v);
-                            $property = $reflection->getProperty('id');
-                            $property->setAccessible(true);
-
-                            return $property->getValue($v) == $property->getValue($element);
+                            return IdHelper::getId($v) == IdHelper::getId($element);
                         };
                         if ($value && $value != $object && !$value->exists($exists)) {
                             $em->remove($v);

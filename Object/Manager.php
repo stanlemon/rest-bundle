@@ -111,7 +111,7 @@ class Manager
     {
         $em = $this->getManager();
 
-        $original = $this->retrieve($this->getIdFromObject($object));
+        $original = $this->retrieve(IdHelper::getId($object));
 
         $this->eventDispatcher->dispatch(RestEvents::PRE_UPDATE, new ObjectEvent($object, $original));
 
@@ -138,13 +138,5 @@ class Manager
         $em->flush();
 
         $this->eventDispatcher->dispatch(RestEvents::POST_DELETE, new ObjectEvent($object));
-    }
-
-    protected function getIdFromObject($object)
-    {
-        $reflection = new \ReflectionObject($object);
-        $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
-        return $property->getValue($object);
     }
 }
