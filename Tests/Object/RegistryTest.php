@@ -42,4 +42,15 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $registry = new Registry();
         $registry->addClass('foo', '\foo\bar');
     }
+
+    /**
+     * @covers ::getClass()
+     */
+    public function testGetClassNotInRegistry()
+    {
+        $this->setExpectedException('\InvalidArgumentException');
+
+        $registry = new Registry();
+        $registry->getClass('\foo\bar');
+    }
 }

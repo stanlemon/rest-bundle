@@ -21,7 +21,7 @@ class ManagerFactory
     }
 
     /**
-     * @param $resource
+     * @param string $resource
      * @return Manager
      */
     public function create($resource)

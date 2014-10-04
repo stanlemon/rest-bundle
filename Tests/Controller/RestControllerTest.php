@@ -60,12 +60,12 @@ class RestControllerTest extends WebTestCase
      * @param string|null $content
      * @return Request
      */
-    protected function makeRequest($method, $uri, $content = null)
+    protected function makeRequest($method, $uri, $content = null, $parameters = array())
     {
         $request = Request::create(
             $uri,
             $method,
-            $parameters = array(),
+            $parameters,
             $cookies = array(),
             $files = array(),
             $server = array(
@@ -74,6 +74,52 @@ class RestControllerTest extends WebTestCase
             $content
         );
         return $request;
+    }
+
+    public function testListAction()
+    {
+        $controller = $this->container->get('lemon_rest.controller');
+
+        $person1 = new Person();
+        $person1->name = "Stan Lemon";
+
+        $person2 = new Person();
+        $person2->name = "Sara Lemon";
+
+        $person3 = new Person();
+        $person3->name = "Lucy Lemon";
+
+        $person4 = new Person();
+        $person4->name = "Evelyn Lemon";
+
+        $person5 = new Person();
+        $person5->name = "Henry Lemon";
+
+        $this->em->persist($person1);
+        $this->em->persist($person2);
+        $this->em->persist($person3);
+        $this->em->persist($person4);
+        $this->em->persist($person5);
+        $this->em->flush();
+        $this->em->clear();
+
+        $parameters = array(
+            'offset' => 1,
+            'limit' => 3,
+            'orderBy' => 'name'
+        );
+
+        $request = $this->makeRequest('GET', '/person', null, $parameters);
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $controller->listAction($request, 'person');
+
+        $data = json_decode($response->getContent());
+
+        $this->assertCount(3, $data->results);
+        $this->assertEquals($person5->id, $data->results[0]->id);
+        $this->assertEquals($person3->id, $data->results[1]->id);
+        $this->assertEquals($person2->id, $data->results[2]->id);
     }
 
     public function testGetAction()
@@ -100,6 +146,25 @@ class RestControllerTest extends WebTestCase
         $this->assertEquals($person->id, $data->id);
         $this->assertEquals($person->name, $data->name);
         $this->assertEquals($person->ssn, $data->ssn, "Our read-only property is still readable");
+    }
+
+    public function testGetActionForNonExistentObject()
+    {
+        $controller = $this->container->get('lemon_rest.controller');
+
+        $id = mt_rand(1,100);
+
+        $request = $this->makeRequest('GET', '/person/' . $id);
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $controller->getAction($request, 'person', $id);
+
+        $data = json_decode($response->getContent());
+
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertObjectHasAttribute('code', $data);
+        $this->assertObjectHasAttribute('message', $data);
+        $this->assertEquals(404, $data->code);
     }
 
     public function testPostAction()

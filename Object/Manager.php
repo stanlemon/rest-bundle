@@ -3,6 +3,8 @@ namespace Lemon\RestBundle\Object;
 
 use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
 use Lemon\RestBundle\Event\ObjectEvent;
+use Lemon\RestBundle\Event\PostSearchEvent;
+use Lemon\RestBundle\Event\PreSearchEvent;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Model\SearchResults;
 use Lemon\RestBundle\Object\Criteria;
@@ -30,6 +32,9 @@ class Manager
         $this->class = $class;
     }
 
+    /**
+     * @return string
+     */
     public function getClass()
     {
         return $this->class;
@@ -58,32 +63,26 @@ class Manager
      */
     public function search(Criteria $criteria)
     {
-        $orderBy = null;
-        $limit = 25;
-        $offset = 0;
+        $this->eventDispatcher->dispatch(RestEvents::PRE_SEARCH, new PreSearchEvent($criteria));
 
-        foreach ($criteria as $key => $value) {
-            switch ($key) {
-                case 'orderBy':
-                    $orderBy = $value;
-                    $criteria->remove($key);
-                    break;
-                case 'limit':
-                    $limit = (int) $value;
-                    $criteria->remove($key);
-                    break;
-                case 'offset':
-                    $offset = (int) $value;
-                    $criteria->remove($key);
-            }
-        }
-
-        $objects = $this->getRepository()->findBy($criteria->toArray(), $orderBy, $limit, $offset);
+        $objects = $this->getRepository()->findBy(
+            $criteria->toArray(),
+            $criteria->getOrderBy(),
+            $criteria->getLimit(),
+            $criteria->getOffset()
+        );
 
         $results = new SearchResults($objects);
+
+        $this->eventDispatcher->dispatch(RestEvents::POST_SEARCH, new PostSearchEvent($results));
+
         return $results;
     }
 
+    /**
+     * @param object $object
+     * @return mixed
+     */
     public function create($object)
     {
         $em = $this->getManager();
@@ -99,6 +98,10 @@ class Manager
         return $object;
     }
 
+    /**
+     * @param integer $id
+     * @return object
+     */
     public function retrieve($id)
     {
         if (!($object = $this->getRepository()->findOneBy(array('id' => $id)))) {
@@ -107,6 +110,10 @@ class Manager
         return $object;
     }
 
+    /**
+     * @param object $object
+     * @return object
+     */
     public function update($object)
     {
         $em = $this->getManager();
@@ -126,6 +133,9 @@ class Manager
         return $object;
     }
 
+    /**
+     * @param integer $id
+     */
     public function delete($id)
     {
         $object = $this->retrieve($id);

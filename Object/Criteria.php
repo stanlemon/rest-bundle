@@ -5,15 +5,59 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class Criteria extends ArrayCollection
 {
-    protected $class;
+    protected $orderBy = null;
+    protected $limit = 25;
+    protected $offset = 0;
 
-    public function setClass($class)
+    /**
+     * @param array $elements
+     */
+    public function __construct(array $elements = array())
     {
-        $this->class = $class;
+        foreach ($elements as $key => $value) {
+            switch ($key) {
+                case 'orderBy':
+                    $this->orderBy = $value;
+                    unset($elements[$key]);
+                    break;
+                case 'limit':
+                    $this->limit = (int) $value;
+                    unset($elements[$key]);
+                    break;
+                case 'offset':
+                    $this->offset = (int) $value;
+                    unset($elements[$key]);
+            }
+        }
+
+        parent::__construct($elements);
     }
 
-    public function getClass()
+    /**
+     * @return int
+     */
+    public function getLimit()
     {
-        return $this->class;
+        return $this->limit;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOffset()
+    {
+        return $this->offset;
+    }
+
+    /**
+     * @return null
+     */
+    public function getOrderBy()
+    {
+        if ($this->orderBy) {
+            return array($this->orderBy => 'ASC');
+        } else {
+            return null;
+        }
     }
 }

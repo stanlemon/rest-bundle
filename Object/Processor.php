@@ -2,7 +2,6 @@
 namespace Lemon\RestBundle\Object;
 
 use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
-use Doctrine\Common\Util\Debug;
 use Doctrine\ORM\UnitOfWork;
 use Metadata\MetadataFactory;
 
