@@ -8,21 +8,35 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RestController
 {
+    /**
+     * @var Handler
+     */
     protected $handler;
+    /**
+     * @var Response
+     */
+    protected $response;
 
+    /**
+     * @param Handler $handler
+     */
     public function __construct(
         Handler $handler
     ) {
         $this->handler = $handler;
+        $this->response = new Response();
     }
 
+    /**
+     * @param Request $request
+     * @param string $resource
+     * @return Response
+     */
     public function listAction(Request $request, $resource)
     {
-        $response = new Response();
-
         return $this->handler->handle(
             $request,
-            $response,
+            $this->response,
             $resource,
             function ($manager) use ($request) {
                 $criteria = new Criteria($request->query->all());
@@ -32,13 +46,17 @@ class RestController
         );
     }
 
+    /**
+     * @param Request $request
+     * @param string $resource
+     * @param int $id
+     * @return Response
+     */
     public function getAction(Request $request, $resource, $id)
     {
-        $response = new Response();
-
         return $this->handler->handle(
             $request,
-            $response,
+            $this->response,
             $resource,
             function ($manager) use ($id) {
                 return $manager->retrieve($id);
@@ -46,13 +64,16 @@ class RestController
         );
     }
 
+    /**
+     * @param Request $request
+     * @param string $resource
+     * @return Response
+     */
     public function postAction(Request $request, $resource)
     {
-        $response = new Response();
-
         return $this->handler->handle(
             $request,
-            $response,
+            $this->response,
             $resource,
             function ($manager, $object) {
                 return $manager->create($object);
@@ -60,13 +81,17 @@ class RestController
         );
     }
 
+    /**
+     * @param Request $request
+     * @param string $resource
+     * @param int $id
+     * @return Response
+     */
     public function putAction(Request $request, $resource, $id)
     {
-        $response = new Response();
-
         return $this->handler->handle(
             $request,
-            $response,
+            $this->response,
             $resource,
             function ($manager, $object) use ($id) {
                 $reflection = new \ReflectionObject($object);
@@ -81,13 +106,19 @@ class RestController
         );
     }
 
+    /**
+     * @param Request $request
+     * @param string $resource
+     * @param int $id
+     * @return Response
+     */
     public function deleteAction(Request $request, $resource, $id)
     {
-        $response = new Response();
+        $response = $this->response;
 
         return $this->handler->handle(
             $request,
-            $response,
+            $this->response,
             $resource,
             function ($manager) use ($response, $id) {
                 $response->setStatusCode(204);
