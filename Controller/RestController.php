@@ -2,6 +2,7 @@
 namespace Lemon\RestBundle\Controller;
 
 use Lemon\RestBundle\Object\Criteria;
+use Lemon\RestBundle\Object\Manager;
 use Lemon\RestBundle\Request\Handler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +39,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function ($manager) use ($request) {
+            function (Manager $manager) use ($request) {
                 $criteria = new Criteria($request->query->all());
 
                 return $manager->search($criteria);
@@ -58,7 +59,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function ($manager) use ($id) {
+            function (Manager $manager) use ($id) {
                 return $manager->retrieve($id);
             }
         );
@@ -75,7 +76,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function ($manager, $object) {
+            function (Manager $manager, $object) {
                 return $manager->create($object);
             }
         );
@@ -93,7 +94,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function ($manager, $object) use ($id) {
+            function (Manager $manager, $object) use ($id) {
                 $reflection = new \ReflectionObject($object);
                 $property = $reflection->getProperty('id');
                 $property->setAccessible(true);
@@ -120,7 +121,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function ($manager) use ($response, $id) {
+            function (Manager $manager) use ($response, $id) {
                 $response->setStatusCode(204);
 
                 $manager->delete($id);
