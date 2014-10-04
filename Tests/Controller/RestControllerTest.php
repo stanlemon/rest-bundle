@@ -832,14 +832,11 @@ class RestControllerTest extends WebTestCase
         $this->assertEquals($person->name, $refresh->name);
         $this->assertNull($refresh->mother);
 
-        // TODO: Determine if we should remove more than the association in this scenario
-        /**
         $refreshMother = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $mother->id
         ));
 
-        $this->assertNull($refreshMother);
-        **/
+        $this->assertNotNull($refreshMother, "We removed the relationship, but not the entity");
     }
 
     public function testPostActionWithInvalidAttribute()
