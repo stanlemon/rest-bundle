@@ -20,7 +20,8 @@
         "willdurand/negotiation": ">=1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.2"
+        "phpunit/phpunit": "~4.2",
+        "ptrofimov/xpmock": "~1.1"
     },
     "autoload": {
         "psr-4": {

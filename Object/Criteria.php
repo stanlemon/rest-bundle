@@ -5,9 +5,21 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class Criteria extends ArrayCollection
 {
+    const DEFAULT_LIMIT = 25;
+    const DEFAULT_OFFSET = 0;
+
+    const ORDER_BY = "_orderBy";
+    const ORDER_DIR = "_orderDir";
+    const LIMIT = "_limit";
+    const OFFSET = "_offset";
+
+    const ORDER_DIR_ASC = 'ASC';
+    const ORDER_DIR_DESC = 'DESC';
+
     protected $orderBy = null;
-    protected $limit = 25;
-    protected $offset = 0;
+    protected $orderDir = self::ORDER_DIR_ASC;
+    protected $limit = self::DEFAULT_LIMIT;
+    protected $offset = self::DEFAULT_OFFSET;
 
     /**
      * @param array $elements
@@ -16,17 +28,22 @@ class Criteria extends ArrayCollection
     {
         foreach ($elements as $key => $value) {
             switch ($key) {
-                case 'orderBy':
+                case self::ORDER_BY:
                     $this->orderBy = $value;
                     unset($elements[$key]);
                     break;
-                case 'limit':
+                case self::ORDER_DIR:
+                    $this->orderDir = $value == self::ORDER_DIR_ASC ?: self::ORDER_DIR_DESC;
+                    unset($elements[$key]);
+                    break;
+                case self::LIMIT:
                     $this->limit = (int) $value;
                     unset($elements[$key]);
                     break;
-                case 'offset':
+                case self::OFFSET:
                     $this->offset = (int) $value;
                     unset($elements[$key]);
+                    break;
             }
         }
 
@@ -55,7 +72,7 @@ class Criteria extends ArrayCollection
     public function getOrderBy()
     {
         if ($this->orderBy) {
-            return array($this->orderBy => 'ASC');
+            return array($this->orderBy => $this->orderDir);
         } else {
             return null;
         }

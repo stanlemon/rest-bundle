@@ -3,6 +3,7 @@
 namespace Lemon\RestBundle\Tests\Controller;
 
 use Doctrine\ORM\AbstractQuery;
+use Lemon\RestBundle\Object\Criteria;
 use Lemon\RestBundle\Tests\Fixtures\Car;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -104,9 +105,9 @@ class RestControllerTest extends WebTestCase
         $this->em->clear();
 
         $parameters = array(
-            'offset' => 1,
-            'limit' => 3,
-            'orderBy' => 'name'
+            Criteria::OFFSET => 1,
+            Criteria::LIMIT => 3,
+            Criteria::ORDER_BY => 'name'
         );
 
         $request = $this->makeRequest('GET', '/person', null, $parameters);
