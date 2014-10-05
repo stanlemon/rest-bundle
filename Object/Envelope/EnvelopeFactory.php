@@ -4,12 +4,12 @@ namespace Lemon\RestBundle\Object\Envelope;
 class EnvelopeFactory
 {
     /**
-     * @var \Lemon\RestBundle\Object\Envelope
+     * @var string
      */
     protected $envelope;
 
     /**
-     * @param \Lemon\RestBundle\Object\Envelope $envelope
+     * @param string $envelope
      */
     public function __construct($envelope)
     {
