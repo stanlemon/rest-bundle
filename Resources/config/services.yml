@@ -8,6 +8,7 @@ services:
         class: Lemon\RestBundle\Request\Handler
         arguments:
             - @lemon_rest.object_manager_factory
+            - @lemon_rest.object_envelope_factory
             - @jms_serializer
             - @lemon_rest.format_negotiator
             - @logger
@@ -55,3 +56,8 @@ services:
 
     lemon_rest.object_registry:
         class: Lemon\RestBundle\Object\Registry
+
+    lemon_rest.object_envelope_factory:
+        class: Lemon\RestBundle\Object\Envelope\EnvelopeFactory
+        arguments:
+            - %lemon_rest_object_envelope_class%

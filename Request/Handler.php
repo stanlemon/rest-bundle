@@ -5,6 +5,7 @@ namespace Lemon\RestBundle\Request;
 use Lemon\RestBundle\Object\Exception\InvalidException;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
 use Lemon\RestBundle\Object\ManagerFactory;
+use Lemon\RestBundle\Object\Envelope\EnvelopeFactory;;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,10 @@ class Handler
      * @var \Lemon\RestBundle\Object\ManagerFactory
      */
     protected $managerFactory;
+    /**
+     * @var \Lemon\RestBundle\Object\Envelope\EnvelopeFactory
+     */
+    protected $envelopeFactory;
     /**
      * @var \JMS\Serializer\SerializerInterface
      */
@@ -35,11 +40,13 @@ class Handler
 
     public function __construct(
         ManagerFactory $managerFactory,
+        EnvelopeFactory $envelopeFactory,
         SerializerInterface $serializer,
         FormatNegotiatorInterface $negotiator,
         LoggerInterface $logger
     ) {
         $this->managerFactory = $managerFactory;
+        $this->envelopeFactory = $envelopeFactory;
         $this->serializer = $serializer;
         $this->negotiator = $negotiator;
         $this->logger = $logger;
@@ -70,7 +77,9 @@ class Handler
                 $format
             );
 
-            $data = $callback($manager, $object);
+            $data = $this->envelopeFactory->create(
+                $callback($manager, $object)
+            )->export();
         } catch (InvalidException $e) {
             $response->setStatusCode(400);
             $data = array(
