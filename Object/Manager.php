@@ -7,7 +7,6 @@ use Lemon\RestBundle\Event\PostSearchEvent;
 use Lemon\RestBundle\Event\PreSearchEvent;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Model\SearchResults;
-use Lemon\RestBundle\Object\Criteria;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 

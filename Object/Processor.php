@@ -40,24 +40,27 @@ class Processor
         $class = get_class($object);
         $reflection = new \ReflectionClass($class);
         $em = $this->doctrine->getManagerForClass($class);
+
         /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
         $metadata = $em->getMetadataFactory()->getMetadataFor($class);
 
         // Look for relationships, compare against preloaded entity
         foreach ($metadata->getAssociationMappings() as $association) {
+            $property = $reflection->getProperty($association['fieldName']);
+            $property->setAccessible(true);
+
+            $value = $property->getValue($object);
+
+            if (!$value) {
+                continue;
+            }
+
             if (in_array($association['type'], array(4, 8))) {
-                $property = $reflection->getProperty($association['fieldName']);
-                $property->setAccessible(true);
-
-                $value = $property->getValue($object);
-
-                if (!$value) {
-                    continue;
-                }
-
                 foreach ($value as $v) {
-                    IdHelper::setId($v, null);
+                    $this->processIds($v);
                 }
+            } else {
+                $this->processIds($value);
             }
         }
     }
@@ -89,14 +92,21 @@ class Processor
             }
 
             if (in_array($association['type'], array(4, 8))) {
-                foreach ($value as $v) {
+                foreach ($value as $k => $v) {
                     // If the parent object is new, or if the relation has already been persisted
                     // set the mappedBy to the current object so that ids fill in properly
-                    if ($this->isNew($object)) {
+                    if ($this->isNew($object) && isset($association['mappedBy'])) {
                         $ref = new \ReflectionObject($v);
                         $prop = $ref->getProperty($association['mappedBy']);
                         $prop->setAccessible(true);
                         $prop->setValue($v, $object);
+                    }
+
+                    $vid = IdHelper::getId($v);
+
+                    // If we have an object that already exists, merge it before we persist
+                    if ($vid !== null) {
+                        $value[$k] = $em->merge($v);
                     }
                 }
 
@@ -111,8 +121,6 @@ class Processor
                         $exists = $value->exists($checkIfExists);
                         if ($value && $value != $object && !$exists) {
                             $em->remove($v);
-                        } elseif ($exists) {
-                            $this->processRelationships($value, $v);
                         }
                     }
                 }

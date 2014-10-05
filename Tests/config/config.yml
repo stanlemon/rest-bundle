@@ -10,6 +10,16 @@ framework:
     router:
         resource: "%kernel.root_dir%/config/routing.yml"
 
+monolog:
+    channels: [commandline]
+    handlers:
+        stdout:
+            type:  stream
+            path:  "php://stdout"
+            level: debug
+            channels: app
+            formatter: monolog_line_formatter
+
 doctrine:
     dbal:
         default_connection: default
@@ -29,3 +39,8 @@ doctrine:
                         type: annotation
                         prefix: Lemon\RestBundle\Tests\Fixtures\
                         dir: %kernel.root_dir%/Fixtures/
+
+services:
+    monolog_line_formatter:
+        class: Monolog\Formatter\LineFormatter
+        arguments: [null, null, true, false]

@@ -91,7 +91,7 @@ class Handler
                 "message" => $e->getMessage(),
             );
         } catch (\Exception $e) {
-            $this->logger->critical(get_class($e) . ": " . $e->getMessage() . " " . $e->getTraceAsString());
+            $this->logger->critical($e);
 
             $response->setStatusCode(500);
             $data = array(

@@ -59,8 +59,23 @@ class Person
      */
     public $cars;
 
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection|\Lemon\RestBundle\Tests\Fixtures\Tag[]
+     * @ORM\ManyToMany(targetEntity="Lemon\RestBundle\Tests\Fixtures\Tag", cascade={"all"})
+     * @ORM\JoinTable(name="Person_Tag",
+     *     joinColumns={
+     *          @ORM\JoinColumn(name="person_id", referencedColumnName="id")
+     *     },
+     *     inverseJoinColumns={
+     *          @ORM\JoinColumn(name="tag_id", referencedColumnName="id", unique=true)
+     *     }
+     * )
+     */
+    public $tags;
+
     public function __construct()
     {
         $this->cars = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 }

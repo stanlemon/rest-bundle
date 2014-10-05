@@ -5,6 +5,7 @@ namespace Lemon\RestBundle\Tests\Controller;
 use Doctrine\ORM\AbstractQuery;
 use Lemon\RestBundle\Object\Criteria;
 use Lemon\RestBundle\Tests\Fixtures\Car;
+use Lemon\RestBundle\Tests\Fixtures\Tag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -308,6 +309,13 @@ class RestControllerTest extends WebTestCase
     {
         $controller = $this->container->get('lemon_rest.controller');
 
+        $tag = new Tag();
+        $tag->name = 'baz';
+
+        $this->em->persist($tag);
+        $this->em->flush($tag);
+        $this->em->clear();
+
         $request = $this->makeRequest(
             'POST',
             '/person',
@@ -318,6 +326,11 @@ class RestControllerTest extends WebTestCase
                         'name' => 'Honda',
                         'year' => 2006,
                     )
+                ),
+                'tags' => array(
+                    array('name' => 'foo'),
+                    array('name' => 'bar'),
+                    array('id' => $tag->id, 'name' => 'baz'),
                 )
             ))
         );
@@ -340,6 +353,17 @@ class RestControllerTest extends WebTestCase
         $this->assertCount(1, $refresh->cars);
         $this->assertEquals("Honda", $refresh->cars[0]->name);
         $this->assertEquals(2006, $refresh->cars[0]->year);
+        $this->assertCount(3, $refresh->tags);
+
+        $foundExisting = false;
+
+        foreach ($refresh->tags as $t) {
+            if ($t->id == $tag->id) {
+                $foundExisting = true;
+            }
+        }
+
+        $this->assertTrue($foundExisting, "Found existing tag on refreshed entity");
     }
 
     public function testPostActionWithNestedCollectionAndId0()
@@ -427,9 +451,13 @@ class RestControllerTest extends WebTestCase
         $car->name = 'Honda';
         $car->year = 2006;
 
+        $tag = new Tag();
+        $tag->name = 'foo';
+
         $person = new Person();
         $person->name = "Stan Lemon";
         $person->cars[] = $car;
+        $person->tags[] = $tag;
 
         $this->em->persist($person);
         $this->em->flush($person);
@@ -446,6 +474,15 @@ class RestControllerTest extends WebTestCase
                         'name' => "Honda Odyssey",
                         'year' => 2006
                     )
+                ),
+                'tags' => array(
+                    array(
+                        'id' => $tag->id,
+                        'name' => $tag->name,
+                    ),
+                    array(
+                        'name' => 'bar',
+                    ),
                 )
             ))
         );
@@ -465,6 +502,9 @@ class RestControllerTest extends WebTestCase
         $this->assertCount(1, $refresh->cars);
         $this->assertEquals("Honda Odyssey", $refresh->cars[0]->name);
         $this->assertEquals(2006, $refresh->cars[0]->year);
+        $this->assertCount(2, $refresh->tags);
+        $this->assertEquals($tag->id, $refresh->tags[0]->id);
+        $this->assertEquals($tag->name, $refresh->tags[0]->name);
     }
 
     public function testPutActionWithNestedCollectionAndExistingItemAndNewItem()
@@ -569,8 +609,16 @@ class RestControllerTest extends WebTestCase
     {
         $controller = $this->container->get('lemon_rest.controller');
 
+        $tag1 = new Tag();
+        $tag1->name = 'foo';
+
+        $tag2 = new Tag();
+        $tag2->name = 'bar';
+
         $person = new Person();
         $person->name = "Stan Lemon";
+        $person->tags[] = $tag1;
+        $person->tags[] = $tag2;
 
         $car1 = new Car();
         $car1->name = 'Honda';
@@ -609,6 +657,12 @@ class RestControllerTest extends WebTestCase
                         'name' => "Honda Odyssey",
                         'year' => 2006,
                     )
+                ),
+                'tags' => array(
+                    array(
+                        'id' => $tag2->id,
+                        'name' => $tag2->name
+                    )
                 )
             ))
         );
@@ -628,6 +682,9 @@ class RestControllerTest extends WebTestCase
         $this->assertCount(1, $refresh->cars);
         $this->assertEquals("Honda Odyssey", $refresh->cars[0]->name);
         $this->assertEquals(2006, $refresh->cars[0]->year);
+        $this->assertCount(1, $refresh->tags);
+        $this->assertEquals($tag2->id, $refresh->tags[0]->id);
+        $this->assertEquals($tag2->name, $refresh->tags[0]->name);
     }
 
     public function testPutActionWithNestedCollectionAndRemoveAllExistingItems()
