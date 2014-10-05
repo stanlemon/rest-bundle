@@ -3,6 +3,7 @@
 namespace Lemon\RestBundle\Tests\Controller;
 
 use Doctrine\ORM\AbstractQuery;
+use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Object\Criteria;
 use Lemon\RestBundle\Tests\Fixtures\Car;
 use Lemon\RestBundle\Tests\Fixtures\Tag;
@@ -951,5 +952,57 @@ class RestControllerTest extends WebTestCase
 
         $this->assertNotNull($refresh);
         $this->assertEquals($person->name, $refresh->name);
+    }
+
+    public function test500()
+    {
+        /** @var \Symfony\Component\EventDispatcher\EventDispatcher$eventDispatcher */
+        $eventDispatcher = $this->container->get('lemon_rest.event_dispatcher');
+        $eventDispatcher->addListener(RestEvents::PRE_CREATE, function(){
+            throw new \RuntimeException("Proceed no further!");
+        });
+
+        $controller = $this->container->get('lemon_rest.controller');
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person',
+            json_encode(array('name' => 'Stan Lemon', 'created' => date('Y-m-d H:i:s')))
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $controller->postAction($request, 'person');
+
+        $this->assertEquals(500, $response->getStatusCode());
+
+        $data = json_decode($response->getContent());
+
+        $this->assertEquals("Proceed no further!", $data->message);
+    }
+
+    public function testHttpException()
+    {
+        /** @var \Symfony\Component\EventDispatcher\EventDispatcher$eventDispatcher */
+        $eventDispatcher = $this->container->get('lemon_rest.event_dispatcher');
+        $eventDispatcher->addListener(RestEvents::PRE_CREATE, function(){
+            throw new \Symfony\Component\HttpKernel\Exception\BadRequestHttpException("Bad Request");
+        });
+
+        $controller = $this->container->get('lemon_rest.controller');
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person',
+            json_encode(array('name' => 'Stan Lemon', 'created' => date('Y-m-d H:i:s')))
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $controller->postAction($request, 'person');
+
+        $this->assertEquals(400, $response->getStatusCode());
+
+        $data = json_decode($response->getContent());
+
+        $this->assertEquals("Bad Request", $data->message);
     }
 }
