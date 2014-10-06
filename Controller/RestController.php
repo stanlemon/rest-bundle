@@ -35,14 +35,20 @@ class RestController
      */
     public function listAction(Request $request, $resource)
     {
+        $response = $this->response;
+
         return $this->handler->handle(
             $request,
             $this->response,
             $resource,
-            function (Manager $manager) use ($request) {
+            function (Manager $manager) use ($response, $request) {
                 $criteria = new Criteria($request->query->all());
 
-                return $manager->search($criteria);
+                $results = $manager->search($criteria);
+
+                $response->headers->set('X-Total-Count', $results->getTotal());
+
+                return $results;
             }
         );
     }
