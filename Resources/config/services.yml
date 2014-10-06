@@ -61,3 +61,10 @@ services:
         class: Lemon\RestBundle\Object\Envelope\EnvelopeFactory
         arguments:
             - %lemon_rest_object_envelope_class%
+
+    lemon_rest.serializer.id_collection.handler:
+        class: Lemon\RestBundle\Serializer\IdCollectionHandler
+        arguments:
+            - @doctrine
+        tags:
+            - { name: jms_serializer.subscribing_handler }

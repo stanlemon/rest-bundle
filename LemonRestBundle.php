@@ -2,6 +2,7 @@
 
 namespace Lemon\RestBundle;
 
+use Lemon\RestBundle\DependencyInjection\Compiler\RegisterMappingsPass;
 use Lemon\RestBundle\DependencyInjection\Compiler\RegisterResourcePass;
 use Lemon\RestBundle\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -15,6 +16,7 @@ class LemonRestBundle extends Bundle
         parent::build($container);
 
         $container->addCompilerPass(new RegisterResourcePass());
+        $container->addCompilerPass(new RegisterMappingsPass());
         $container->addCompilerPass(new RegisterListenersPass(
             'lemon_rest.event_dispatcher',
             'lemon_rest.event_listener',

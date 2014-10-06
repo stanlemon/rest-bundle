@@ -19,6 +19,13 @@ Documentation is stored in the `Resources/doc/index.md` file in this bundle:
 
 * [Read the documentation](Resources/doc/index.md)
 
+Demo
+-------------
+
+A demo application is available at https://github.com/stanlemon/rest-demo-app
+
+You can also try it yourself online at http://restdemo-stanlemon.rhcloud.com
+
 Installation
 ------------
 

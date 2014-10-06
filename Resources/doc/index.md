@@ -42,7 +42,7 @@ Setting up the bundle
 Adding support for your Doctrine entities
 =====================
 
-There are currently two ways you can add entities to be used as REST resources.
+There are currently three ways you can add entities to be used as REST resources.
 
   1. Use the annotation
 
@@ -80,6 +80,15 @@ There are currently two ways you can add entities to be used as REST resources.
   
         $objectRegistry->addClass('person', 'Lemon\TestBundle\Entity\Person');
 
+  3. Add explicit configuration to your app
+   
+        lemon_rest:
+            mappings:
+                - { name: post, class: Lemon\RestDemoBundle\Entity\Post }
+                - { name: comment, class: Lemon\RestDemoBundle\Entity\Comment }
+                - { name: tag, class: Lemon\RestDemoBundle\Entity\Tag }
+
+    The 'name' refers to the resource, specifically the portion of the endpoint uri that refers to the object. The 'class' should be the fully qualified namespace path of the Doctrine Entity you wish to add to the object registry.
 
 Running the tests
 =====================
@@ -118,3 +127,35 @@ The REST bundle uses the [Symfony Validation](http://symfony.com/doc/current/boo
              */
             public $name;
         }
+
+Events
+=====================
+
+There are several points at which you can tie into the bundle, the following events are available using the event dispatcher
+
+    - lemon_rest.event.pre_search
+    - lemon_rest.event.post_search
+    - lemon_rest.event.pre_create
+    - lemon_rest.event.post_create
+    - lemon_rest.event.pre_retrieve
+    - lemon_rest.event.post_retrieve
+    - lemon_rest.event.pre_update
+    - lemon_rest.event.post_update
+    - lemon_rest.event.pre_delete
+    - lemon_rest.event.post_delete
+
+You can register event listeners and subscribers simply by tagging your service definitions
+
+    lemon_rest.event_listener
+    lemon_rest.event_subscriber
+
+Envelopes
+=====================
+
+The bundle uses an _Envelope_ object to return the final payload to the serializer. This envelope can be customized so long as it implements the _Lemon\RestBundle\Object\Envelope_ interface.  A default envelope is provided, as well as an envelope that flattens the search results output, this is particularly helpful when using a framework like Restangular. Envelopes are a good way to customize the bundle's output to cater to the needs of your particular consuming client.
+
+To switch to the _FlattenedEnvelope_ (or any custom envelope of your choosing) you would add the following in your app config
+
+    lemon_rest:
+        envelope: Lemon\RestBundle\Object\Envelope\FlattenedEnvelope
+

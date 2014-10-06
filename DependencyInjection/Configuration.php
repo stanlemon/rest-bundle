@@ -16,6 +16,13 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('envelope')
                     ->defaultValue('Lemon\RestBundle\Object\Envelope\DefaultEnvelope')
                     ->end()
+                ->arrayNode('mappings')
+                    ->prototype('array')
+                        ->children()
+                            ->scalarNode('name')->end()
+                            ->scalarNode('class')->end()
+                        ->end()
+                    ->end()
                 ->end()
             ->end()
         ;
