@@ -73,20 +73,32 @@ class Manager
 
         foreach ($criteria as $key => $value) {
             if ($metadata->hasField($key)) {
-                $qb->andWhere($key . ' = ?' . $key);
-                $qb->setParameter($key, $value);
+                if ($metadata->getTypeOfField($key) == 'string') {
+                    $qb->andWhere('o.' . $key . ' LIKE :' . $key);
+                    $qb->setParameter($key, '%' . $value . '%');
+                } else {
+                    $qb->andWhere('o.' . $key . ' = :' . $key);
+                    $qb->setParameter($key, $value);
+                }
             } // Should we throw an Exception here?
         }
         $query = $qb->getQuery();
 
         $total = $query->getSingleScalarResult();
 
-        $objects = $this->getRepository()->findBy(
-            $criteria->toArray(),
-            $criteria->getOrderBy(),
-            $criteria->getLimit(),
-            $criteria->getOffset()
-        );
+        $qb->select('o')
+            ->setFirstResult( $criteria->getOffset() )
+            ->setMaxResults( $criteria->getLimit() );
+
+        if ($criteria->getOrderBy()) {
+            $orderBy = $criteria->getOrderBy();
+
+            $qb->orderBy('o.' . key($orderBy), $orderBy[key($orderBy)]);
+        }
+
+        $query = $qb->getQuery();
+
+        $objects = $query->execute();
 
         $results = new SearchResults($objects, $total);
 
