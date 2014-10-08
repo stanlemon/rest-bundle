@@ -63,13 +63,13 @@ class IdCollectionHandler implements SubscribingHandlerInterface
             array(
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
-                'type' => 'Lemon\RestDemoBundle\Serializer\IdCollection',
+                'type' => 'Lemon\RestBundle\Serializer\IdCollection',
                 'method' => 'serializeIdCollectionToJson',
             ),
             array(
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
-                'type' => 'Lemon\RestDemoBundle\Serializer\IdCollection',
+                'type' => 'Lemon\RestBundle\Serializer\IdCollection',
                 'method' => 'deserializeIdCollectionFromJson',
             ),
         );
