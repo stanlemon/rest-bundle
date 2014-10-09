@@ -2,6 +2,7 @@
 namespace Lemon\RestBundle\Tests\Fixtures;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Table()
@@ -31,4 +32,10 @@ class Car
      * @ORM\JoinColumn(name="person_id", referencedColumnName="id")
      */
     public $person;
+
+    /**
+     * @ORM\Column(name="created", type="datetime", nullable=true)
+     * @Serializer\ReadOnly()
+     */
+    public $created;
 }
