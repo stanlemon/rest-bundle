@@ -448,21 +448,32 @@ class RestControllerTest extends WebTestCase
     {
         $controller = $this->container->get('lemon_rest.controller');
 
+        $created = new \DateTime();
+        $created->modify("-1 month");
+
         $car = new Car();
         $car->name = 'Honda';
         $car->year = 2006;
+        $car->created = $created;
 
         $tag = new Tag();
         $tag->name = 'foo';
 
         $person = new Person();
         $person->name = "Stan Lemon";
+
+        $car->person = $person;
+
         $person->cars[] = $car;
         $person->tags[] = $tag;
 
         $this->em->persist($person);
         $this->em->flush($person);
         $this->em->clear();
+
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Car')->findOneBy(array(
+            'id' => $car->id
+        ));
 
         $request = $this->makeRequest(
             'PUT',
@@ -503,6 +514,8 @@ class RestControllerTest extends WebTestCase
         $this->assertCount(1, $refresh->cars);
         $this->assertEquals("Honda Odyssey", $refresh->cars[0]->name);
         $this->assertEquals(2006, $refresh->cars[0]->year);
+        $this->assertNotNull($refresh->cars[0]->created);
+        $this->assertEquals($created->format('U'), $refresh->cars[0]->created->format('U'));
         $this->assertCount(2, $refresh->tags);
         $this->assertEquals($tag->id, $refresh->tags[0]->id);
         $this->assertEquals($tag->name, $refresh->tags[0]->name);

@@ -105,7 +105,7 @@ class Processor
                     $vid = IdHelper::getId($v);
 
                     // If we have an object that already exists, merge it before we persist
-                    if ($vid !== null) {
+                    if ($vid !== null && $this->isNew($object)) {
                         $value[$k] = $em->merge($v);
                     }
                 }
