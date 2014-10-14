@@ -13,7 +13,7 @@ Setting up the bundle
            }
         }
 
- 2. Use Composer to download and install GuzzleBundle:
+ 2. Use Composer to download and install LemonRestBundle:
 
         $ php composer.phar update stanlemon/rest-bundle
 
