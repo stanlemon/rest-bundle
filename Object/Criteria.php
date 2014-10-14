@@ -33,7 +33,7 @@ class Criteria extends ArrayCollection
                     unset($elements[$key]);
                     break;
                 case self::ORDER_DIR:
-                    $this->orderDir = $value == self::ORDER_DIR_ASC ?: self::ORDER_DIR_DESC;
+                    $this->orderDir = ($value == self::ORDER_DIR_ASC ? self::ORDER_DIR_ASC : self::ORDER_DIR_DESC);
                     unset($elements[$key]);
                     break;
                 case self::LIMIT:
