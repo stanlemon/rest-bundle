@@ -14,6 +14,10 @@ class RestController
      */
     protected $handler;
     /**
+     * @var Criteria
+     */
+    protected $criteria;
+    /**
      * @var Response
      */
     protected $response;
@@ -22,9 +26,11 @@ class RestController
      * @param Handler $handler
      */
     public function __construct(
-        Handler $handler
+        Handler $handler,
+        Criteria $criteria
     ) {
         $this->handler = $handler;
+        $this->criteria = $criteria;
         $this->response = new Response();
     }
 
@@ -42,9 +48,9 @@ class RestController
             $this->response,
             $resource,
             function (Manager $manager) use ($response, $request) {
-                $criteria = new Criteria($request->query->all());
-
-                $results = $manager->search($criteria);
+                $this->criteria->init($request->query->all());
+                
+                $results = $manager->search($this->criteria);
 
                 $response->headers->set('X-Total-Count', $results->getTotal());
 

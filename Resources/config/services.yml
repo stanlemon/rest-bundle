@@ -3,6 +3,7 @@ services:
         class: Lemon\RestBundle\Controller\RestController
         arguments:
             - @lemon_rest.handler
+            - @lemon_rest.object_criteria
 
     lemon_rest.handler:
         class: Lemon\RestBundle\Request\Handler
@@ -42,6 +43,7 @@ services:
             - @lemon_rest.object_registry
             - @doctrine
             - @lemon_rest.event_dispatcher
+            - @lemon_rest.object_criteria
 
     lemon_rest.object_processor:
         class: Lemon\RestBundle\Object\Processor
@@ -68,3 +70,9 @@ services:
             - @doctrine
         tags:
             - { name: jms_serializer.subscribing_handler }
+
+    lemon_rest.object_criteria:
+        class: Lemon\RestBundle\Object\Criteria
+        arguments:
+          - %lemon_rest_order_by_keyword%
+          - %lemon_rest_order_dir_keyword%

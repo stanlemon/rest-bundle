@@ -17,6 +17,8 @@ class Extension extends BaseExtension
 
         $container->setParameter('lemon_rest_object_envelope_class', $config['envelope']);
         $container->setParameter('lemon_rest_mappings', $config['mappings']);
+        $container->setParameter('lemon_rest_order_by_keyword', $config['order_by_keyword']);
+        $container->setParameter('lemon_rest_order_dir_keyword', $config['order_dir_keyword']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');

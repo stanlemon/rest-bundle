@@ -7,6 +7,7 @@ use Lemon\RestBundle\Event\PostSearchEvent;
 use Lemon\RestBundle\Event\PreSearchEvent;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Model\SearchResults;
+use Lemon\RestBundle\Object\Criteria;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -15,6 +16,7 @@ class Manager
     protected $doctrine;
     protected $eventDispatcher;
     protected $class;
+    protected $criteria;
 
     /**
      * @param Doctrine $doctrine
@@ -24,11 +26,13 @@ class Manager
     public function __construct(
         Doctrine $doctrine,
         EventDispatcher $eventDispatcher,
+        Criteria $criteria,
         $class
     ) {
         $this->doctrine = $doctrine;
         $this->eventDispatcher = $eventDispatcher;
         $this->class = $class;
+        $this->criteria = $criteria;
     }
 
     /**
@@ -57,12 +61,12 @@ class Manager
     }
 
     /**
-     * @param Criteria $criteria
+     *
      * @return SearchResults
      */
-    public function search(Criteria $criteria)
+    public function search()
     {
-        $this->eventDispatcher->dispatch(RestEvents::PRE_SEARCH, new PreSearchEvent($criteria));
+        $this->eventDispatcher->dispatch(RestEvents::PRE_SEARCH, new PreSearchEvent($this->criteria));
 
         /** @var \Doctrine\ORM\QueryBuilder $qb */
         $qb = $this->getManager()->createQueryBuilder('o');
@@ -71,7 +75,7 @@ class Manager
 
         $metadata = $this->getManager()->getClassMetadata($this->class);
 
-        foreach ($criteria as $key => $value) {
+        foreach ($this->criteria as $key => $value) {
             if ($metadata->hasField($key)) {
                 if ($metadata->getTypeOfField($key) == 'string') {
                     $qb->andWhere('o.' . $key . ' LIKE :' . $key);
@@ -87,11 +91,11 @@ class Manager
         $total = $query->getSingleScalarResult();
 
         $qb->select('o')
-            ->setFirstResult( $criteria->getOffset() )
-            ->setMaxResults( $criteria->getLimit() );
+            ->setFirstResult( $this->criteria->getOffset() )
+            ->setMaxResults( $this->criteria->getLimit() );
 
-        if ($criteria->getOrderBy()) {
-            $orderBy = $criteria->getOrderBy();
+        if ($this->criteria->getOrderBy()) {
+            $orderBy = $this->criteria->getOrderBy();
 
             $qb->orderBy('o.' . key($orderBy), $orderBy[key($orderBy)]);
         }

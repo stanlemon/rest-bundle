@@ -8,14 +8,16 @@ class Criteria extends ArrayCollection
     const DEFAULT_LIMIT = 25;
     const DEFAULT_OFFSET = 0;
 
-    const ORDER_BY = "_orderBy";
-    const ORDER_DIR = "_orderDir";
+    //const ORDER_BY = "_orderBy";
+    //const ORDER_DIR = "_orderDir";
     const LIMIT = "_limit";
     const OFFSET = "_offset";
 
     const ORDER_DIR_ASC = 'ASC';
     const ORDER_DIR_DESC = 'DESC';
 
+    protected $orderByKeyword;
+    protected $orderDirKeyword;
     protected $orderBy = null;
     protected $orderDir = self::ORDER_DIR_ASC;
     protected $limit = self::DEFAULT_LIMIT;
@@ -24,15 +26,20 @@ class Criteria extends ArrayCollection
     /**
      * @param array $elements
      */
-    public function __construct(array $elements = array())
+    public function __construct($orderByKeyword, $orderDirKeyword)
     {
+        $this->orderByKeyword = $orderByKeyword;
+        $this->orderDirKeyword = $orderDirKeyword;
+    }
+
+    public function init(array $elements = array()){
         foreach ($elements as $key => $value) {
             switch ($key) {
-                case self::ORDER_BY:
+                case $this->orderByKeyword:
                     $this->orderBy = $value;
                     unset($elements[$key]);
                     break;
-                case self::ORDER_DIR:
+                case $this->orderDirKeyword:
                     $this->orderDir = ($value == self::ORDER_DIR_ASC ? self::ORDER_DIR_ASC : self::ORDER_DIR_DESC);
                     unset($elements[$key]);
                     break;
@@ -44,10 +51,10 @@ class Criteria extends ArrayCollection
                     $this->offset = (int) $value;
                     unset($elements[$key]);
                     break;
-            }
-        }
+          }
+      }
 
-        parent::__construct($elements);
+      parent::__construct($elements);
     }
 
     /**

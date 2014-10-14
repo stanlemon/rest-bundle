@@ -3,7 +3,7 @@ namespace Lemon\RestBundle\Object;
 
 use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-
+use Lemon\RestBundle\Object\Criteria;
 class ManagerFactory
 {
     protected $registry;
@@ -13,11 +13,13 @@ class ManagerFactory
     public function __construct(
         Registry $registry,
         Doctrine $doctrine,
-        EventDispatcher $eventDispatcher
+        EventDispatcher $eventDispatcher,
+        Criteria $criteria
     ) {
         $this->registry = $registry;
         $this->doctrine = $doctrine;
         $this->eventDispatcher = $eventDispatcher;
+        $this->criteria = $criteria;
     }
 
     /**
@@ -31,6 +33,7 @@ class ManagerFactory
         return new Manager(
             $this->doctrine,
             $this->eventDispatcher,
+            $this->criteria,
             $class
         );
     }
