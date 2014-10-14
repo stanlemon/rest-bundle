@@ -43,4 +43,27 @@ class CriteriaTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(Criteria::DEFAULT_LIMIT, $criteria->getLimit());
         $this->assertEquals(Criteria::DEFAULT_OFFSET, $criteria->getOffset());
     }
+
+    public function testCriteriaOrderDir()
+    {
+        $data = array(
+            Criteria::ORDER_BY => 'foo',
+            Criteria::ORDER_DIR => Criteria::ORDER_DIR_ASC,
+        );
+
+        $criteria = new Criteria($data);
+
+        $this->assertNotNull($criteria->getOrderBy());
+        $this->assertEquals(array('foo' => Criteria::ORDER_DIR_ASC), $criteria->getOrderBy());
+
+        $data = array(
+            Criteria::ORDER_BY => 'foo',
+            Criteria::ORDER_DIR => Criteria::ORDER_DIR_DESC,
+        );
+
+        $criteria = new Criteria($data);
+
+        $this->assertNotNull($criteria->getOrderBy());
+        $this->assertEquals(array('foo' => Criteria::ORDER_DIR_DESC), $criteria->getOrderBy());
+    }
 }
