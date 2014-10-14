@@ -3,6 +3,7 @@ services:
         class: Lemon\RestBundle\Controller\RestController
         arguments:
             - @lemon_rest.handler
+            - @service_container
 
     lemon_rest.handler:
         class: Lemon\RestBundle\Request\Handler

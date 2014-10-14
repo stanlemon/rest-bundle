@@ -161,6 +161,18 @@ class Manager
         return $object;
     }
 
+    public function partialUpdate($object)
+    {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->getManager();
+
+        $em->persist($object);
+        $em->flush();
+        $em->refresh($object);
+
+        return $object;
+    }
+
     /**
      * @param integer $id
      */
