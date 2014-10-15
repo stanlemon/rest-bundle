@@ -38,6 +38,11 @@ class Handler
      */
     protected $logger;
 
+    /**
+     * @var Criteria
+     */
+    protected $criteria;
+
     public function __construct(
         ManagerFactory $managerFactory,
         EnvelopeFactory $envelopeFactory,

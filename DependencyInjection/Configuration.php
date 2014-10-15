@@ -24,6 +24,12 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->scalarNode('order_by_keyword')
+                  ->defaultValue('_orderBy')
+                  ->end()
+                ->scalarNode('order_dir_keyword')
+                  ->defaultValue('_orderDir')
+                  ->end()
             ->end()
         ;
 
