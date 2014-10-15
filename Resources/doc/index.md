@@ -159,3 +159,12 @@ To switch to the _FlattenedEnvelope_ (or any custom envelope of your choosing) y
     lemon_rest:
         envelope: Lemon\RestBundle\Object\Envelope\FlattenedEnvelope
 
+Criteria
+=====================
+
+The bundle uses an _Criteria_ object to manage search criteria that gets passed to the ObjectManager. This criteria object specifically filters out reserved terms from a request object, such as _orderBy _limit _offset and _orderDir.  The default behavior, and more specifically the default fields mentioned may not be exactly what you want for your project. That's ok because you can customize the Criteria object that is used. When you create your custom _Criteria_ object the only requirement is that it implements the _Lemon\RestBundle\Object\Criteria_ interface. 
+
+To switch to a different _Criteria_ object create a class implementing _Lemon\RestBundle\Object\Criteria_ and add the following to your application's semantic configuration
+
+    lemon_rest:
+        criteria: Acme\DemoAppBundle\Rest\MyCriteria
