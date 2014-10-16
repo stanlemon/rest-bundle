@@ -95,16 +95,17 @@ class ResourceController
     public function postAction(Request $request, $resource)
     {
         $response = $this->response;
+        $router = $this->router;
 
         return $this->handler->handle(
             $request,
             $this->response,
             $resource,
-            function (Manager $manager, $object) use ($response, $resource) {
+            function (Manager $manager, $object) use ($response, $resource, $router) {
                 $manager->create($object);
 
                 $response->setStatusCode(201);
-                $response->headers->set('Location', $this->router->generate(
+                $response->headers->set('Location', $router->generate(
                     'lemon_rest_get',
                     array(
                         'resource' => $resource,
