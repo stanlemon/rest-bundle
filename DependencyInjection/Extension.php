@@ -23,6 +23,14 @@ class Extension extends BaseExtension
         $container->setParameter('lemon_rest_object_criteria_class', $config['criteria']);
         $container->setParameter('lemon_rest_mappings', $config['mappings']);
 
+        // Force pretty print for JMS on, no one likes their JSON ugly
+        if (defined('JSON_PRETTY_PRINT')) {
+            $container->setParameter(
+                'jms_serializer.json_serialization_visitor.options',
+                $container->getParameter('jms_serializer.json_serialization_visitor.options') | JSON_PRETTY_PRINT
+            );
+        }
+
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
     }

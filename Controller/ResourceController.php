@@ -7,7 +7,7 @@ use Lemon\RestBundle\Request\Handler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class RestController
+class ResourceController
 {
     /**
      * @var Handler

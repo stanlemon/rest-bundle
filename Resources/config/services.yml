@@ -1,9 +1,17 @@
 services:
-    lemon_rest.controller:
-        class: Lemon\RestBundle\Controller\RestController
+    lemon_rest.resource_controller:
+        class: Lemon\RestBundle\Controller\ResourceController
         arguments:
             - @lemon_rest.handler
             - @lemon_rest.object_criteria_factory
+
+    lemon_rest.index_controller:
+        class: Lemon\RestBundle\Controller\IndexController
+        arguments:
+            - @lemon_rest.format_negotiator
+            - @jms_serializer
+            - @lemon_rest.object_registry
+            - @router
 
     lemon_rest.handler:
         class: Lemon\RestBundle\Request\Handler

@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\Tools\SchemaTool;
 use Lemon\RestBundle\Tests\Fixtures\Person;
 
-class RestControllerTest extends WebTestCase
+class ResourceControllerTest extends WebTestCase
 {
     /**
      * @var \Symfony\Bundle\FrameworkBundle\Client
@@ -34,6 +34,10 @@ class RestControllerTest extends WebTestCase
      * @var \JMS\Serializer\Serializer
      */
     protected $serializer;
+    /**
+     * @var \Lemon\RestBundle\Controller\ResourceController
+     */
+    protected $controller;
 
     public function setUp()
     {
@@ -50,6 +54,8 @@ class RestControllerTest extends WebTestCase
 
         $registry = $this->container->get('lemon_rest.object_registry');
         $registry->addClass('person', 'Lemon\RestBundle\Tests\Fixtures\Person');
+
+        $this->controller = $this->container->get('lemon_rest.resource_controller');
     }
 
     protected static function getKernelClass()
@@ -86,8 +92,6 @@ class RestControllerTest extends WebTestCase
 
     public function testListAction()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $person1 = new Person();
         $person1->name = "Stan Lemon";
 
@@ -120,7 +124,7 @@ class RestControllerTest extends WebTestCase
         $request = $this->makeRequest('GET', '/person', null, $parameters);
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->listAction($request, 'person');
+        $response = $this->controller->listAction($request, 'person');
 
         $data = json_decode($response->getContent());
 
@@ -132,8 +136,6 @@ class RestControllerTest extends WebTestCase
 
     public function testGetAction()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $person = new Person();
         $person->name = "Stan Lemon";
         $person->ssn = '123-45-678';
@@ -145,7 +147,7 @@ class RestControllerTest extends WebTestCase
         $request = $this->makeRequest('GET', '/person/' . $person->id);
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->getAction($request, 'person', 1);
+        $response = $this->controller->getAction($request, 'person', 1);
 
         $data = json_decode($response->getContent());
 
@@ -158,14 +160,12 @@ class RestControllerTest extends WebTestCase
 
     public function testGetActionForNonExistentObject()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $id = mt_rand(1, 100);
 
         $request = $this->makeRequest('GET', '/person/' . $id);
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->getAction($request, 'person', $id);
+        $response = $this->controller->getAction($request, 'person', $id);
 
         $data = json_decode($response->getContent());
 
@@ -177,8 +177,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPostAction()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $request = $this->makeRequest(
             'POST',
             '/person',
@@ -186,7 +184,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->postAction($request, 'person');
+        $response = $this->controller->postAction($request, 'person');
 
         $data = json_decode($response->getContent());
 
@@ -205,8 +203,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutAction()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $person = new Person();
         $person->name = "Stan Lemon";
         $person->created = new \DateTime("-1 day");
@@ -227,7 +223,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', 1);
 
         $data = json_decode($response->getContent());
 
@@ -247,8 +243,6 @@ class RestControllerTest extends WebTestCase
 
     public function testDeleteAction()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $person = new Person();
         $person->name = "Stan Lemon";
 
@@ -265,7 +259,7 @@ class RestControllerTest extends WebTestCase
         $this->assertNotNull($person);
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->deleteAction($request, 'person', 1);
+        $response = $this->controller->deleteAction($request, 'person', 1);
 
         $this->assertEquals("null", $response->getContent());
         $this->assertEquals(204, $response->getStatusCode());
@@ -279,8 +273,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithoutIdInPayload()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $person = new Person();
         $person->name = "Stan Lemon";
 
@@ -295,7 +287,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', 1);
 
         $data = json_decode($response->getContent());
 
@@ -313,8 +305,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPostActionWithNestedCollection()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $tag = new Tag();
         $tag->name = 'baz';
 
@@ -342,7 +332,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->postAction($request, 'person');
+        $response = $this->controller->postAction($request, 'person');
 
         $this->em->clear();
 
@@ -374,8 +364,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPostActionWithNestedCollectionAndId0()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $request = $this->makeRequest(
             'POST',
             '/person',
@@ -393,7 +381,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->postAction($request, 'person');
+        $response = $this->controller->postAction($request, 'person');
 
         $data = json_decode($response->getContent());
 
@@ -417,8 +405,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPostActionWithNestedEntity()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $request = $this->makeRequest(
             'POST',
             '/person',
@@ -431,7 +417,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->postAction($request, 'person');
+        $response = $this->controller->postAction($request, 'person');
 
         $this->em->clear();
 
@@ -451,8 +437,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedCollectionAndExistingItem()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $created = new \DateTime();
         $created->modify("-1 month");
 
@@ -501,7 +485,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', 1);
 
         $data = json_decode($response->getContent());
 
@@ -524,8 +508,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedCollectionAndExistingItemAndNewItem()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $car = new Car();
         $car->name = 'Honda';
         $car->year = 2006;
@@ -558,7 +540,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', 1);
 
         $data = json_decode($response->getContent());
 
@@ -578,8 +560,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedCollectionAndNewItemWithId0()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $person = new Person();
         $person->name = "Stan Lemon";
 
@@ -603,7 +583,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', 1);
 
         $data = json_decode($response->getContent());
 
@@ -622,8 +602,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedCollectionAndRemoveExistingItem()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $tag1 = new Tag();
         $tag1->name = 'foo';
 
@@ -683,7 +661,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', 1);
 
         $data = json_decode($response->getContent());
 
@@ -704,8 +682,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedCollectionAndRemoveAllExistingItems()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $person = new Person();
         $person->name = "Stan Lemon";
 
@@ -745,7 +721,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', 1);
 
         $data = json_decode($response->getContent());
 
@@ -761,8 +737,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedEntity()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $mother = new Person();
         $mother->name = "Sharon Lemon";
 
@@ -786,7 +760,7 @@ class RestControllerTest extends WebTestCase
             ))
         );
 
-        $controller->putAction($request, 'person', 1);
+        $this->controller->putAction($request, 'person', 1);
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
@@ -802,8 +776,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedEntityThatHasANestedCollection()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $car1 = new Car();
         $car1->name = "Chrysler Caravan";
         $car1->year = 2003;
@@ -851,7 +823,7 @@ class RestControllerTest extends WebTestCase
             ))
         );
 
-        $controller->putAction($request, 'person', 1);
+        $this->controller->putAction($request, 'person', 1);
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
@@ -873,8 +845,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithNestedEntityRemoved()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $mother = new Person();
         $mother->name = "Sharon Lemon";
 
@@ -894,7 +864,7 @@ class RestControllerTest extends WebTestCase
             ))
         );
 
-        $controller->putAction($request, 'person', 1);
+        $this->controller->putAction($request, 'person', 1);
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
@@ -917,8 +887,6 @@ class RestControllerTest extends WebTestCase
         $query = $this->em->createQuery("SELECT COUNT(p.id) FROM Lemon\RestBundle\Tests\Fixtures\Person p");
         $total = $query->execute(array(), AbstractQuery::HYDRATE_SINGLE_SCALAR);
 
-        $controller = $this->container->get('lemon_rest.controller');
-
         $request = $this->makeRequest(
             'POST',
             '/person',
@@ -926,7 +894,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->postAction($request, 'person');
+        $response = $this->controller->postAction($request, 'person');
 
         $this->em->clear();
 
@@ -940,8 +908,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPutActionWithInvalidAttribute()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $person = new Person();
         $person->name = "Stan Lemon";
 
@@ -956,7 +922,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->putAction($request, 'person', $person->id);
+        $response = $this->controller->putAction($request, 'person', $person->id);
 
         $this->assertEquals(400, $response->getStatusCode());
 
@@ -976,8 +942,6 @@ class RestControllerTest extends WebTestCase
             throw new \RuntimeException("Proceed no further!");
         });
 
-        $controller = $this->container->get('lemon_rest.controller');
-
         $request = $this->makeRequest(
             'POST',
             '/person',
@@ -985,7 +949,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->postAction($request, 'person');
+        $response = $this->controller->postAction($request, 'person');
 
         $this->assertEquals(500, $response->getStatusCode());
 
@@ -1002,8 +966,6 @@ class RestControllerTest extends WebTestCase
             throw new \Symfony\Component\HttpKernel\Exception\BadRequestHttpException("Bad Request");
         });
 
-        $controller = $this->container->get('lemon_rest.controller');
-
         $request = $this->makeRequest(
             'POST',
             '/person',
@@ -1011,7 +973,7 @@ class RestControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $controller->postAction($request, 'person');
+        $response = $this->controller->postAction($request, 'person');
 
         $this->assertEquals(400, $response->getStatusCode());
 
@@ -1022,8 +984,6 @@ class RestControllerTest extends WebTestCase
 
     public function testPatchAction()
     {
-        $controller = $this->container->get('lemon_rest.controller');
-
         $person = new Person;
         $person->name = 'Stan Lemon';
         $person->ssn = '123-45-678';
@@ -1042,7 +1002,7 @@ class RestControllerTest extends WebTestCase
             ))
         );
 
-        $controller->patchAction($request, 'person', $person->id);
+        $this->controller->patchAction($request, 'person', $person->id);
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id

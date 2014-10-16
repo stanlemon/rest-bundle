@@ -69,9 +69,6 @@ class Handler
      */
     public function handle(Request $request, Response $response, $resource, $callback)
     {
-        $manager = $this->managerFactory->create($resource);
-        $class = $manager->getClass();
-
         $format = $this->negotiator->getBestFormat(
             $request->headers->get('Accept')
         );
@@ -79,11 +76,13 @@ class Handler
         $response->headers->set('Content-Type', $request->headers->get('Accept'));
 
         try {
+            $manager = $this->managerFactory->create($resource);
+
             $object = $this->serializer->create(
-                strtolower($request->getMethod()) == 'patch' ? 'doctrine' : 'default'
+                $request->isMethod('patch') ? 'doctrine' : 'default'
             )->deserialize(
                 $request->getContent(),
-                $class,
+                $manager->getClass(),
                 $format
             );
 
