@@ -31,6 +31,7 @@ class ResourceController
     /**
      * @param Handler $handler
      * @param CriteriaFactory $criteriaFactory
+     * @param RouterInterface $router
      */
     public function __construct(
         Handler $handler,

@@ -31,7 +31,7 @@ class IndexController
      * @param FormatNegotiatorInterface $negotiator
      * @param Serializer $serializer
      * @param Registry $registry
-     * @param Router $router
+     * @param RouterInterface $router
      */
     public function __construct(
         FormatNegotiatorInterface $negotiator,
