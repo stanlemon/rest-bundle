@@ -6,6 +6,7 @@ use Lemon\RestBundle\Object\Exception\InvalidException;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
 use Lemon\RestBundle\Object\ManagerFactory;
 use Lemon\RestBundle\Object\Envelope\EnvelopeFactory;
+use Lemon\RestBundle\Serializer\ConstructorFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,7 +25,7 @@ class Handler
      */
     protected $envelopeFactory;
     /**
-     * @var \JMS\Serializer\SerializerInterface
+     * @var ConstructorFactory
      */
     protected $serializer;
 
@@ -48,7 +49,7 @@ class Handler
     public function __construct(
         ManagerFactory $managerFactory,
         EnvelopeFactory $envelopeFactory,
-        SerializerInterface $serializer,
+        ConstructorFactory $serializer,
         FormatNegotiatorInterface $negotiator,
         LoggerInterface $logger
     ) {
@@ -78,7 +79,9 @@ class Handler
         $response->headers->set('Content-Type', $request->headers->get('Accept'));
 
         try {
-            $object = $this->serializer->deserialize(
+            $object = $this->serializer->create(
+                strtolower($request->getMethod()) == 'patch' ? 'doctrine' : 'default'
+            )->deserialize(
                 $request->getContent(),
                 $class,
                 $format
@@ -116,7 +119,7 @@ class Handler
             );
         }
 
-        $output = $this->serializer->serialize($data, $format);
+        $output = $this->serializer->create('default')->serialize($data, $format);
 
         $response->setContent($output);
 

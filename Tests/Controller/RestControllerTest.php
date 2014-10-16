@@ -1019,4 +1019,37 @@ class RestControllerTest extends WebTestCase
 
         $this->assertEquals("Bad Request", $data->message);
     }
+
+    public function testPatchAction()
+    {
+        $controller = $this->container->get('lemon_rest.controller');
+
+        $person = new Person;
+        $person->name = 'Stan Lemon';
+        $person->ssn = '123-45-678';
+        $person->favoriteColor = 'purple';
+
+        $this->em->persist($person);
+        $this->em->flush($person);
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'PATCH',
+            '/person/' . $person->id,
+            json_encode(array(
+                'id' => $person->id,
+                'favorite_color' => 'blue',
+            ))
+        );
+
+        $controller->patchAction($request, 'person', $person->id);
+
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $person->id
+        ));
+
+        $this->assertEquals('blue', $refresh->favoriteColor);
+        $this->assertEquals($person->ssn, $refresh->ssn);
+        $this->assertEquals($person->name, $refresh->name);
+    }
 }

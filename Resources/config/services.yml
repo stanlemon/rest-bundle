@@ -10,7 +10,7 @@ services:
         arguments:
             - @lemon_rest.object_manager_factory
             - @lemon_rest.object_envelope_factory
-            - @jms_serializer
+            - @lemon_rest.serializer.constructor_factory
             - @lemon_rest.format_negotiator
             - @logger
 
@@ -74,3 +74,20 @@ services:
             - @doctrine
         tags:
             - { name: jms_serializer.subscribing_handler }
+
+
+    lemon_rest.serializer.collection:
+        class: PhpCollection\Map
+        scope: prototype
+
+    lemon_rest.serializer.constructor_factory:
+        class: Lemon\RestBundle\Serializer\ConstructorFactory
+        arguments:
+            - @jms_serializer.metadata_factory
+            - @jms_serializer.handler_registry
+            - @lemon_rest.serializer.collection
+            - @lemon_rest.serializer.collection
+            - @jms_serializer.event_dispatcher
+        calls:
+            - [ addObjectConstructor, ['default', @jms_serializer.unserialize_object_constructor] ]
+            - [ addObjectConstructor, ['doctrine', @jms_serializer.doctrine_object_constructor] ]

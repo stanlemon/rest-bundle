@@ -32,6 +32,11 @@ class Person
     public $ssn;
 
     /**
+     * @ORM\Column(name="favorite_color", type="string", length=255, nullable=true)
+     */
+    public $favoriteColor;
+
+    /**
      * @ORM\Column(name="created", type="datetime", nullable=true)
      * @Serializer\ReadOnly()
      */
