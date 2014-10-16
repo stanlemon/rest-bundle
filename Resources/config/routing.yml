@@ -34,4 +34,3 @@ lemon_rest_delete:
     defaults: { _controller: lemon_rest.controller:deleteAction }
     requirements:
         _method: DELETE
-`
