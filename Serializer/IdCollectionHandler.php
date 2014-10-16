@@ -18,11 +18,21 @@ class IdCollectionHandler implements SubscribingHandlerInterface
      */
     protected $doctrine;
 
+    /**
+     * @param Doctrine $doctrine
+     */
     public function __construct(Doctrine $doctrine)
     {
         $this->doctrine = $doctrine;
     }
 
+    /**
+     * @param JsonSerializationVisitor $visitor
+     * @param Collection $idCollection
+     * @param array $type
+     * @param Context $context
+     * @return array
+     */
     public function serializeIdCollectionToJson(
         JsonSerializationVisitor $visitor,
         Collection $idCollection,
@@ -38,6 +48,12 @@ class IdCollectionHandler implements SubscribingHandlerInterface
         return $ids;
     }
 
+    /**
+     * @param JsonDeserializationVisitor $visitor
+     * @param $data
+     * @param array $type
+     * @return ArrayCollection
+     */
     public function deserializeIdCollectionFromJson(
         JsonDeserializationVisitor $visitor,
         $data,

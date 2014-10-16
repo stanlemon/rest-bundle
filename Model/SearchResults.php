@@ -3,9 +3,19 @@ namespace Lemon\RestBundle\Model;
 
 class SearchResults
 {
+    /**
+     * @var array
+     */
     protected $results;
+    /**
+     * @var int
+     */
     protected $total;
 
+    /**
+     * @param array $results
+     * @param int $total
+     */
     public function __construct(array $results, $total)
     {
         $this->results = $results;

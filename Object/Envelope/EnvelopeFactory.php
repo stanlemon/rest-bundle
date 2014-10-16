@@ -17,6 +17,7 @@ class EnvelopeFactory
     }
 
     /**
+     * @param mixed $payload
      * @return \Lemon\RestBundle\Object\Envelope
      */
     public function create($payload)

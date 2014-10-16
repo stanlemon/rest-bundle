@@ -6,13 +6,22 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class Validator
 {
+    /**
+     * @var ValidatorInterface
+     */
     protected $validator;
 
+    /**
+     * @param ValidatorInterface $validator
+     */
     public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;
     }
 
+    /**
+     * @param object $object
+     */
     public function validate($object)
     {
         $flattenedErros = array();

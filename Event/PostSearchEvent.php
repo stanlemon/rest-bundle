@@ -8,6 +8,9 @@ class PostSearchEvent extends Event
 {
     protected $results;
 
+    /**
+     * @param SearchResults $results
+     */
     public function __construct(SearchResults $results)
     {
         $this->results = $results;

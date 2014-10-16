@@ -9,6 +9,9 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class RegisterResourcePass implements CompilerPassInterface
 {
+    /**
+     * @param ContainerBuilder $container
+     */
     public function process(ContainerBuilder $container)
     {
         $bundles = $container->getParameter('kernel.bundles');

@@ -1,4 +1,6 @@
 <?php
+namespace Lemon\RestBundle\Tests;
+
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpKernel\Kernel;
 
@@ -7,11 +9,11 @@ class TestKernel extends Kernel
     public function registerBundles()
     {
         return array(
-            new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-            new Symfony\Bundle\MonologBundle\MonologBundle(),
-            new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
-            new JMS\SerializerBundle\JMSSerializerBundle(),
-            new Lemon\RestBundle\LemonRestBundle(),
+            new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+            new \Symfony\Bundle\MonologBundle\MonologBundle(),
+            new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
+            new \JMS\SerializerBundle\JMSSerializerBundle(),
+            new \Lemon\RestBundle\LemonRestBundle(),
         );
     }
 

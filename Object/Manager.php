@@ -87,12 +87,12 @@ class Manager
         $total = $query->getSingleScalarResult();
 
         $qb->select('o')
-            ->setFirstResult( $criteria->getOffset() )
-            ->setMaxResults( $criteria->getLimit() );
+            ->setFirstResult($criteria->getOffset())
+            ->setMaxResults($criteria->getLimit());
 
-        if ($criteria->getOrderBy()) {
-            $orderBy = $criteria->getOrderBy();
+        $orderBy = $criteria->getOrderBy();
 
+        if (is_array($orderBy)) {
             $qb->orderBy('o.' . key($orderBy), $orderBy[key($orderBy)]);
         }
 

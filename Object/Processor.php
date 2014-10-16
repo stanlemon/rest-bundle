@@ -16,12 +16,20 @@ class Processor
      */
     protected $metadataFactory;
 
+    /**
+     * @param Doctrine $doctrine
+     * @param MetadataFactory $metadataFactory
+     */
     public function __construct(Doctrine $doctrine, MetadataFactory $metadataFactory)
     {
         $this->doctrine = $doctrine;
         $this->metadataFactory = $metadataFactory;
     }
 
+    /**
+     * @param object $object
+     * @param object|null $entity
+     */
     public function process($object, $entity = null)
     {
         $this->processIds($object);
@@ -29,6 +37,9 @@ class Processor
         $this->processExclusions($object, $entity);
     }
 
+    /**
+     * @param object $object
+     */
     public function processIds($object)
     {
         $id = IdHelper::getId($object);
@@ -66,8 +77,8 @@ class Processor
     }
 
     /**
-     * @param $object
-     * @param null $entity
+     * @param object $object
+     * @param object|null $entity
      */
     public function processRelationships($object, $entity = null)
     {
@@ -131,7 +142,7 @@ class Processor
     }
 
     /**
-     * @param $object
+     * @param object $object
      * @return bool
      */
     protected function isNew($object)
@@ -142,8 +153,8 @@ class Processor
     }
 
     /**
-     * @param $object
-     * @param $entity
+     * @param object $object
+     * @param object|null $entity
      */
     protected function processExclusions($object, $entity)
     {

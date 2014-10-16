@@ -8,6 +8,9 @@ class PreSearchEvent extends Event
 {
     protected $criteria;
 
+    /**
+     * @param Criteria $criteria
+     */
     public function __construct(Criteria $criteria)
     {
         $this->criteria = $criteria;

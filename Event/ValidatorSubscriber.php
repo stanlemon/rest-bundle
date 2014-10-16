@@ -6,8 +6,14 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ValidatorSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @var Validator
+     */
     protected $validator;
 
+    /**
+     * @param Validator $validator
+     */
     public function __construct(Validator $validator)
     {
         $this->validator = $validator;
@@ -21,11 +27,17 @@ class ValidatorSubscriber implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @param ObjectEvent $event
+     */
     public function preCreate(ObjectEvent $event)
     {
         $this->validator->validate($event->getObject());
     }
 
+    /**
+     * @param ObjectEvent $event
+     */
     public function preUpdate(ObjectEvent $event)
     {
         $this->validator->validate($event->getObject());

@@ -5,7 +5,7 @@ namespace Lemon\RestBundle\Request;
 use Lemon\RestBundle\Object\Exception\InvalidException;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
 use Lemon\RestBundle\Object\ManagerFactory;
-use Lemon\RestBundle\Object\Envelope\EnvelopeFactory;;
+use Lemon\RestBundle\Object\Envelope\EnvelopeFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,6 +38,13 @@ class Handler
      */
     protected $logger;
 
+    /**
+     * @param ManagerFactory $managerFactory
+     * @param EnvelopeFactory $envelopeFactory
+     * @param SerializerInterface $serializer
+     * @param FormatNegotiatorInterface $negotiator
+     * @param LoggerInterface $logger
+     */
     public function __construct(
         ManagerFactory $managerFactory,
         EnvelopeFactory $envelopeFactory,

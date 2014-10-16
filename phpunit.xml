@@ -28,7 +28,4 @@
             </exclude>
         </whitelist>
     </filter>
-    <php>
-        <server name="KERNEL_DIR" value="./Tests/" />
-    </php>
 </phpunit>

@@ -24,6 +24,7 @@ class RestController
 
     /**
      * @param Handler $handler
+     * @param CriteriaFactory $criteriaFactory
      */
     public function __construct(
         Handler $handler,

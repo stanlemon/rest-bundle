@@ -6,10 +6,24 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ManagerFactory
 {
+    /**
+     * @var Registry
+     */
     protected $registry;
+    /**
+     * @var EventDispatcher
+     */
     protected $eventDispatcher;
+    /**
+     * @var Doctrine
+     */
     protected $doctrine;
 
+    /**
+     * @param Registry $registry
+     * @param Doctrine $doctrine
+     * @param EventDispatcher $eventDispatcher
+     */
     public function __construct(
         Registry $registry,
         Doctrine $doctrine,

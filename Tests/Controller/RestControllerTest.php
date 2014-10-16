@@ -52,6 +52,11 @@ class RestControllerTest extends WebTestCase
         $registry->addClass('person', 'Lemon\RestBundle\Tests\Fixtures\Person');
     }
 
+    protected static function getKernelClass()
+    {
+        return 'Lemon\RestBundle\Tests\TestKernel';
+    }
+
     public function tearDown()
     {
         $this->doctrine->getConnection()->rollback();
@@ -155,7 +160,7 @@ class RestControllerTest extends WebTestCase
     {
         $controller = $this->container->get('lemon_rest.controller');
 
-        $id = mt_rand(1,100);
+        $id = mt_rand(1, 100);
 
         $request = $this->makeRequest('GET', '/person/' . $id);
 
@@ -470,10 +475,6 @@ class RestControllerTest extends WebTestCase
         $this->em->persist($person);
         $this->em->flush($person);
         $this->em->clear();
-
-        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Car')->findOneBy(array(
-            'id' => $car->id
-        ));
 
         $request = $this->makeRequest(
             'PUT',
@@ -971,7 +972,7 @@ class RestControllerTest extends WebTestCase
     {
         /** @var \Symfony\Component\EventDispatcher\EventDispatcher$eventDispatcher */
         $eventDispatcher = $this->container->get('lemon_rest.event_dispatcher');
-        $eventDispatcher->addListener(RestEvents::PRE_CREATE, function(){
+        $eventDispatcher->addListener(RestEvents::PRE_CREATE, function () {
             throw new \RuntimeException("Proceed no further!");
         });
 
@@ -997,7 +998,7 @@ class RestControllerTest extends WebTestCase
     {
         /** @var \Symfony\Component\EventDispatcher\EventDispatcher$eventDispatcher */
         $eventDispatcher = $this->container->get('lemon_rest.event_dispatcher');
-        $eventDispatcher->addListener(RestEvents::PRE_CREATE, function(){
+        $eventDispatcher->addListener(RestEvents::PRE_CREATE, function () {
             throw new \Symfony\Component\HttpKernel\Exception\BadRequestHttpException("Bad Request");
         });
 
