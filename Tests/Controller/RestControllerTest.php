@@ -4,7 +4,7 @@ namespace Lemon\RestBundle\Tests\Controller;
 
 use Doctrine\ORM\AbstractQuery;
 use Lemon\RestBundle\Event\RestEvents;
-use Lemon\RestBundle\Object\Criteria;
+use Lemon\RestBundle\Object\Criteria\DefaultCriteria;
 use Lemon\RestBundle\Tests\Fixtures\Car;
 use Lemon\RestBundle\Tests\Fixtures\Tag;
 use Symfony\Component\HttpFoundation\Request;
@@ -107,9 +107,9 @@ class RestControllerTest extends WebTestCase
         $this->em->clear();
 
         $parameters = array(
-            Criteria::OFFSET => 1,
-            Criteria::LIMIT => 3,
-            Criteria::ORDER_BY => 'name'
+            DefaultCriteria::OFFSET => 1,
+            DefaultCriteria::LIMIT => 3,
+            DefaultCriteria::ORDER_BY => 'name'
         );
 
         $request = $this->makeRequest('GET', '/person', null, $parameters);
