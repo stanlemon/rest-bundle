@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Negotiation\FormatNegotiatorInterface;
 use JMS\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 
 class IndexController
 {
@@ -23,7 +23,7 @@ class IndexController
      */
     protected $registry;
     /**
-     * @var Router
+     * @var RouterInterface
      */
     protected $router;
 
@@ -37,7 +37,7 @@ class IndexController
         FormatNegotiatorInterface $negotiator,
         Serializer $serializer,
         Registry $registry,
-        Router $router
+        RouterInterface $router
     )
     {
         $this->negotiator = $negotiator;
@@ -62,7 +62,7 @@ class IndexController
             $data[$name . '_url'] = $this->router->generate(
                 'lemon_rest_list',
                 array('resource' => $name),
-                Router::ABSOLUTE_URL
+                RouterInterface::ABSOLUTE_URL
             );
         }
 

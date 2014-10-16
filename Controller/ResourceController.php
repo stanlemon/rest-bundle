@@ -7,7 +7,7 @@ use Lemon\RestBundle\Object\Manager;
 use Lemon\RestBundle\Request\Handler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 
 class ResourceController
 {
@@ -24,7 +24,7 @@ class ResourceController
      */
     protected $criteriaFactory;
     /**
-     * @var Router
+     * @var RouterInterface
      */
     protected $router;
 
@@ -35,7 +35,7 @@ class ResourceController
     public function __construct(
         Handler $handler,
         CriteriaFactory $criteriaFactory,
-        Router $router
+        RouterInterface $router
     ) {
         $this->handler = $handler;
         $this->criteriaFactory = $criteriaFactory;
@@ -109,7 +109,7 @@ class ResourceController
                         'resource' => $resource,
                         'id' => IdHelper::getId($object),
                     ),
-                    Router::ABSOLUTE_URL
+                    RouterInterface::ABSOLUTE_URL
                 ));
 
                 return $object;
