@@ -2,10 +2,12 @@
 namespace Lemon\RestBundle\Controller;
 
 use Lemon\RestBundle\Object\Criteria\CriteriaFactory;
+use Lemon\RestBundle\Object\IdHelper;
 use Lemon\RestBundle\Object\Manager;
 use Lemon\RestBundle\Request\Handler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Router;
 
 class ResourceController
 {
@@ -21,6 +23,10 @@ class ResourceController
      * @var CriteriaFactory
      */
     protected $criteriaFactory;
+    /**
+     * @var Router
+     */
+    protected $router;
 
     /**
      * @param Handler $handler
@@ -28,10 +34,12 @@ class ResourceController
      */
     public function __construct(
         Handler $handler,
-        CriteriaFactory $criteriaFactory
+        CriteriaFactory $criteriaFactory,
+        Router $router
     ) {
         $this->handler = $handler;
         $this->criteriaFactory = $criteriaFactory;
+        $this->router = $router;
         $this->response = new Response();
     }
 
@@ -85,12 +93,26 @@ class ResourceController
      */
     public function postAction(Request $request, $resource)
     {
+        $response = $this->response;
+
         return $this->handler->handle(
             $request,
             $this->response,
             $resource,
-            function (Manager $manager, $object) {
-                return $manager->create($object);
+            function (Manager $manager, $object) use ($response, $resource) {
+                $manager->create($object);
+
+                $response->setStatusCode(201);
+                $response->headers->set('Location', $this->router->generate(
+                    'lemon_rest_get',
+                    array(
+                        'resource' => $resource,
+                        'id' => IdHelper::getId($object),
+                    ),
+                    Router::ABSOLUTE_URL
+                ));
+
+                return $object;
             }
         );
     }

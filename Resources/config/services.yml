@@ -4,6 +4,7 @@ services:
         arguments:
             - @lemon_rest.handler
             - @lemon_rest.object_criteria_factory
+            - @router
 
     lemon_rest.index_controller:
         class: Lemon\RestBundle\Controller\IndexController

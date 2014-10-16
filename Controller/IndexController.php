@@ -59,7 +59,11 @@ class IndexController
         $data = array();
 
         foreach ($this->registry->getClasses() as $name => $class) {
-            $data[$name . '_url'] = $this->router->generate('lemon_rest_list', array('resource' => $name));
+            $data[$name . '_url'] = $this->router->generate(
+                'lemon_rest_list',
+                array('resource' => $name),
+                Router::ABSOLUTE_URL
+            );
         }
 
         $output = $this->serializer->serialize($data, $format);

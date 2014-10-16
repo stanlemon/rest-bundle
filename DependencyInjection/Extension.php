@@ -27,7 +27,7 @@ class Extension extends BaseExtension
         if (defined('JSON_PRETTY_PRINT')) {
             $container->setParameter(
                 'jms_serializer.json_serialization_visitor.options',
-                $container->getParameter('jms_serializer.json_serialization_visitor.options') | JSON_PRETTY_PRINT
+                $container->getParameter('jms_serializer.json_serialization_visitor.options') | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
             );
         }
 

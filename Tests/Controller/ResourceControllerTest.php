@@ -186,6 +186,9 @@ class ResourceControllerTest extends WebTestCase
         /** @var \Symfony\Component\HttpFoundation\Response $response */
         $response = $this->controller->postAction($request, 'person');
 
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertNotEmpty($response->headers->get('Location'));
+
         $data = json_decode($response->getContent());
 
         $this->assertEquals($data->name, "Stan Lemon");
