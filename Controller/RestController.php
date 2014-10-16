@@ -125,6 +125,26 @@ class RestController
      * @param int $id
      * @return Response
      */
+    public function patchAction(Request $request, $resource, $id)
+    {
+        return $this->handler->handle(
+            $request,
+            $this->response,
+            $resource,
+            function (Manager $manager, $object) use ($id) {
+                $manager->partialUpdate($object);
+
+                return $object;
+            }
+        );
+    }
+
+    /**
+     * @param Request $request
+     * @param string $resource
+     * @param int $id
+     * @return Response
+     */
     public function deleteAction(Request $request, $resource, $id)
     {
         $response = $this->response;

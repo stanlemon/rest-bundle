@@ -23,8 +23,15 @@ lemon_rest_put:
     requirements:
         _method: PUT
 
+lemon_rest_patch:
+    pattern: /{resource}/{id}
+    defaults: { _controller: lemon_rest.controller:patchAction }
+    requirements:
+        _method: PATCH
+
 lemon_rest_delete:
     pattern: /{resource}/{id}
     defaults: { _controller: lemon_rest.controller:deleteAction }
     requirements:
         _method: DELETE
+`
