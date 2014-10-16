@@ -1,7 +1,7 @@
 <?php
 namespace Lemon\RestBundle\Controller;
 
-use Lemon\RestBundle\Object\Criteria;
+use Lemon\RestBundle\Object\Criteria\CriteriaFactory;
 use Lemon\RestBundle\Object\Manager;
 use Lemon\RestBundle\Request\Handler;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,14 +17,20 @@ class RestController
      * @var Response
      */
     protected $response;
+    /**
+     * @var CriteriaFactory
+     */
+    protected $criteriaFactory;
 
     /**
      * @param Handler $handler
      */
     public function __construct(
-        Handler $handler
+        Handler $handler,
+        CriteriaFactory $criteriaFactory
     ) {
         $this->handler = $handler;
+        $this->criteriaFactory = $criteriaFactory;
         $this->response = new Response();
     }
 
@@ -37,13 +43,13 @@ class RestController
     {
         $response = $this->response;
 
+        $criteria = $this->criteriaFactory->create($request->query->all());
+
         return $this->handler->handle(
             $request,
             $this->response,
             $resource,
-            function (Manager $manager) use ($response, $request) {
-                $criteria = new Criteria($request->query->all());
-
+            function (Manager $manager) use ($response, $criteria) {
                 $results = $manager->search($criteria);
 
                 $response->headers->set('X-Total-Count', $results->getTotal());
