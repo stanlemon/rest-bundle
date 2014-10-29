@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use JMS\Serializer\SerializerInterface;
+use JMS\Serializer\SerializationContext;
 use Negotiation\FormatNegotiatorInterface;
 
 class Handler
@@ -69,11 +70,11 @@ class Handler
      */
     public function handle(Request $request, Response $response, $resource, $callback)
     {
-        $format = $this->negotiator->getBestFormat(
-            $request->headers->get('Accept')
-        );
+        $accept = $this->negotiator->getBest($request->headers->get('Accept'));
 
-        $response->headers->set('Content-Type', $request->headers->get('Accept'));
+        $format = $this->negotiator->getFormat($accept->getValue());
+
+        $response->headers->set('Content-Type', $accept->getValue());
 
         try {
             $manager = $this->managerFactory->create($resource);
@@ -118,7 +119,13 @@ class Handler
             );
         }
 
-        $output = $this->serializer->create('default')->serialize($data, $format);
+        $context = SerializationContext::create();
+
+        if ($accept->hasParameter('version')) {
+            $context->setVersion($accept->getParameter('version'));
+        }
+
+        $output = $this->serializer->create('default')->serialize($data, $format, $context);
 
         $response->setContent($output);
 

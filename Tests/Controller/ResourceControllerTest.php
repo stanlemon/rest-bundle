@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\Tools\SchemaTool;
 use Lemon\RestBundle\Tests\Fixtures\Person;
+use Lemon\RestBundle\Tests\Fixtures\FootballTeam;
 
 class ResourceControllerTest extends WebTestCase
 {
@@ -54,6 +55,7 @@ class ResourceControllerTest extends WebTestCase
 
         $registry = $this->container->get('lemon_rest.object_registry');
         $registry->addClass('person', 'Lemon\RestBundle\Tests\Fixtures\Person');
+        $registry->addClass('footballTeam', 'Lemon\RestBundle\Tests\Fixtures\FootballTeam');
 
         $this->controller = $this->container->get('lemon_rest.resource_controller');
     }
@@ -74,7 +76,7 @@ class ResourceControllerTest extends WebTestCase
      * @param string|null $content
      * @return Request
      */
-    protected function makeRequest($method, $uri, $content = null, $parameters = array())
+    protected function makeRequest($method, $uri, $content = null, $parameters = array(), $server = array())
     {
         $request = Request::create(
             $uri,
@@ -82,9 +84,9 @@ class ResourceControllerTest extends WebTestCase
             $parameters,
             $cookies = array(),
             $files = array(),
-            $server = array(
+            $server = array_merge(array(
                 'HTTP_ACCEPT' => 'application/json',
-            ),
+            ), $server),
             $content
         );
         return $request;
@@ -1014,5 +1016,49 @@ class ResourceControllerTest extends WebTestCase
         $this->assertEquals('blue', $refresh->favoriteColor);
         $this->assertEquals($person->ssn, $refresh->ssn);
         $this->assertEquals($person->name, $refresh->name);
+    }
+
+    public function testGetActionWithVersion()
+    {
+        $footballTeam = new FootballTeam;
+        $footballTeam->name = 'Steelers';
+        $footballTeam->conference = 'AFC';
+        $footballTeam->league = 'Amercian';
+
+        $this->em->persist($footballTeam);
+        $this->em->flush($footballTeam);
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'GET',
+            '/footballTeam/' . $footballTeam->id,
+            null,
+            array(),
+            array('HTTP_ACCEPT' => 'application/json;version=0.9.2')
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->getAction($request, 'footballTeam', $footballTeam->id);
+
+        $data = json_decode($response->getContent());
+
+        $this->assertEquals($footballTeam->league, $data->league);
+        $this->assertTrue(!isset($data->conference));
+
+        $request = $this->makeRequest(
+            'GET',
+            '/footballTeam/' . $footballTeam->id,
+            null,
+            array(),
+            array('HTTP_ACCEPT' => 'application/json;version=1.1.2')
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->getAction($request, 'footballTeam', $footballTeam->id);
+
+        $data = json_decode($response->getContent());
+
+        $this->assertEquals($footballTeam->conference, $data->conference);
+        $this->assertTrue(!isset($data->league));
     }
 }
