@@ -3,6 +3,7 @@
 namespace Lemon\RestBundle;
 
 use JMS\SerializerBundle\DependencyInjection\Compiler\ServiceMapPass;
+use Lemon\RestBundle\DependencyInjection\Compiler\RegisterFormatPass;
 use Lemon\RestBundle\DependencyInjection\Compiler\RegisterMappingsPass;
 use Lemon\RestBundle\DependencyInjection\Compiler\RegisterResourcePass;
 use Lemon\RestBundle\DependencyInjection\Extension;
@@ -20,6 +21,7 @@ class LemonRestBundle extends Bundle
     {
         parent::build($container);
 
+        $container->addCompilerPass(new RegisterFormatPass());
         $container->addCompilerPass(new RegisterResourcePass());
         $container->addCompilerPass(new RegisterMappingsPass());
         $container->addCompilerPass(new RegisterListenersPass(

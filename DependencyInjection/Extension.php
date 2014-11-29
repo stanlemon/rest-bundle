@@ -22,6 +22,7 @@ class Extension extends BaseExtension
         $container->setParameter('lemon_rest_object_envelope_class', $config['envelope']);
         $container->setParameter('lemon_rest_object_criteria_class', $config['criteria']);
         $container->setParameter('lemon_rest_mappings', $config['mappings']);
+        $container->setParameter('lemon_rest_formats', $config['formats']);
 
         // Force pretty print for JMS on, no one likes their JSON ugly
         if (defined('JSON_PRETTY_PRINT')) {

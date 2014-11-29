@@ -15,7 +15,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('envelope')
                     ->defaultValue('Lemon\RestBundle\Object\Envelope\DefaultEnvelope')
-                    ->end()
+                ->end()
                 ->scalarNode('criteria')
                     ->defaultValue('Lemon\RestBundle\Object\Criteria\DefaultCriteria')
                     ->end()
@@ -27,7 +27,22 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('formats')
+                    ->useAttributeAsKey('format', true)
+                    ->prototype('array')
+                    ->beforeNormalization()
+                        ->ifTrue(function ($v) { return is_array($v) && !isset($v['mimeTypes']); })
+                        ->then(function ($v) { return array('mimeTypes' => $v); })
+                    ->end()
+                        ->children()
+                            ->arrayNode('mimeTypes')
+                                ->prototype('scalar')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
             ->end()
+
         ;
 
         return $treeBuilder;
