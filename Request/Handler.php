@@ -73,6 +73,10 @@ class Handler
         $accept = $this->negotiator->getBest($request->headers->get('Accept'));
 
         $format = $this->negotiator->getFormat($accept->getValue());
+        
+        if ($format == 'html') {
+            $format = 'json';
+        }
 
         $response->headers->set('Content-Type', $accept->getValue());
 
