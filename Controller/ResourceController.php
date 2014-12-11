@@ -3,7 +3,7 @@ namespace Lemon\RestBundle\Controller;
 
 use Lemon\RestBundle\Object\Criteria\CriteriaFactory;
 use Lemon\RestBundle\Object\IdHelper;
-use Lemon\RestBundle\Object\Manager;
+use Lemon\RestBundle\Object\ManagerInterface;
 use Lemon\RestBundle\Request\Handler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,7 +59,7 @@ class ResourceController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager) use ($response, $criteria) {
+            function (ManagerInterface $manager) use ($response, $criteria) {
                 $results = $manager->search($criteria);
 
                 $response->headers->set('X-Total-Count', $results->getTotal());
@@ -81,7 +81,7 @@ class ResourceController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager) use ($id) {
+            function (ManagerInterface $manager) use ($id) {
                 return $manager->retrieve($id);
             }
         );
@@ -101,7 +101,7 @@ class ResourceController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager, $object) use ($response, $resource, $router) {
+            function (ManagerInterface $manager, $object) use ($response, $resource, $router) {
                 $manager->create($object);
 
                 $response->setStatusCode(201);
@@ -131,7 +131,7 @@ class ResourceController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager, $object) use ($id) {
+            function (ManagerInterface $manager, $object) use ($id) {
                 $reflection = new \ReflectionObject($object);
                 $property = $reflection->getProperty('id');
                 $property->setAccessible(true);
@@ -156,7 +156,7 @@ class ResourceController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager, $object) use ($id) {
+            function (ManagerInterface $manager, $object) use ($id) {
                 $manager->partialUpdate($object);
 
                 return $object;
@@ -178,7 +178,7 @@ class ResourceController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager) use ($response, $id) {
+            function (ManagerInterface $manager) use ($response, $id) {
                 $response->setStatusCode(204);
 
                 $manager->delete($id);

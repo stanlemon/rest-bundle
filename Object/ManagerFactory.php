@@ -4,7 +4,7 @@ namespace Lemon\RestBundle\Object;
 use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class ManagerFactory
+class ManagerFactory implements ManagerFactoryInterface
 {
     /**
      * @var Registry
