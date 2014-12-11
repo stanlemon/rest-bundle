@@ -10,10 +10,10 @@ use Lemon\RestBundle\Object\Definition;
 class RegistryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers ::addClass()
-     * @covers ::hasClass()
-     * @covers ::getClass()
-     * @covers ::getClasses()
+     * @covers ::add()
+     * @covers ::has()
+     * @covers ::get()
+     * @covers ::all()
      */
     public function testAddClass()
     {
@@ -36,7 +36,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::addClass()
+     * @covers ::add()
      */
     public function testAddClassDoesNotExist()
     {
@@ -47,7 +47,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::getClass()
+     * @covers ::get()
      */
     public function testGetClassNotInRegistry()
     {
