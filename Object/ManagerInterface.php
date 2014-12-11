@@ -1,8 +1,6 @@
 <?php
 namespace Lemon\RestBundle\Object;
 
-use Lemon\RestBundle\Model\SearchResults;
-
 interface ManagerInterface
 {
     /**
@@ -12,7 +10,7 @@ interface ManagerInterface
 
     /**
      * @param Criteria $criteria
-     * @return SearchResults
+     * @return \Lemon\RestBundle\Model\SearchResults
      */
     public function search(Criteria $criteria);
 
