@@ -2,8 +2,10 @@
 namespace Lemon\RestBundle\DependencyInjection\Compiler;
 
 use Lemon\RestBundle\Annotation\Resource;
+use Doctrine\Common\Inflector\Inflector;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -48,9 +50,23 @@ class RegisterResourcePass implements CompilerPassInterface
 
                         foreach ($reader->getClassAnnotations($reflectionClass) as $annotation) {
                             if ($annotation instanceof Resource) {
-                                $name = $annotation->name ?: lcfirst($reflectionClass->getShortName());
+                                $name = $annotation->name ?: Inflector::pluralize(
+                                    lcfirst($reflectionClass->getShortName())
+                                );
 
-                                $registry->addMethodCall('addClass', array($name, $className));
+                                $definition = new Definition('Lemon\RestBundle\Object\Definition', array(
+                                    $name,
+                                    $className,
+                                    $annotation->search,
+                                    $annotation->create,
+                                    $annotation->update,
+                                    $annotation->delete,
+                                    $annotation->partialUpdate
+                                ));
+
+                                $container->setDefinition('lemon_rest.object_resources.' . $name, $definition);
+
+                                $registry->addMethodCall('addClass', array($definition));
                             }
                         }
                     }

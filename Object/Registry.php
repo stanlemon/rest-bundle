@@ -6,29 +6,31 @@ class Registry
     protected $classes = array();
 
     /**
-     * @param string $name
-     * @param string $class
+     * @param Definition $definition
      */
-    public function addClass($name, $class)
+    public function add(Definition $definition)
     {
-        if (!class_exists($class)) {
-            throw new \InvalidArgumentException(sprintf("Invalid class \"%s\"", $class));
+        if (!class_exists($definition->getClass())) {
+            throw new \InvalidArgumentException(sprintf(
+                "Invalid class \"%s\"",
+                $definition->getClass()
+            ));
         }
-        $this->classes[$name] = $class;
+        $this->classes[$definition->getName()] = $definition;
     }
 
-    public function getClasses()
+    public function all()
     {
         return $this->classes;
     }
 
     /**
      * @param string $name
-     * @return string
+     * @return Definition
      */
-    public function getClass($name)
+    public function get($name)
     {
-        if (!$this->hasClass($name)) {
+        if (!$this->has($name)) {
             throw new \InvalidArgumentException(sprintf("Invalid resource \"%s\"", $name));
         }
         return $this->classes[$name];
@@ -38,7 +40,7 @@ class Registry
      * @param string $name
      * @return bool
      */
-    public function hasClass($name)
+    public function has($name)
     {
         return array_key_exists($name, $this->classes);
     }

@@ -40,12 +40,12 @@ class ManagerFactory
      */
     public function create($resource)
     {
-        $class = $this->registry->getClass($resource);
+        $definition = $this->registry->get($resource);
 
         return new Manager(
             $this->doctrine,
             $this->eventDispatcher,
-            $class
+            $definition
         );
     }
 }

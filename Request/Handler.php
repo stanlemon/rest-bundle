@@ -4,6 +4,7 @@ namespace Lemon\RestBundle\Request;
 
 use Lemon\RestBundle\Object\Exception\InvalidException;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
+use Lemon\RestBundle\Object\Exception\UnsupportedMethodException;
 use Lemon\RestBundle\Object\ManagerFactory;
 use Lemon\RestBundle\Object\Envelope\EnvelopeFactory;
 use Lemon\RestBundle\Serializer\ConstructorFactory;
@@ -105,6 +106,12 @@ class Handler
             $response->setStatusCode(404);
             $data = array(
                 "code" => 404,
+                "message" => $e->getMessage(),
+            );
+        } catch (UnsupportedMethodException $e) {
+            $response->setStatusCode(405);
+            $data = array(
+                "code" => 405,
                 "message" => $e->getMessage(),
             );
         } catch (HttpException $e) {
