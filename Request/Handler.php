@@ -119,7 +119,7 @@ class Handler
             );
         }
 
-        $context = SerializationContext::create();
+        $context = SerializationContext::create()->enableMaxDepthChecks();
 
         if ($accept->hasParameter('version')) {
             $context->setVersion($accept->getParameter('version'));
