@@ -4,7 +4,7 @@ namespace Lemon\RestBundle\Request;
 
 use Lemon\RestBundle\Object\Exception\InvalidException;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
-use Lemon\RestBundle\Object\ManagerFactory;
+use Lemon\RestBundle\Object\ManagerFactoryInterface;
 use Lemon\RestBundle\Object\Envelope\EnvelopeFactory;
 use Lemon\RestBundle\Serializer\ConstructorFactory;
 use Psr\Log\LoggerInterface;
@@ -18,7 +18,7 @@ use Negotiation\FormatNegotiatorInterface;
 class Handler
 {
     /**
-     * @var \Lemon\RestBundle\Object\ManagerFactory
+     * @var \Lemon\RestBundle\Object\ManagerFactoryInterface
      */
     protected $managerFactory;
     /**
@@ -41,14 +41,14 @@ class Handler
     protected $logger;
 
     /**
-     * @param ManagerFactory $managerFactory
+     * @param ManagerFactoryInterface $managerFactory
      * @param EnvelopeFactory $envelopeFactory
      * @param SerializerInterface $serializer
      * @param FormatNegotiatorInterface $negotiator
      * @param LoggerInterface $logger
      */
     public function __construct(
-        ManagerFactory $managerFactory,
+        ManagerFactoryInterface $managerFactory,
         EnvelopeFactory $envelopeFactory,
         ConstructorFactory $serializer,
         FormatNegotiatorInterface $negotiator,
@@ -73,6 +73,10 @@ class Handler
         $accept = $this->negotiator->getBest($request->headers->get('Accept'));
 
         $format = $this->negotiator->getFormat($accept->getValue());
+        
+        if ($format == 'html') {
+            $format = 'json';
+        }
 
         $response->headers->set('Content-Type', $accept->getValue());
 

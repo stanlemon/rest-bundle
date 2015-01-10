@@ -10,7 +10,7 @@ use Lemon\RestBundle\Model\SearchResults;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class Manager
+class Manager implements ManagerInterface
 {
     protected $doctrine;
     protected $eventDispatcher;

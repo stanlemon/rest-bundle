@@ -14,7 +14,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('envelope')
-                    ->defaultValue('Lemon\RestBundle\Object\Envelope\DefaultEnvelope')
+                    ->defaultValue('Lemon\RestBundle\Object\Envelope\FlattenedEnvelope')
                 ->end()
                 ->scalarNode('criteria')
                     ->defaultValue('Lemon\RestBundle\Object\Criteria\DefaultCriteria')

@@ -130,10 +130,10 @@ class ResourceControllerTest extends WebTestCase
 
         $data = json_decode($response->getContent());
 
-        $this->assertCount(3, $data->results);
-        $this->assertEquals($person5->id, $data->results[0]->id);
-        $this->assertEquals($person3->id, $data->results[1]->id);
-        $this->assertEquals($person2->id, $data->results[2]->id);
+        $this->assertCount(3, $data);
+        $this->assertEquals($person5->id, $data[0]->id);
+        $this->assertEquals($person3->id, $data[1]->id);
+        $this->assertEquals($person2->id, $data[2]->id);
     }
 
     public function testGetAction()

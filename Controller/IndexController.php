@@ -56,6 +56,10 @@ class IndexController
             $request->headers->get('Accept')
         );
 
+        if ($format == 'html') {
+            $format = 'json';
+        }
+
         $data = array();
 
         foreach ($this->registry->getClasses() as $name => $class) {
