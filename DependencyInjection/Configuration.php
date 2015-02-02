@@ -22,6 +22,8 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('mappings')
                     ->prototype('array')
                         ->children()
+                            ->scalarNode('dir')->end()
+                            ->scalarNode('prefix')->end()
                             ->scalarNode('name')->end()
                             ->scalarNode('class')->end()
                         ->end()

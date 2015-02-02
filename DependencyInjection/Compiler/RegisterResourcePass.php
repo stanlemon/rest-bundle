@@ -66,7 +66,7 @@ class RegisterResourcePass implements CompilerPassInterface
 
                                 $container->setDefinition('lemon_rest.object_resources.' . $name, $definition);
 
-                                $registry->addMethodCall('addClass', array($definition));
+                                $registry->addMethodCall('add', array($definition));
                             }
                         }
                     }
