@@ -80,7 +80,7 @@ class Manager implements ManagerInterface
         $metadata = $this->getManager()->getClassMetadata($this->getClass());
 
         foreach ($criteria as $key => $value) {
-            if ($metadata->hasField($key)) {
+            if ($metadata->hasField($key) || $metadata->hasAssociation($key)) {
                 if ($metadata->getTypeOfField($key) == 'string') {
                     $qb->andWhere('o.' . $key . ' LIKE :' . $key);
                     $qb->setParameter($key, '%' . $value . '%');
