@@ -5,6 +5,7 @@ namespace Lemon\RestBundle\Tests\Controller;
 use Doctrine\ORM\AbstractQuery;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Object\Criteria\DefaultCriteria;
+use Lemon\RestBundle\Object\Definition;
 use Lemon\RestBundle\Tests\Fixtures\Car;
 use Lemon\RestBundle\Tests\Fixtures\Tag;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,8 +55,8 @@ class ResourceControllerTest extends WebTestCase
         $this->doctrine->getConnection()->beginTransaction();
 
         $registry = $this->container->get('lemon_rest.object_registry');
-        $registry->addClass('person', 'Lemon\RestBundle\Tests\Fixtures\Person');
-        $registry->addClass('footballTeam', 'Lemon\RestBundle\Tests\Fixtures\FootballTeam');
+        $registry->add(new Definition('person', 'Lemon\RestBundle\Tests\Fixtures\Person'));
+        $registry->add(new Definition('footballTeam', 'Lemon\RestBundle\Tests\Fixtures\FootballTeam'));
 
         $this->controller = $this->container->get('lemon_rest.resource_controller');
     }

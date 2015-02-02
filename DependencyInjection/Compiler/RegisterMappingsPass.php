@@ -1,6 +1,7 @@
 <?php
 namespace Lemon\RestBundle\DependencyInjection\Compiler;
 
+use Lemon\RestBundle\Object\Definition;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -20,7 +21,18 @@ class RegisterMappingsPass implements CompilerPassInterface
                 throw new \RuntimeException(sprintf("Class \"%s\" does not exist", $mapping['class']));
             }
 
-            $registry->addMethodCall('addClass', array($mapping['name'], $mapping['class']));
+            $definition = new Definition(
+                $mapping['name'],
+                $mapping['class']
+            );
+            $definition = new Definition('Lemon\RestBundle\Object\Definition', array(
+                $mapping['name'],
+                $mapping['class']
+            ));
+
+            $container->setDefinition('lemon_rest.object_resources.' . $mapping['name'], $definition);
+
+            $registry->addMethodCall('addClass', array($definition));
         }
     }
 }

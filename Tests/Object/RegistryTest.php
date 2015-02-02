@@ -2,6 +2,7 @@
 namespace Lemon\RestBundle\Tests\Object;
 
 use Lemon\RestBundle\Object\Registry;
+use Lemon\RestBundle\Object\Definition;
 
 /**
  * @coversDefaultClass \Lemon\RestBundle\Object\Registry
@@ -9,48 +10,50 @@ use Lemon\RestBundle\Object\Registry;
 class RegistryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers ::addClass()
-     * @covers ::hasClass()
-     * @covers ::getClass()
-     * @covers ::getClasses()
+     * @covers ::add()
+     * @covers ::has()
+     * @covers ::get()
+     * @covers ::all()
      */
     public function testAddClass()
     {
-        $registry = new Registry();
-        $registry->addClass('person', '\Lemon\RestBundle\Tests\Fixtures\Person');
+        $definition = new Definition('person', '\Lemon\RestBundle\Tests\Fixtures\Person');
 
-        $this->assertTrue($registry->hasClass('person'));
+        $registry = new Registry();
+        $registry->add($definition);
+
+        $this->assertTrue($registry->has('person'));
         $this->assertEquals(
             '\Lemon\RestBundle\Tests\Fixtures\Person',
-            $registry->getClass('person')
+            $registry->get('person')->getClass()
         );
         $this->assertEquals(
             array(
-                'person' => '\Lemon\RestBundle\Tests\Fixtures\Person'
+                'person' => $definition
             ),
-            $registry->getClasses()
+            $registry->all()
         );
     }
 
     /**
-     * @covers ::addClass()
+     * @covers ::add()
      */
     public function testAddClassDoesNotExist()
     {
         $this->setExpectedException('\InvalidArgumentException');
 
         $registry = new Registry();
-        $registry->addClass('foo', '\foo\bar');
+        $registry->add(new Definition('foo', '\foo\bar'));
     }
 
     /**
-     * @covers ::getClass()
+     * @covers ::get()
      */
     public function testGetClassNotInRegistry()
     {
         $this->setExpectedException('\InvalidArgumentException');
 
         $registry = new Registry();
-        $registry->getClass('\foo\bar');
+        $registry->get('\foo\bar');
     }
 }
