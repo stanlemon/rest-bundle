@@ -1,3 +1,5 @@
+parameters:
+    jms_serializer.json_deserialization_visitor.class: Lemon\RestBundle\Serializer\LazyJsonDeserializationVisitor
 services:
     lemon_rest.resource_controller:
         class: Lemon\RestBundle\Controller\ResourceController
@@ -89,6 +91,12 @@ services:
         class: PhpCollection\Map
         scope: prototype
 
+    lemon_rest.serializer.object_constructor:
+        class: Lemon\RestBundle\Serializer\Construction\ToggleDoctrineObjectConstructor
+        arguments:
+            - @jms_serializer.doctrine_object_constructor
+            - @jms_serializer.unserialize_object_constructor
+
     lemon_rest.serializer.constructor_factory:
         class: Lemon\RestBundle\Serializer\ConstructorFactory
         arguments:
@@ -98,5 +106,5 @@ services:
             - @lemon_rest.serializer.collection
             - @jms_serializer.event_dispatcher
         calls:
-            - [ addObjectConstructor, ['default', @jms_serializer.unserialize_object_constructor] ]
+            - [ addObjectConstructor, ['default', @lemon_rest.serializer.object_constructor] ]
             - [ addObjectConstructor, ['doctrine', @jms_serializer.doctrine_object_constructor] ]
