@@ -15,6 +15,11 @@ use Lemon\RestBundle\Tests\Fixtures\FootballTeam;
 
 class ResourceControllerTest extends FunctionalTestCase
 {
+    /**
+     * @var \Lemon\RestBundle\Controller\ResourceController
+     */
+    protected $controller;
+
     public function setUp()
     {
         parent::setUp();

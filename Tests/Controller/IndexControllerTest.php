@@ -15,6 +15,11 @@ use Lemon\RestBundle\Tests\Fixtures\FootballTeam;
 
 class IndexControllerTest extends FunctionalTestCase
 {
+    /**
+     * @var \Lemon\RestBundle\Controller\IndexController
+     */
+    protected $controller;
+
     public function setUp()
     {
         parent::setUp();

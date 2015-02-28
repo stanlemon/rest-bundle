@@ -29,10 +29,6 @@ abstract class FunctionalTestCase extends WebTestCase
      * @var \JMS\Serializer\Serializer
      */
     protected $serializer;
-    /**
-     * @var \Lemon\RestBundle\Controller\ResourceController
-     */
-    protected $controller;
 
     public function setUp()
     {
