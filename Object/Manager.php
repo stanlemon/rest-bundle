@@ -8,27 +8,28 @@ use Lemon\RestBundle\Event\PreSearchEvent;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Model\SearchResults;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
+use Lemon\RestBundle\Object\Exception\UnsupportedMethodException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Manager implements ManagerInterface
 {
     protected $doctrine;
     protected $eventDispatcher;
-    protected $class;
+    protected $objectDefinition;
 
     /**
      * @param Doctrine $doctrine
      * @param EventDispatcher $eventDispatcher
-     * @param string $class
+     * @param Definition $objectDefinition
      */
     public function __construct(
         Doctrine $doctrine,
         EventDispatcher $eventDispatcher,
-        $class
+        Definition $objectDefinition
     ) {
         $this->doctrine = $doctrine;
         $this->eventDispatcher = $eventDispatcher;
-        $this->class = $class;
+        $this->objectDefinition = $objectDefinition;
     }
 
     /**
@@ -36,7 +37,7 @@ class Manager implements ManagerInterface
      */
     public function getClass()
     {
-        return $this->class;
+        return $this->objectDefinition->getClass();
     }
 
     /**
@@ -44,7 +45,7 @@ class Manager implements ManagerInterface
      */
     protected function getManager()
     {
-        return $this->doctrine->getManagerForClass($this->class);
+        return $this->doctrine->getManagerForClass($this->getClass());
     }
 
     /**
@@ -52,8 +53,13 @@ class Manager implements ManagerInterface
      */
     protected function getRepository()
     {
-        return $this->doctrine->getManagerForClass($this->class)
-            ->getRepository($this->class);
+        return $this->doctrine->getManagerForClass($this->getClass())
+            ->getRepository($this->getClass());
+    }
+    
+    protected function throwUnsupportedMethodException()
+    {
+        throw new UnsupportedMethodException();
     }
 
     /**
@@ -62,17 +68,19 @@ class Manager implements ManagerInterface
      */
     public function search(Criteria $criteria)
     {
+        !$this->objectDefinition->canSearch() && $this->throwUnsupportedMethodException();
+
         $this->eventDispatcher->dispatch(RestEvents::PRE_SEARCH, new PreSearchEvent($criteria));
 
         /** @var \Doctrine\ORM\QueryBuilder $qb */
         $qb = $this->getManager()->createQueryBuilder('o');
         $qb->select($qb->expr()->count('o'))
-            ->from($this->class, 'o');
+            ->from($this->getClass(), 'o');
 
-        $metadata = $this->getManager()->getClassMetadata($this->class);
+        $metadata = $this->getManager()->getClassMetadata($this->getClass());
 
         foreach ($criteria as $key => $value) {
-            if ($metadata->hasField($key)) {
+            if ($metadata->hasField($key) || $metadata->hasAssociation($key)) {
                 if ($metadata->getTypeOfField($key) == 'string') {
                     $qb->andWhere('o.' . $key . ' LIKE :' . $key);
                     $qb->setParameter($key, '%' . $value . '%');
@@ -113,6 +121,8 @@ class Manager implements ManagerInterface
      */
     public function create($object)
     {
+        !$this->objectDefinition->canCreate() && $this->throwUnsupportedMethodException();
+
         $em = $this->getManager();
 
         $this->eventDispatcher->dispatch(RestEvents::PRE_CREATE, new ObjectEvent($object));
@@ -144,6 +154,8 @@ class Manager implements ManagerInterface
      */
     public function update($object)
     {
+        !$this->objectDefinition->canUpdate() && $this->throwUnsupportedMethodException();
+
         $em = $this->getManager();
 
         $original = $this->retrieve(IdHelper::getId($object));
@@ -163,6 +175,8 @@ class Manager implements ManagerInterface
 
     public function partialUpdate($object)
     {
+        !$this->objectDefinition->canPartialUpdate() && $this->throwUnsupportedMethodException();
+
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getManager();
 
@@ -178,6 +192,8 @@ class Manager implements ManagerInterface
      */
     public function delete($id)
     {
+        !$this->objectDefinition->canDelete() && $this->throwUnsupportedMethodException();
+
         $object = $this->retrieve($id);
 
         $em = $this->getManager();

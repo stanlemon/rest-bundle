@@ -12,6 +12,11 @@ Authors
 
 * Stan Lemon <stosh1985@gmail.com>
 
+Changes
+-------
+
+Details about changes from version to version are stored in `CHANGELOG.md`
+
 Documentation
 -------------
 

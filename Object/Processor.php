@@ -70,8 +70,6 @@ class Processor
                 foreach ($value as $v) {
                     $this->processIds($v);
                 }
-            } else {
-                $this->processIds($value);
             }
         }
     }

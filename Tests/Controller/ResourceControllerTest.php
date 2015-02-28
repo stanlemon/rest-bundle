@@ -3,38 +3,18 @@
 namespace Lemon\RestBundle\Tests\Controller;
 
 use Doctrine\ORM\AbstractQuery;
+use Symfony\Component\HttpFoundation\Request;
+use Lemon\RestBundle\Tests\FunctionalTestCase;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Object\Criteria\DefaultCriteria;
+use Lemon\RestBundle\Object\Definition;
 use Lemon\RestBundle\Tests\Fixtures\Car;
 use Lemon\RestBundle\Tests\Fixtures\Tag;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Doctrine\ORM\Tools\SchemaTool;
 use Lemon\RestBundle\Tests\Fixtures\Person;
 use Lemon\RestBundle\Tests\Fixtures\FootballTeam;
 
-class ResourceControllerTest extends WebTestCase
+class ResourceControllerTest extends FunctionalTestCase
 {
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\Client
-     */
-    protected $client;
-    /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    protected $container;
-    /**
-     * @var \Doctrine\Bundle\DoctrineBundle\Registry
-     */
-    protected $doctrine;
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    protected $em;
-    /**
-     * @var \JMS\Serializer\Serializer
-     */
-    protected $serializer;
     /**
      * @var \Lemon\RestBundle\Controller\ResourceController
      */
@@ -42,54 +22,9 @@ class ResourceControllerTest extends WebTestCase
 
     public function setUp()
     {
-        $this->client = static::createClient();
-        $this->container = $this->client->getContainer();
-        $this->doctrine = $this->container->get('doctrine');
-        $this->em = $this->doctrine->getManager();
-        $this->serializer = $this->container->get('jms_serializer');
-
-        $schemaTool = new SchemaTool($this->em);
-        $schemaTool->createSchema($this->em->getMetadataFactory()->getAllMetadata());
-
-        $this->doctrine->getConnection()->beginTransaction();
-
-        $registry = $this->container->get('lemon_rest.object_registry');
-        $registry->addClass('person', 'Lemon\RestBundle\Tests\Fixtures\Person');
-        $registry->addClass('footballTeam', 'Lemon\RestBundle\Tests\Fixtures\FootballTeam');
+        parent::setUp();
 
         $this->controller = $this->container->get('lemon_rest.resource_controller');
-    }
-
-    protected static function getKernelClass()
-    {
-        return 'Lemon\RestBundle\Tests\TestKernel';
-    }
-
-    public function tearDown()
-    {
-        $this->doctrine->getConnection()->rollback();
-    }
-
-    /**
-     * @param string $method
-     * @param string $uri
-     * @param string|null $content
-     * @return Request
-     */
-    protected function makeRequest($method, $uri, $content = null, $parameters = array(), $server = array())
-    {
-        $request = Request::create(
-            $uri,
-            $method,
-            $parameters,
-            $cookies = array(),
-            $files = array(),
-            $server = array_merge(array(
-                'HTTP_ACCEPT' => 'application/json',
-            ), $server),
-            $content
-        );
-        return $request;
     }
 
     public function testListAction()
@@ -1060,5 +995,42 @@ class ResourceControllerTest extends WebTestCase
 
         $this->assertEquals($footballTeam->conference, $data->conference);
         $this->assertTrue(!isset($data->league));
+    }
+
+    public function testPostWithIdForObject()
+    {
+        $mother = new Person();
+        $mother->name = "Sharon Lemon";
+
+        $this->em->persist($mother);
+
+        $person = new Person();
+        $person->name = "Stan Lemon";
+
+        $this->em->persist($person);
+
+        $this->em->flush();
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'PUT',
+            '/person/' . $person->id,
+            json_encode(array(
+                'name' => $person->name,
+                'mother' => $mother->id
+            ))
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->putAction($request, 'person', $person->id);
+
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $person->id
+        ));
+
+        $this->assertNotNull($refresh);
+        $this->assertNotNull($refresh->mother);
+        $this->assertEquals($mother->id, $refresh->mother->id);
+        $this->assertEquals($mother->name, $refresh->mother->name);
     }
 }

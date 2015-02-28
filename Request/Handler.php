@@ -4,9 +4,11 @@ namespace Lemon\RestBundle\Request;
 
 use Lemon\RestBundle\Object\Exception\InvalidException;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
+use Lemon\RestBundle\Object\Exception\UnsupportedMethodException;
 use Lemon\RestBundle\Object\ManagerFactoryInterface;
 use Lemon\RestBundle\Object\Envelope\EnvelopeFactory;
 use Lemon\RestBundle\Serializer\ConstructorFactory;
+use Lemon\RestBundle\Serializer\DeserializationContext;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -83,12 +85,16 @@ class Handler
         try {
             $manager = $this->managerFactory->create($resource);
 
+            $context = new DeserializationContext();
+            $context->enableMaxDepthChecks();
+
             $object = $this->serializer->create(
                 $request->isMethod('patch') ? 'doctrine' : 'default'
             )->deserialize(
                 $request->getContent(),
                 $manager->getClass(),
-                $format
+                $format,
+                $context
             );
 
             $data = $this->envelopeFactory->create(
@@ -107,6 +113,12 @@ class Handler
                 "code" => 404,
                 "message" => $e->getMessage(),
             );
+        } catch (UnsupportedMethodException $e) {
+            $response->setStatusCode(405);
+            $data = array(
+                "code" => 405,
+                "message" => $e->getMessage(),
+            );
         } catch (HttpException $e) {
             $response->setStatusCode($e->getStatusCode());
             $data = array(
@@ -119,7 +131,7 @@ class Handler
             $response->setStatusCode(500);
             $data = array(
                 "code" => 500,
-                "message" => $e->getMessage(),
+                "message" => $e->getMessage()
             );
         }
 

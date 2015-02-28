@@ -14,6 +14,8 @@ class ConstructorFactory
     protected $handlerRegistry;
     protected $eventDispatcher;
     protected $objectConstructorMap;
+    protected $serializationVisitors;
+    protected $deserializationVisitors;
 
     public function __construct(
         MetadataFactoryInterface $factory,
