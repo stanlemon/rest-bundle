@@ -1003,13 +1003,13 @@ class ResourceControllerTest extends FunctionalTestCase
         $mother->name = "Sharon Lemon";
 
         $this->em->persist($mother);
-        $this->em->flush($mother);
 
         $person = new Person();
         $person->name = "Stan Lemon";
 
         $this->em->persist($person);
-        $this->em->flush($person);
+
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
