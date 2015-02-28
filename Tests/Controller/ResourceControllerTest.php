@@ -1062,4 +1062,42 @@ class ResourceControllerTest extends WebTestCase
         $this->assertEquals($footballTeam->conference, $data->conference);
         $this->assertTrue(!isset($data->league));
     }
+
+    public function testPostWithIdForObject()
+    {
+        $mother = new Person();
+        $mother->name = "Sharon Lemon";
+
+        $this->em->persist($mother);
+        $this->em->flush($mother);
+
+        $person = new Person();
+        $person->name = "Stan Lemon";
+        $person->mother = $mother;
+
+        $this->em->persist($person);
+        $this->em->flush($person);
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person/' . $person->id,
+            json_encode(array(
+                'name' => $person->name,
+                'mother' => $mother->id
+            ))
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->postAction($request, 'person', 1);
+
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $person->id
+        ));
+
+        $this->assertNotNull($refresh);
+        $this->assertNotNull($person->mother);
+        $this->assertEquals($mother->id, $person->mother->id);
+        $this->assertEquals($mother->name, $person->mother->name);
+    }
 }
