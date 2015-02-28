@@ -15,10 +15,9 @@ monolog:
     handlers:
         stdout:
             type:  stream
-            path:  "php://stdout"
+            path:  "php://temp"
             level: debug
             channels: app
-            formatter: monolog_line_formatter
 
 doctrine:
     dbal:
@@ -39,8 +38,3 @@ doctrine:
                         type: annotation
                         prefix: Lemon\RestBundle\Tests\Fixtures\
                         dir: %kernel.root_dir%/Fixtures/
-
-services:
-    monolog_line_formatter:
-        class: Monolog\Formatter\LineFormatter
-        arguments: [null, null, true, false]
