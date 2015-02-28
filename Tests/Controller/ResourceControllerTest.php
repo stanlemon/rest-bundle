@@ -1073,14 +1073,13 @@ class ResourceControllerTest extends WebTestCase
 
         $person = new Person();
         $person->name = "Stan Lemon";
-        $person->mother = $mother;
 
         $this->em->persist($person);
         $this->em->flush($person);
         $this->em->clear();
 
         $request = $this->makeRequest(
-            'POST',
+            'PUT',
             '/person/' . $person->id,
             json_encode(array(
                 'name' => $person->name,
@@ -1089,15 +1088,15 @@ class ResourceControllerTest extends WebTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->postAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', $person->id);
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
         ));
 
         $this->assertNotNull($refresh);
-        $this->assertNotNull($person->mother);
-        $this->assertEquals($mother->id, $person->mother->id);
-        $this->assertEquals($mother->name, $person->mother->name);
+        $this->assertNotNull($refresh->mother);
+        $this->assertEquals($mother->id, $refresh->mother->id);
+        $this->assertEquals($mother->name, $refresh->mother->name);
     }
 }
