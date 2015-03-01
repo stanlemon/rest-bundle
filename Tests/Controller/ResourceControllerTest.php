@@ -1037,6 +1037,7 @@ class ResourceControllerTest extends FunctionalTestCase
     public function testPostActionWithNestedGratherThanSecondLevel()
     {
 
+        $this->markTestSkipped();
         $tag = new Tag();
         $tag->name = 'baz';
 
