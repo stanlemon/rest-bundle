@@ -1033,4 +1033,59 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertEquals($mother->id, $refresh->mother->id);
         $this->assertEquals($mother->name, $refresh->mother->name);
     }
+
+    public function testPostActionWithNestedGratherThanSecondLevel()
+    {
+
+        $tag = new Tag();
+        $tag->name = 'baz';
+
+        $this->em->persist($tag);
+        $this->em->flush($tag);
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person',
+            json_encode(array(
+                'name' => 'Stan Lemon',
+                'cars' => array(
+                    array(
+                        'name' => 'Honda',
+                        'year' => 2006,
+                        'places' => array(
+                            array(
+                                'name' => 'First'
+                            ),
+                            array(
+                                'name' => 'Second'
+                            )
+                        )
+                    )
+                ),
+            ))
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->postAction($request, 'person');
+
+        $this->em->clear();
+
+        $data = json_decode($response->getContent());
+
+        $this->assertEquals($data->name, "Stan Lemon");
+
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $data->id
+        ));
+
+        $this->assertNotNull($refresh);
+        $this->assertEquals("Stan Lemon", $refresh->name);
+        $this->assertCount(1, $refresh->cars);
+        $this->assertEquals("Honda", $refresh->cars[0]->name);
+        $this->assertEquals(2006, $refresh->cars[0]->year);
+
+        //Error here;
+        $this->assertCount(2, $refresh->cars[0]->places);
+    }
 }
