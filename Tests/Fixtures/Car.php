@@ -38,4 +38,14 @@ class Car
      * @Serializer\ReadOnly()
      */
     public $created;
+
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection|\Lemon\RestBundle\Tests\Fixtures\Place[]
+     * @ORM\OneToMany(
+     *  targetEntity="Lemon\RestBundle\Tests\Fixtures\Place",
+     *  mappedBy="car",
+     *  cascade={"all"}
+     * )
+     */
+    public $places;
 }
