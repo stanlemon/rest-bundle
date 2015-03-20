@@ -997,7 +997,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertTrue(!isset($data->league));
     }
 
-    public function testPostWithIdForObject()
+    public function testPutWithIdForObject()
     {
         $mother = new Person();
         $mother->name = "Sharon Lemon";
@@ -1021,9 +1021,7 @@ class ResourceControllerTest extends FunctionalTestCase
             ))
         );
 
-        /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->putAction($request, 'person', $person->id);
-
+        $this->controller->putAction($request, 'person', $person->id);
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
         ));
