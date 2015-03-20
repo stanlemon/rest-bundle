@@ -1032,6 +1032,36 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertEquals($mother->name, $refresh->mother->name);
     }
 
+    public function testPostWithIdsForOneToManyRelationships()
+    {
+        $mustang = new Car();
+        $mustang->name = 'Mustang';
+        $mustang->year = '2014';
+        $this->em->persist($mustang);
+        $this->em->flush();
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person',
+            json_encode(array(
+                'name' => 'Stan Lemon',
+                'cars' => array($mustang->id)
+            ))
+        );
+
+        $response = $this->controller->postAction($request, 'person');
+        $this->assertTrue($response->isSuccessful());
+
+        $person = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'name' => 'Stan Lemon'
+        ));
+
+        $this->assertNotNull($person);
+        $this->assertEquals(['Mustang'], array_map(function($car) {
+            return $car->name;
+        }, $person->cars));
+    }
+
     public function testPostActionWithNestedGratherThanSecondLevel()
     {
 
