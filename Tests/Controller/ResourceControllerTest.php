@@ -997,6 +997,35 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertTrue(!isset($data->league));
     }
 
+    public function testPostWithIdForObject()
+    {
+        $mother = new Person();
+        $mother->name = "Sharon Lemon";
+
+        $this->em->persist($mother);
+
+        $this->em->flush();
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person',
+            json_encode(array(
+                'name' => "Stan Lemon",
+                'mother' => $mother->id
+            ))
+        );
+
+        $this->controller->postAction($request, 'person');
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneByName("Stan Lemon");
+
+        $this->assertNotNull($refresh);
+		$this->assertEquals("Stan Lemon", $refresh->name);
+        $this->assertNotNull($refresh->mother);
+        $this->assertEquals($mother->id, $refresh->mother->id);
+        $this->assertEquals($mother->name, $refresh->mother->name);
+    }
+
     public function testPutWithIdForObject()
     {
         $mother = new Person();
