@@ -1,7 +1,7 @@
 <?php
 namespace Lemon\RestBundle\Object;
 
-use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
+use Symfony\Bridge\Doctrine\ManagerRegistry as Doctrine;
 use Lemon\RestBundle\Event\ObjectEvent;
 use Lemon\RestBundle\Event\PostSearchEvent;
 use Lemon\RestBundle\Event\PreSearchEvent;

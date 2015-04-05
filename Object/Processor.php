@@ -1,13 +1,13 @@
 <?php
 namespace Lemon\RestBundle\Object;
 
-use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
+use Symfony\Bridge\Doctrine\ManagerRegistry as Doctrine;
 use Metadata\MetadataFactory;
 
 class Processor
 {
     /**
-     * @var \Doctrine\Bundle\DoctrineBundle\Registry
+     * @var \Symfony\Bridge\Doctrine\ManagerRegistry
      */
     protected $doctrine;
     /**

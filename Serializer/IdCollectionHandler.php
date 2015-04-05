@@ -8,13 +8,13 @@ use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\Context;
 use JMS\Serializer\JsonDeserializationVisitor;
-use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
+use Symfony\Bridge\Doctrine\ManagerRegistry as Doctrine;
 use Lemon\RestBundle\Object\IdHelper;
 
 class IdCollectionHandler implements SubscribingHandlerInterface
 {
     /**
-     * @var \Doctrine\Bundle\DoctrineBundle\Registry
+     * @var \Symfony\Bridge\Doctrine\ManagerRegistry
      */
     protected $doctrine;
 
