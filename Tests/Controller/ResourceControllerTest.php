@@ -1088,12 +1088,50 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertNotNull($person);
         $this->assertEquals(['Mustang'], array_map(function($car) {
             return $car->name;
-        }, $person->cars));
+        }, $person->cars->toArray()));
+    }
+
+    public function testPutWithIdsForOneToManyRelationships()
+    {
+        $mustang = new Car();
+        $mustang->name = 'Mustang';
+        $mustang->year = '2014';
+
+        $this->em->persist($mustang);
+        $this->em->flush();
+
+        $person = new Person();
+        $person->name = "Stan Lemon";
+
+        $this->em->persist($person);
+
+        $this->em->flush();
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'PUT',
+            '/person/' . $person->id,
+            json_encode(array(
+                'name' => 'Stan Lemon',
+                'cars' => array($mustang->id)
+            ))
+        );
+
+        $response = $this->controller->putAction($request, 'person', $person->id);
+        $this->assertTrue($response->isSuccessful());
+
+        $person = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $person->id
+        ));
+
+        $this->assertNotNull($person);
+        $this->assertEquals(['Mustang'], array_map(function($car) {
+            return $car->name;
+        }, $person->cars->toArray()));
     }
 
     public function testPostActionWithNestedGratherThanSecondLevel()
     {
-
         $this->markTestSkipped();
         $tag = new Tag();
         $tag->name = 'baz';
