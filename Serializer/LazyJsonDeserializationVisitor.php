@@ -9,11 +9,32 @@ use JMS\Serializer\Metadata\PropertyMetadata;
 
 class LazyJsonDeserializationVisitor extends JsonDeserializationVisitor
 {
+
+    public function visitArray($data, array $type, Context $context)
+    {
+        $types = array('NULL', 'string', 'integer', 'boolean', 'double', 'float', 'array', 'ArrayCollection');
+
+        if (is_array($data) && count($type['params']) === 1 && !empty($type['params'][0]['name'])) {
+            foreach ($data as $key => $value) {
+                if (is_scalar($value) && !in_array($type['params'][0]['name'], $types)) {
+                    /** @var DeserializationContext $context */
+                    $context->useDoctrineConstructor();
+
+                    $data[$key] = array(
+                        'id' => $value
+                    );
+                }
+            }
+        }
+
+        return parent::visitArray($data, $type, $context);
+    }
+
     public function visitProperty(PropertyMetadata $metadata, $data, Context $context)
     {
         $name = $this->namingStrategy->translateName($metadata);
 
-        $types = array('NULL', 'string', 'integer', 'boolean', 'double', 'float', 'array');
+        $types = array('NULL', 'string', 'integer', 'boolean', 'double', 'float', 'array', 'ArrayCollection');
 
         if (isset($data[$name]) && is_scalar($data[$name]) && !in_array($metadata->type['name'], $types)) {
             /** @var DeserializationContext $context */
@@ -24,7 +45,7 @@ class LazyJsonDeserializationVisitor extends JsonDeserializationVisitor
             );
         }
 
-        if (null === $data || ! array_key_exists($name, $data)) {
+        if (null === $data || (is_array($data) && !array_key_exists($name, $data))) {
             return;
         }
 

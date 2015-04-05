@@ -12,7 +12,7 @@ matrix:
     - php: hhvm
   include:
     - php: hhvm
-      env: DOCTRINE_VERSION='doctrine/dbal=~2.5@dev doctrine/orm=~2.5@dev doctrine/doctrine-bundle=~1.3@dev'
+      env: DOCTRINE_VERSION='doctrine/dbal=~2.5 doctrine/orm=~2.5 doctrine/doctrine-bundle=~1.4'
 
 before_script:
   - composer self-update

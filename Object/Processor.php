@@ -109,6 +109,8 @@ class Processor
                         $prop = $ref->getProperty($association['mappedBy']);
                         $prop->setAccessible(true);
                         $prop->setValue($v, $object);
+
+                        $this->processRelationships($v);
                     }
 
                     $vid = IdHelper::getId($v);
@@ -133,8 +135,6 @@ class Processor
                         }
                     }
                 }
-            } else {
-                $this->processRelationships($value, $entity ? $property->getValue($entity) : null);
             }
         }
     }

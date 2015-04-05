@@ -1004,6 +1004,35 @@ class ResourceControllerTest extends FunctionalTestCase
 
         $this->em->persist($mother);
 
+        $this->em->flush();
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person',
+            json_encode(array(
+                'name' => "Stan Lemon",
+                'mother' => $mother->id
+            ))
+        );
+
+        $this->controller->postAction($request, 'person');
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneByName("Stan Lemon");
+
+        $this->assertNotNull($refresh);
+		$this->assertEquals("Stan Lemon", $refresh->name);
+        $this->assertNotNull($refresh->mother);
+        $this->assertEquals($mother->id, $refresh->mother->id);
+        $this->assertEquals($mother->name, $refresh->mother->name);
+    }
+
+    public function testPutWithIdForObject()
+    {
+        $mother = new Person();
+        $mother->name = "Sharon Lemon";
+
+        $this->em->persist($mother);
+
         $person = new Person();
         $person->name = "Stan Lemon";
 
@@ -1021,9 +1050,7 @@ class ResourceControllerTest extends FunctionalTestCase
             ))
         );
 
-        /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->putAction($request, 'person', $person->id);
-
+        $this->controller->putAction($request, 'person', $person->id);
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
         ));
@@ -1034,10 +1061,77 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertEquals($mother->name, $refresh->mother->name);
     }
 
+    public function testPostWithIdsForOneToManyRelationships()
+    {
+        $mustang = new Car();
+        $mustang->name = 'Mustang';
+        $mustang->year = '2014';
+        $this->em->persist($mustang);
+        $this->em->flush();
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person',
+            json_encode(array(
+                'name' => 'Stan Lemon',
+                'cars' => array($mustang->id)
+            ))
+        );
+
+        $response = $this->controller->postAction($request, 'person');
+        $this->assertTrue($response->isSuccessful());
+
+        $person = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'name' => 'Stan Lemon'
+        ));
+
+        $this->assertNotNull($person);
+        $this->assertEquals(array('Mustang'), array_map(function($car) {
+            return $car->name;
+        }, $person->cars->toArray()));
+    }
+
+    public function testPutWithIdsForOneToManyRelationships()
+    {
+        $mustang = new Car();
+        $mustang->name = 'Mustang';
+        $mustang->year = '2014';
+
+        $this->em->persist($mustang);
+        $this->em->flush();
+
+        $person = new Person();
+        $person->name = "Stan Lemon";
+
+        $this->em->persist($person);
+
+        $this->em->flush();
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'PUT',
+            '/person/' . $person->id,
+            json_encode(array(
+                'name' => 'Stan Lemon',
+                'cars' => array($mustang->id)
+            ))
+        );
+
+        $response = $this->controller->putAction($request, 'person', $person->id);
+        $this->assertTrue($response->isSuccessful());
+
+        $person = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $person->id
+        ));
+
+        $this->assertNotNull($person);
+        $this->assertEquals(array('Mustang'), array_map(function($car) {
+            return $car->name;
+        }, $person->cars->toArray()));
+    }
+
     public function testPostActionWithNestedGratherThanSecondLevel()
     {
-
-        $this->markTestSkipped();
         $tag = new Tag();
         $tag->name = 'baz';
 
