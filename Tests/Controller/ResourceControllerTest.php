@@ -1086,7 +1086,7 @@ class ResourceControllerTest extends FunctionalTestCase
         ));
 
         $this->assertNotNull($person);
-        $this->assertEquals(['Mustang'], array_map(function($car) {
+        $this->assertEquals(array('Mustang'), array_map(function($car) {
             return $car->name;
         }, $person->cars->toArray()));
     }
@@ -1125,7 +1125,7 @@ class ResourceControllerTest extends FunctionalTestCase
         ));
 
         $this->assertNotNull($person);
-        $this->assertEquals(['Mustang'], array_map(function($car) {
+        $this->assertEquals(array('Mustang'), array_map(function($car) {
             return $car->name;
         }, $person->cars->toArray()));
     }
