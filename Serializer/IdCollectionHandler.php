@@ -63,7 +63,7 @@ class IdCollectionHandler implements SubscribingHandlerInterface
 
         $class = $type['params'][0]['name'];
 
-        /** @var \Doctrine\ORM\EntityRepository $repository */
+        /** @var \Doctrine\Common\Persistence\ObjectRepository $repository */
         $repository = $this->doctrine->getManagerForClass($class)->getRepository($class);
 
         foreach ($data as $key => $value) {

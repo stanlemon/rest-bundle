@@ -2,7 +2,6 @@
 namespace Lemon\RestBundle\Object;
 
 use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
-use Doctrine\ORM\UnitOfWork;
 use Metadata\MetadataFactory;
 
 class Processor
@@ -52,12 +51,12 @@ class Processor
         $reflection = new \ReflectionClass($class);
         $em = $this->doctrine->getManagerForClass($class);
 
-        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
+        /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
         $metadata = $em->getMetadataFactory()->getMetadataFor($class);
 
         // Look for relationships, compare against preloaded entity
-        foreach ($metadata->getAssociationMappings() as $association) {
-            $property = $reflection->getProperty($association['fieldName']);
+        foreach ($metadata->getAssociationNames() as $fieldName) {
+            $property = $reflection->getProperty($fieldName);
             $property->setAccessible(true);
 
             $value = $property->getValue($object);
@@ -66,7 +65,7 @@ class Processor
                 continue;
             }
 
-            if (in_array($association['type'], array(4, 8))) {
+            if ($metadata->isCollectionValuedAssociation($fieldName)) {
                 foreach ($value as $v) {
                     $this->processIds($v);
                 }
@@ -86,12 +85,14 @@ class Processor
 
         $reflection = new \ReflectionClass($class);
 
-        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
+        /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
         $metadata = $em->getMetadataFactory()->getMetadataFor($class);
 
         // Look for relationships, compare against preloaded entity
-        foreach ($metadata->getAssociationMappings() as $association) {
-            $property = $reflection->getProperty($association['fieldName']);
+        foreach ($metadata->getAssociationNames() as $fieldName) {
+            $mappedBy = $metadata->getAssociationMappedByTargetField($fieldName);
+
+            $property = $reflection->getProperty($fieldName);
             $property->setAccessible(true);
 
             $value = $property->getValue($object);
@@ -100,13 +101,13 @@ class Processor
                 continue;
             }
 
-            if (in_array($association['type'], array(4, 8))) {
+            if ($metadata->isCollectionValuedAssociation($fieldName)) {
                 foreach ($value as $k => $v) {
                     // If the parent object is new, or if the relation has already been persisted
                     // set the mappedBy to the current object so that ids fill in properly
-                    if ($this->isNew($object) && isset($association['mappedBy'])) {
+                    if ($this->isNew($object) && isset($mappedBy)) {
                         $ref = new \ReflectionObject($v);
-                        $prop = $ref->getProperty($association['mappedBy']);
+                        $prop = $ref->getProperty($mappedBy);
                         $prop->setAccessible(true);
                         $prop->setValue($v, $object);
 
@@ -145,9 +146,7 @@ class Processor
      */
     protected function isNew($object)
     {
-        $em = $this->doctrine->getManagerForClass(get_class($object));
-
-        return $em->getUnitOfWork()->getEntityState($object) === UnitOfWork::STATE_NEW;
+        return IdHelper::getId($object) === null;
     }
 
     /**
@@ -180,12 +179,13 @@ class Processor
         }
 
         $em = $this->doctrine->getManagerForClass($class);
-        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
+        /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
         $metadata = $em->getMetadataFactory()->getMetadataFor($class);
 
-        foreach ($metadata->getAssociationMappings() as $association) {
-            if (in_array($association['type'], array(4, 8))) {
-                $property = $reflection->getProperty($association['fieldName']);
+        // Look for relationships, compare against preloaded entity
+        foreach ($metadata->getAssociationNames() as $fieldName) {
+            if ($metadata->isCollectionValuedAssociation($fieldName)) {
+                $property = $reflection->getProperty($fieldName);
                 $property->setAccessible(true);
 
                 if ($property->getValue($object)) {
