@@ -13,6 +13,9 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('lemon_rest');
         $rootNode
             ->children()
+                ->scalarNode('doctrine_registry_service_id')
+                    ->defaultValue('doctrine')
+                ->end()
                 ->scalarNode('envelope')
                     ->defaultValue('Lemon\RestBundle\Object\Envelope\FlattenedEnvelope')
                 ->end()
