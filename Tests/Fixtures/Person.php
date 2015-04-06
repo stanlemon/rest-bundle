@@ -33,22 +33,26 @@ class Person
     /**
      * @ORM\Column(name="ssn", type="string", length=255, nullable=true)
      * @Serializer\ReadOnly()
+     * @MongoDB\String()
      */
     public $ssn;
 
     /**
      * @ORM\Column(name="favorite_color", type="string", length=255, nullable=true)
+     * @MongoDB\String()
      */
     public $favoriteColor;
 
     /**
      * @ORM\Column(name="created", type="datetime", nullable=true)
+     * @MongoDB\Date()
      * @Serializer\ReadOnly()
      */
     public $created;
 
     /**
      * @ORM\Column(name="updated", type="datetime", nullable=true)
+     * @MongoDB\Date()
      * @Serializer\ReadOnly()
      */
     public $updated;
@@ -56,6 +60,7 @@ class Person
     /**
      * @var \Lemon\RestBundle\Tests\Fixtures\Person
      * @ORM\OneToOne(targetEntity="Lemon\RestBundle\Tests\Fixtures\Person", cascade={"all"})
+     * @MongoDB\ReferenceOne("Lemon\RestBundle\Tests\Fixtures\Person", cascade={"all"})
      */
     public $mother;
 
@@ -66,6 +71,7 @@ class Person
      *  mappedBy="person",
      *  cascade={"all"}
      * )
+     * @MongoDB\ReferenceMany(targetDocument="Lemon\RestBundle\Tests\Fixtures\Car", mappedBy="person", cascade={"all"})
      */
     public $cars;
 
@@ -80,6 +86,7 @@ class Person
      *          @ORM\JoinColumn(name="tag_id", referencedColumnName="id", unique=true)
      *     }
      * )
+     * @MongoDB\ReferenceMany(targetDocument="Lemon\RestBundle\Tests\Fixtures\Tag", cascade={"all"})
      */
     public $tags;
 

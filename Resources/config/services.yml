@@ -94,10 +94,16 @@ services:
         class: PhpCollection\Map
         scope: prototype
 
+    lemon_rest.serializer.doctrine_object_constructor:
+        class: JMS\Serializer\Construction\DoctrineObjectConstructor
+        arguments:
+            - @lemon_doctrine
+            - @jms_serializer.unserialize_object_constructor
+
     lemon_rest.serializer.object_constructor:
         class: Lemon\RestBundle\Serializer\Construction\ToggleDoctrineObjectConstructor
         arguments:
-            - @jms_serializer.doctrine_object_constructor
+            - @lemon_rest.serializer.doctrine_object_constructor
             - @jms_serializer.unserialize_object_constructor
 
     lemon_rest.serializer.constructor_factory:
@@ -110,4 +116,4 @@ services:
             - @jms_serializer.event_dispatcher
         calls:
             - [ addObjectConstructor, ['default', @lemon_rest.serializer.object_constructor] ]
-            - [ addObjectConstructor, ['doctrine', @jms_serializer.doctrine_object_constructor] ]
+            - [ addObjectConstructor, ['doctrine', @lemon_rest.serializer.doctrine_object_constructor] ]

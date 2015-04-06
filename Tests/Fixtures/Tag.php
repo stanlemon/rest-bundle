@@ -4,6 +4,7 @@ namespace Lemon\RestBundle\Tests\Fixtures;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Table()
@@ -17,12 +18,14 @@ class Tag
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @MongoDB\Id
+     * @Serializer\Type("string")
      */
     public $id;
 
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      * @Assert\NotBlank()
+     * @MongoDB\String()
      */
     public $name;
 }

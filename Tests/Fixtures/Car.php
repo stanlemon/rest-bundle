@@ -17,28 +17,33 @@ class Car
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @MongoDB\Id
+     * @Serializer\Type("string")
      */
     public $id;
 
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
+     * @MongoDB\String()
      */
     public $name;
 
     /**
      * @ORM\Column(name="year", type="string", length=255, nullable=false)
+     * @MongoDB\Integer()
      */
     public $year;
 
     /**
      * @ORM\ManyToOne(targetEntity="Lemon\RestBundle\Tests\Fixtures\Person", inversedBy="cars")
      * @ORM\JoinColumn(name="person_id", referencedColumnName="id")
+     * @MongoDB\ReferenceOne(targetDocument="Lemon\RestBundle\Tests\Fixtures\Person", inversedBy="cars"))
      */
     public $person;
 
     /**
      * @ORM\Column(name="created", type="datetime", nullable=true)
      * @Serializer\ReadOnly()
+     * @MongoDB\Date()
      */
     public $created;
 
@@ -49,6 +54,7 @@ class Car
      *  mappedBy="car",
      *  cascade={"all"}
      * )
+     * @MongoDB\ReferenceMany(targetDocument="Lemon\RestBundle\Tests\Fixtures\Place", mappedBy="car", cascade={"all"})
      */
     public $places;
 }

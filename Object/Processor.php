@@ -90,7 +90,25 @@ class Processor
 
         // Look for relationships, compare against preloaded entity
         foreach ($metadata->getAssociationNames() as $fieldName) {
-            $mappedBy = $metadata->getAssociationMappedByTargetField($fieldName);
+            // This can happen for Doctrine's Mongo ODM because while it adheres to the interface it throws an exception :(
+            try {
+                $mappedBy = $metadata->getAssociationMappedByTargetField($fieldName);
+            } catch (\BadMethodCallException $e) {
+                $mappedBy = null;
+
+                // Not defined by the interface, but both ORM & Mongo have it and we can use it to get what we want
+                if (method_exists($metadata, 'getFieldMapping')) {
+                    $mapping = $metadata->getFieldMapping($fieldName);
+
+                    if (isset($mapping['association']) && !empty($mapping['mappedBy'])) {
+                        $mappedBy = $mapping['mappedBy'];
+                    }
+                }
+            }
+
+            if (!$reflection->hasProperty($fieldName)) {
+                continue;
+            }
 
             $property = $reflection->getProperty($fieldName);
             $property->setAccessible(true);
@@ -105,13 +123,16 @@ class Processor
                 foreach ($value as $k => $v) {
                     // If the parent object is new, or if the relation has already been persisted
                     // set the mappedBy to the current object so that ids fill in properly
-                    if ($this->isNew($object) && isset($mappedBy)) {
+                    if ($this->isNew($object) && !empty($mappedBy)) {
                         $ref = new \ReflectionObject($v);
-                        $prop = $ref->getProperty($mappedBy);
-                        $prop->setAccessible(true);
-                        $prop->setValue($v, $object);
 
-                        $this->processRelationships($v);
+                        if ($ref->hasProperty($mappedBy)) {
+                            $prop = $ref->getProperty($mappedBy);
+                            $prop->setAccessible(true);
+                            $prop->setValue($v, $object);
+
+                            $this->processRelationships($v);
+                        }
                     }
 
                     $vid = IdHelper::getId($v);

@@ -38,3 +38,17 @@ doctrine:
                         type: annotation
                         prefix: Lemon\RestBundle\Tests\Fixtures\
                         dir: %kernel.root_dir%/Fixtures/
+
+doctrine_mongodb:
+    connections:
+        default:
+            server: mongodb://localhost:27017
+            options: {}
+    default_database: test_database
+    document_managers:
+        default:
+            mappings:
+                LemonRestBundle:
+                    type: annotation
+                    prefix: Lemon\RestBundle\Tests\Fixtures\
+                    dir: %kernel.root_dir%/Fixtures/

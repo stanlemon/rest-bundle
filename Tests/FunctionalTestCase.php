@@ -32,9 +32,15 @@ abstract class FunctionalTestCase extends WebTestCase
 
     public function setUp()
     {
-        $this->client = static::createClient();
+        $class = static::getKernelClass();
+
+        $kernel = new $class('test', true);
+        $kernel->boot();
+
+        $this->client = $kernel->getContainer()->get('test.client');
         $this->container = $this->client->getContainer();
-        $this->doctrine = $this->container->get('doctrine');
+
+        $this->doctrine = $this->container->get('lemon_doctrine');
         $this->em = $this->doctrine->getManager();
         $this->serializer = $this->container->get('jms_serializer');
 

@@ -17,17 +17,20 @@ class Place
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @MongoDB\Id
+     * @Serializer\Type("string")
      */
     public $id;
 
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
+     * @MongoDB\String()
      */
     public $name;
 
     /**
      * @ORM\ManyToOne(targetEntity="Lemon\RestBundle\Tests\Fixtures\Car", inversedBy="places")
      * @ORM\JoinColumn(name="car_id", referencedColumnName="id")
+     * @MongoDB\ReferenceOne(targetDocument="Lemon\RestBundle\Tests\Fixtures\Car", inversedBy="places"))
      */
     public $car;
 }

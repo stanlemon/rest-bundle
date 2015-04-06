@@ -2,7 +2,6 @@
 
 namespace Lemon\RestBundle\Tests\Controller;
 
-use Doctrine\ORM\AbstractQuery;
 use Lemon\RestBundle\Tests\FunctionalTestCase;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Object\Criteria\DefaultCriteria;
@@ -11,7 +10,7 @@ use Lemon\RestBundle\Tests\Fixtures\Tag;
 use Lemon\RestBundle\Tests\Fixtures\Person;
 use Lemon\RestBundle\Tests\Fixtures\FootballTeam;
 
-class ResourceControllerTest extends FunctionalTestCase
+abstract class ResourceControllerTest extends FunctionalTestCase
 {
     /**
      * @var \Lemon\RestBundle\Controller\ResourceController
@@ -23,6 +22,19 @@ class ResourceControllerTest extends FunctionalTestCase
         parent::setUp();
 
         $this->controller = $this->container->get('lemon_rest.resource_controller');
+    }
+
+    protected function assertArrayHasObjectWithValue($expected, $array, $key)
+    {
+        $found = false;
+
+        foreach ($array as $value) {
+            if ($value->$key === $expected) {
+                $found = true;
+            }
+        }
+
+        $this->assertTrue($found, sprintf("Array did not have an object whose property %s had value %s", $key, $expected));
     }
 
     public function testListAction()
@@ -82,7 +94,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $request = $this->makeRequest('GET', '/person/' . $person->id);
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->getAction($request, 'person', 1);
+        $response = $this->controller->getAction($request, 'person', $person->id);
 
         $data = json_decode($response->getContent());
 
@@ -161,7 +173,7 @@ class ResourceControllerTest extends FunctionalTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', $person->id);
 
         $data = json_decode($response->getContent());
 
@@ -197,7 +209,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertNotNull($person);
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->deleteAction($request, 'person', 1);
+        $response = $this->controller->deleteAction($request, 'person', $person->id);;
 
         $this->assertEquals("null", $response->getContent());
         $this->assertEquals(204, $response->getStatusCode());
@@ -225,7 +237,7 @@ class ResourceControllerTest extends FunctionalTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', $person->id);
 
         $data = json_decode($response->getContent());
 
@@ -423,7 +435,7 @@ class ResourceControllerTest extends FunctionalTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', $person->id);
 
         $data = json_decode($response->getContent());
 
@@ -478,7 +490,7 @@ class ResourceControllerTest extends FunctionalTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', $person->id);
 
         $data = json_decode($response->getContent());
 
@@ -490,10 +502,11 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertEquals($person->id, $refresh->id);
         $this->assertEquals($person->name, $refresh->name);
         $this->assertCount(2, $refresh->cars);
-        $this->assertEquals("Honda Odyssey", $refresh->cars[0]->name);
-        $this->assertEquals(2006, $refresh->cars[0]->year);
-        $this->assertEquals("Mercedes Benz 300c", $refresh->cars[1]->name);
-        $this->assertEquals(2013, $refresh->cars[1]->year);
+
+        $this->assertArrayHasObjectWithValue("Honda Odyssey", $refresh->cars, 'name');
+        $this->assertArrayHasObjectWithValue("2006", $refresh->cars, 'year');
+        $this->assertArrayHasObjectWithValue("Mercedes Benz 300c", $refresh->cars, 'name');
+        $this->assertArrayHasObjectWithValue("2013", $refresh->cars, 'year');
     }
 
     public function testPutActionWithNestedCollectionAndNewItemWithId0()
@@ -521,7 +534,7 @@ class ResourceControllerTest extends FunctionalTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', $person->id);
 
         $data = json_decode($response->getContent());
 
@@ -599,7 +612,7 @@ class ResourceControllerTest extends FunctionalTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', $person->id);
 
         $data = json_decode($response->getContent());
 
@@ -659,7 +672,7 @@ class ResourceControllerTest extends FunctionalTestCase
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->putAction($request, 'person', 1);
+        $response = $this->controller->putAction($request, 'person', $person->id);
 
         $data = json_decode($response->getContent());
 
@@ -698,7 +711,7 @@ class ResourceControllerTest extends FunctionalTestCase
             ))
         );
 
-        $this->controller->putAction($request, 'person', 1);
+        $this->controller->putAction($request, 'person', $person->id);
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
@@ -761,7 +774,7 @@ class ResourceControllerTest extends FunctionalTestCase
             ))
         );
 
-        $this->controller->putAction($request, 'person', 1);
+        $this->controller->putAction($request, 'person', $person->id);
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
@@ -775,10 +788,10 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertEquals($person->mother->name, $refresh->mother->name);
         $this->assertNotNull($refresh->mother->mother);
         $this->assertCount(2, $refresh->mother->cars);
-        $this->assertEquals($car1->name, $refresh->mother->cars[0]->name);
-        $this->assertEquals($car1->year, $refresh->mother->cars[0]->year);
-        $this->assertEquals("Ford Fusion", $refresh->mother->cars[1]->name);
-        $this->assertEquals(2013, $refresh->mother->cars[1]->year);
+        $this->assertArrayHasObjectWithValue($car1->name, $refresh->mother->cars, 'name');
+        $this->assertArrayHasObjectWithValue((string) $car1->year, $refresh->mother->cars, 'year');
+        $this->assertArrayHasObjectWithValue('Ford Fusion', $refresh->mother->cars, 'name');
+        $this->assertArrayHasObjectWithValue('2013', $refresh->mother->cars, 'year');
     }
 
     public function testPutActionWithNestedEntityRemoved()
@@ -802,7 +815,7 @@ class ResourceControllerTest extends FunctionalTestCase
             ))
         );
 
-        $this->controller->putAction($request, 'person', 1);
+        $this->controller->putAction($request, 'person', $person->id);
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $person->id
@@ -822,8 +835,8 @@ class ResourceControllerTest extends FunctionalTestCase
 
     public function testPostActionWithInvalidAttribute()
     {
-        $query = $this->em->createQuery("SELECT COUNT(p.id) FROM Lemon\RestBundle\Tests\Fixtures\Person p");
-        $total = $query->execute(array(), AbstractQuery::HYDRATE_SINGLE_SCALAR);
+        $all = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findAll();
+        $total = count($all);
 
         $request = $this->makeRequest(
             'POST',
@@ -839,8 +852,9 @@ class ResourceControllerTest extends FunctionalTestCase
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals(
             $total,
-            $this->em->createQuery("SELECT COUNT(p.id) FROM Lemon\RestBundle\Tests\Fixtures\Person p")
-                ->execute(array(), AbstractQuery::HYDRATE_SINGLE_SCALAR)
+            count(
+                $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findAll()
+            )
         );
     }
 

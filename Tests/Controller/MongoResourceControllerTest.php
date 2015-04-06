@@ -20,10 +20,15 @@ class MongoResourceControllerTest extends ResourceControllerTest
         $kernel = new $class('test_mongodb', true);
         $kernel->boot();
 
-
         $this->client = $kernel->getContainer()->get('test.client');
         $this->container = $this->client->getContainer();
         $this->doctrine = $this->container->get('doctrine_mongodb');
+
+        if (!$this->doctrine->getConnection()->isConnected()) {
+            $this->markTestSkipped("MongoDB connection is not available for this test");
+            return;
+        }
+
         $this->em = $this->doctrine->getManager();
         $this->serializer = $this->container->get('jms_serializer');
 
@@ -37,6 +42,26 @@ class MongoResourceControllerTest extends ResourceControllerTest
     public function tearDown()
     {
         $qb = $this->doctrine->getManager()->createQueryBuilder('Lemon\RestBundle\Tests\Fixtures\Person');
+        $qb->remove()
+            ->getQuery()
+            ->execute();
+
+        $qb = $this->doctrine->getManager()->createQueryBuilder('Lemon\RestBundle\Tests\Fixtures\Car');
+        $qb->remove()
+            ->getQuery()
+            ->execute();
+
+        $qb = $this->doctrine->getManager()->createQueryBuilder('Lemon\RestBundle\Tests\Fixtures\Place');
+        $qb->remove()
+            ->getQuery()
+            ->execute();
+
+        $qb = $this->doctrine->getManager()->createQueryBuilder('Lemon\RestBundle\Tests\Fixtures\Tag');
+        $qb->remove()
+            ->getQuery()
+            ->execute();
+
+        $qb = $this->doctrine->getManager()->createQueryBuilder('Lemon\RestBundle\Tests\Fixtures\FootballTeam');
         $qb->remove()
             ->getQuery()
             ->execute();
