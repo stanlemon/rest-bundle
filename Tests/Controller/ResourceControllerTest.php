@@ -3,11 +3,9 @@
 namespace Lemon\RestBundle\Tests\Controller;
 
 use Doctrine\ORM\AbstractQuery;
-use Symfony\Component\HttpFoundation\Request;
 use Lemon\RestBundle\Tests\FunctionalTestCase;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Object\Criteria\DefaultCriteria;
-use Lemon\RestBundle\Object\Definition;
 use Lemon\RestBundle\Tests\Fixtures\Car;
 use Lemon\RestBundle\Tests\Fixtures\Tag;
 use Lemon\RestBundle\Tests\Fixtures\Person;

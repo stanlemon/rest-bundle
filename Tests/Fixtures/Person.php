@@ -3,12 +3,14 @@ namespace Lemon\RestBundle\Tests\Fixtures;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Table()
  * @ORM\Entity()
+ * @MongoDB\Document
  */
 class Person
 {
@@ -16,12 +18,15 @@ class Person
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Serializer\Type("string")
+     * @MongoDB\Id
      */
     public $id;
 
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      * @Assert\NotBlank()
+     * @MongoDB\String()
      */
     public $name;
 
