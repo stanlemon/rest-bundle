@@ -13,8 +13,13 @@ use Lemon\RestBundle\Tests\Fixtures\FootballTeam;
 
 class MongoResourceControllerTest extends ResourceControllerTest
 {
+
     public function setUp()
     {
+        if (!class_exists('Mongo')) {
+            $this->markTestSkipped("MongoDB extension is not available for this test.");
+        }
+
         $class = static::getKernelClass();
 
         $kernel = new $class('test_mongodb', true);
@@ -24,7 +29,9 @@ class MongoResourceControllerTest extends ResourceControllerTest
         $this->container = $this->client->getContainer();
         $this->doctrine = $this->container->get('doctrine_mongodb');
 
-        if (!$this->doctrine->getConnection()->isConnected()) {
+        try {
+            $this->doctrine->getConnection()->listDatabases();
+        } catch (\MongoConnectionException $e) {
             $this->markTestSkipped("MongoDB connection is not available for this test");
             return;
         }

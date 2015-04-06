@@ -9,6 +9,12 @@ php:
   - hhvm
   - hhvm-nightly
 
+env:
+   - SYMFONY_VERSION=~2.3
+   - SYMFONY_VERSION=~2.4
+   - SYMFONY_VERSION=~2.5
+   - SYMFONY_VERSION=~2.6
+
 services:
   - mongodb
 
@@ -17,20 +23,30 @@ matrix:
     - php: 7.0
     - php: hhvm
     - php: hhvm-nightly
+
   include:
     - php: hhvm
       env: DOCTRINE_VERSION='doctrine/dbal=~2.5 doctrine/orm=~2.5 doctrine/doctrine-bundle=~1.4'
 
 before_script:
+  - if [[ $TRAVIS_PHP_VERSION == '7.0' ]]; then pecl install mongo; fi
+  - if [[ $TRAVIS_PHP_VERSION != 'hhvm' && $TRAVIS_PHP_VERSION != 'hhvm-nightly' && $TRAVIS_PHP_VERSION != '7.0' ]]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - composer self-update
   - sh -c 'if [ "$DOCTRINE_VERSION" != "" ]; then composer require --no-update $DOCTRINE_VERSION; fi;'
-  - composer update --prefer-source
+  - composer require --dev symfony/browser-kit:${SYMFONY_VERSION}
+  - composer require symfony/framework-bundle:${SYMFONY_VERSION} symfony/monolog-bundle:${SYMFONY_VERSION} symfony/yaml:${SYMFONY_VERSION} symfony/finder:${SYMFONY_VERSION} symfony/validator:${SYMFONY_VERSION}
+  - if [[ $TRAVIS_PHP_VERSION != 'hhvm' && $TRAVIS_PHP_VERSION != 'hhvm-nightly' ]]; then composer install --prefer-source; fi
+  - if [[ $TRAVIS_PHP_VERSION == 'hhvm' || $TRAVIS_PHP_VERSION == 'hhvm-nightly' ]]; then composer install --ignore-platform-reqs --prefer-source; fi
 
 script: ./vendor/bin/phpunit  --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+
+cache:
+  directories:
+    - $COMPOSER_CACHE_DIR
 
 notifications:
   email:
