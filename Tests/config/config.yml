@@ -11,13 +11,11 @@ framework:
         resource: "%kernel.root_dir%/config/routing.yml"
 
 monolog:
-    channels: [commandline]
     handlers:
         stdout:
             type:  stream
             path:  "php://temp"
             level: debug
-            channels: app
 
 doctrine:
     dbal:

@@ -157,6 +157,10 @@ class Processor
                         }
                     }
                 }
+            } elseif ($metadata->isSingleValuedAssociation($fieldName)) {
+                if ($this->isNew($object) && !$this->isNew($value)) {
+                    $property->setValue($object, $em->merge($value));
+                }
             }
         }
     }

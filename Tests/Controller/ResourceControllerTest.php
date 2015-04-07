@@ -379,10 +379,50 @@ abstract class ResourceControllerTest extends FunctionalTestCase
             'id' => $data->id
         ));
 
+        // If I don't do this, Doctrine ORM 2.3 has null's in all the properties of mother - seems to be a bug
+        // as it is not an issues with 2.4 and later
+        $this->em->refresh($refresh);
+
         $this->assertNotNull($refresh);
         $this->assertEquals("Stan Lemon", $refresh->name);
         $this->assertNotNull($refresh->mother);
         $this->assertEquals("Sharon Lemon", $refresh->mother->name);
+    }
+
+    public function testPostActionWithNestedExistingEntity()
+    {
+        $mother = new Person();
+        $mother->name = "Sharon Lemon";
+
+        $this->em->persist($mother);
+        $this->em->flush($mother);
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'POST',
+            '/person',
+            json_encode(array(
+                'name' => "Stan Lemon",
+                'mother' => array(
+                    'id' => $mother->id,
+                    'name' => $mother->name,
+                )
+            ))
+        );
+
+        $response = $this->controller->postAction($request, 'person');
+
+        $data = json_decode($response->getContent());
+        
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $data->id
+        ));
+            
+        $this->assertNotNull($refresh);
+        $this->assertEquals("Stan Lemon", $refresh->name);
+        $this->assertNotNull($refresh->mother);
+        $this->assertEquals($mother->id, $refresh->mother->id);
+        $this->assertEquals($mother->name, $refresh->mother->name);
     }
 
     public function testPutActionWithNestedCollectionAndExistingItem()
@@ -686,7 +726,40 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $this->assertCount(0, $refresh->cars);
     }
 
-    public function testPutActionWithNestedEntity()
+    public function testPutActionWithNestedNewEntity()
+    {
+        $person = new Person();
+        $person->name = "Stan Lemon";
+
+        $this->em->persist($person);
+        $this->em->flush($person);
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'PUT',
+            '/person/' . $person->id,
+            json_encode(array(
+                'name' => $person->name,
+                'mother' => array(
+                    'name' => "Sharon Lemon",
+                )
+            ))
+        );
+
+        $this->controller->putAction($request, 'person', $person->id);
+
+        $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
+            'id' => $person->id
+        ));
+
+        $this->assertNotNull($refresh);
+        $this->assertEquals($person->id, $refresh->id);
+        $this->assertEquals($person->name, $refresh->name);
+        $this->assertNotNull($refresh->mother);
+        $this->assertEquals("Sharon Lemon", $refresh->mother->name);
+    }
+
+    public function testPutActionWithNestedExistingEntity()
     {
         $mother = new Person();
         $mother->name = "Sharon Lemon";
