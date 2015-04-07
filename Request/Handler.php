@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
-use Negotiation\FormatNegotiatorInterface;
+use Negotiation\FormatNegotiator;
 
 class Handler
 {
@@ -33,7 +33,7 @@ class Handler
     protected $serializer;
 
     /**
-     * @var \Negotiation\FormatNegotiatorInterface
+     * @var \Negotiation\FormatNegotiator
      */
     protected $negotiator;
 
@@ -46,14 +46,14 @@ class Handler
      * @param ManagerFactoryInterface $managerFactory
      * @param EnvelopeFactory $envelopeFactory
      * @param SerializerInterface $serializer
-     * @param FormatNegotiatorInterface $negotiator
+     * @param FormatNegotiator $negotiator
      * @param LoggerInterface $logger
      */
     public function __construct(
         ManagerFactoryInterface $managerFactory,
         EnvelopeFactory $envelopeFactory,
         ConstructorFactory $serializer,
-        FormatNegotiatorInterface $negotiator,
+        FormatNegotiator $negotiator,
         LoggerInterface $logger
     ) {
         $this->managerFactory = $managerFactory;

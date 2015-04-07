@@ -29,7 +29,7 @@ class Car
 
     /**
      * @ORM\Column(name="year", type="string", length=255, nullable=false)
-     * @MongoDB\Integer()
+     * @MongoDB\Int()
      */
     public $year;
 

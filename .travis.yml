@@ -35,8 +35,8 @@ before_script:
   - sh -c 'if [ "$DOCTRINE_VERSION" != "" ]; then composer require --no-update $DOCTRINE_VERSION; fi;'
   - if [[ $TRAVIS_PHP_VERSION != 'hhvm' && $TRAVIS_PHP_VERSION != 'hhvm-nightly' ]]; then composer install --prefer-source; fi
   - if [[ $TRAVIS_PHP_VERSION == 'hhvm' || $TRAVIS_PHP_VERSION == 'hhvm-nightly' ]]; then composer install --ignore-platform-reqs --prefer-source; fi
-  - composer require --dev symfony/browser-kit:${SYMFONY_VERSION}
-  - composer require symfony/framework-bundle:${SYMFONY_VERSION} symfony/monolog-bundle:${SYMFONY_VERSION} symfony/yaml:${SYMFONY_VERSION} symfony/finder:${SYMFONY_VERSION} symfony/validator:${SYMFONY_VERSION}
+  - composer require --ignore-platform-reqs --dev symfony/browser-kit:${SYMFONY_VERSION}
+  - composer require --ignore-platform-reqs symfony/framework-bundle:${SYMFONY_VERSION} symfony/monolog-bundle:${SYMFONY_VERSION} symfony/yaml:${SYMFONY_VERSION} symfony/finder:${SYMFONY_VERSION} symfony/validator:${SYMFONY_VERSION}
 
 script: ./vendor/bin/phpunit  --coverage-clover=coverage.clover
 
