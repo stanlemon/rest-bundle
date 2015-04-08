@@ -3,7 +3,7 @@ namespace Lemon\RestBundle\Controller;
 
 use Lemon\RestBundle\Object\Registry;
 use Symfony\Component\HttpFoundation\Request;
-use Negotiation\FormatNegotiatorInterface;
+use Negotiation\FormatNegotiator;
 use JMS\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -28,13 +28,13 @@ class IndexController
     protected $router;
 
     /**
-     * @param FormatNegotiatorInterface $negotiator
+     * @param FormatNegotiator $negotiator
      * @param Serializer $serializer
      * @param Registry $registry
      * @param RouterInterface $router
      */
     public function __construct(
-        FormatNegotiatorInterface $negotiator,
+        FormatNegotiator $negotiator,
         Serializer $serializer,
         Registry $registry,
         RouterInterface $router

@@ -109,7 +109,7 @@ After installing dependencies with composer (including require-dev) simply Run p
 $ ./vendor/bin/phpunit -c ./phpunit.xml
 ```
 
-The _RestControllerTest_ is a functional test that show cases many of the ways which this bundle can be used.
+The _OrmRestControllerTest_ is a functional test that show cases many of the ways which this bundle can be used. There is an additional _MongoRestControllerTest_ which optionally covers using Doctrine's MongoDB ODM with this bundle.
         
 Serialization & Deserialization
 =====================
@@ -188,4 +188,14 @@ To switch to a different _Criteria_ object create a class implementing _Lemon\Re
 ```yaml
 lemon_rest:
     criteria: Acme\DemoAppBundle\Rest\MyCriteria
+```
+
+MongoDB Support & Other Doctrine Registry's
+============================================
+
+This bundle can be used with other implementations of Doctrine.  Support has been explicitly tested for with MongoDB, but the internals of _LemonRestBundle_ are such that anything adhereing to _Doctrine\Common\Persistence_ should be fair game.  If you want to use MongoDB or any other Doctrine implementation all you need to do is to tell LemonRestBundle which Doctrine Registry service to use, just add this to your _config.yml__:
+
+```yaml
+lemon_rest:
+    doctrine_registry_service_id: doctrine_mongodb
 ```

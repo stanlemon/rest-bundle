@@ -1,7 +1,7 @@
 <?php
 namespace Lemon\RestBundle\Object;
 
-use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
+use Symfony\Bridge\Doctrine\ManagerRegistry as Doctrine;
 use Lemon\RestBundle\Event\ObjectEvent;
 use Lemon\RestBundle\Event\PostSearchEvent;
 use Lemon\RestBundle\Event\PreSearchEvent;
@@ -41,7 +41,7 @@ class Manager implements ManagerInterface
     }
 
     /**
-     * @return \Doctrine\Common\Persistence\ObjectManager|object
+     * @return \Doctrine\Common\Persistence\ObjectManager
      */
     protected function getManager()
     {
@@ -72,43 +72,23 @@ class Manager implements ManagerInterface
 
         $this->eventDispatcher->dispatch(RestEvents::PRE_SEARCH, new PreSearchEvent($criteria));
 
-        /** @var \Doctrine\ORM\QueryBuilder $qb */
-        $qb = $this->getManager()->createQueryBuilder('o');
-        $qb->select($qb->expr()->count('o'))
-            ->from($this->getClass(), 'o');
-
+        /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
         $metadata = $this->getManager()->getClassMetadata($this->getClass());
 
         foreach ($criteria as $key => $value) {
-            if ($metadata->hasField($key) || $metadata->hasAssociation($key)) {
-                if ($metadata->getTypeOfField($key) == 'string') {
-                    $qb->andWhere('o.' . $key . ' LIKE :' . $key);
-                    $qb->setParameter($key, '%' . $value . '%');
-                } else {
-                    $qb->andWhere('o.' . $key . ' = :' . $key);
-                    $qb->setParameter($key, $value);
-                }
-            } // Should we throw an Exception here?
-        }
-        $query = $qb->getQuery();
-
-        $total = $query->getSingleScalarResult();
-
-        $qb->select('o')
-            ->setFirstResult($criteria->getOffset())
-            ->setMaxResults($criteria->getLimit());
-
-        $orderBy = $criteria->getOrderBy();
-
-        if (is_array($orderBy)) {
-            $qb->orderBy('o.' . key($orderBy), $orderBy[key($orderBy)]);
+            if (!$metadata->hasField($key) && !$metadata->hasAssociation($key)) {
+                $criteria->remove($key);
+            }
         }
 
-        $query = $qb->getQuery();
+        $allObjects = $this->getRepository()->findBy(
+            $criteria->toArray(),
+            $criteria->getOrderBy()
+        );
 
-        $objects = $query->execute();
+        $objects = array_slice($allObjects, $criteria->getOffset(), $criteria->getLimit());
 
-        $results = new SearchResults($objects, $total);
+        $results = new SearchResults($objects, count($allObjects));
 
         $this->eventDispatcher->dispatch(RestEvents::POST_SEARCH, new PostSearchEvent($results));
 
@@ -177,7 +157,6 @@ class Manager implements ManagerInterface
     {
         !$this->objectDefinition->canPartialUpdate() && $this->throwUnsupportedMethodException();
 
-        /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getManager();
 
         $em->persist($object);

@@ -19,6 +19,7 @@ class Extension extends BaseExtension
 
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('lemon_doctrine_registry_service_id', $config['doctrine_registry_service_id']);
         $container->setParameter('lemon_rest_object_envelope_class', $config['envelope']);
         $container->setParameter('lemon_rest_object_criteria_class', $config['criteria']);
         $container->setParameter('lemon_rest_mappings', $config['mappings']);

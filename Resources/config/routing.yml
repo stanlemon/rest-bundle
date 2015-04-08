@@ -1,42 +1,35 @@
 
 lemon_rest_index:
-    pattern: /
+    path: /
     defaults: { _controller: lemon_rest.index_controller:indexAction }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 lemon_rest_list:
-    pattern: /{resource}
+    path: /{resource}
     defaults: { _controller: lemon_rest.resource_controller:listAction }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 lemon_rest_get:
-    pattern: /{resource}/{id}
+    path: /{resource}/{id}
     defaults: { _controller: lemon_rest.resource_controller:getAction }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 lemon_rest_post:
-    pattern: /{resource}
+    path: /{resource}
     defaults: { _controller: lemon_rest.resource_controller:postAction }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 lemon_rest_put:
-    pattern: /{resource}/{id}
+    path: /{resource}/{id}
     defaults: { _controller: lemon_rest.resource_controller:putAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 lemon_rest_patch:
-    pattern: /{resource}/{id}
+    path: /{resource}/{id}
     defaults: { _controller: lemon_rest.resource_controller:patchAction }
-    requirements:
-        _method: PATCH
+    methods: [PATCH]
 
 lemon_rest_delete:
-    pattern: /{resource}/{id}
+    path: /{resource}/{id}
     defaults: { _controller: lemon_rest.resource_controller:deleteAction }
-    requirements:
-        _method: DELETE
+    methods: [DELETE]

@@ -3,14 +3,15 @@
 namespace Lemon\RestBundle;
 
 use JMS\SerializerBundle\DependencyInjection\Compiler\ServiceMapPass;
+use Lemon\RestBundle\DependencyInjection\Compiler\DoctrineRegistryServicePass;
 use Lemon\RestBundle\DependencyInjection\Compiler\RegisterFormatPass;
 use Lemon\RestBundle\DependencyInjection\Compiler\RegisterMappingsPass;
 use Lemon\RestBundle\DependencyInjection\Compiler\RegisterResourcePass;
 use Lemon\RestBundle\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\HttpKernel\Kernel;
 
 class LemonRestBundle extends Bundle
 {
@@ -21,14 +22,28 @@ class LemonRestBundle extends Bundle
     {
         parent::build($container);
 
+        if (Kernel::MAJOR_VERSION >= 2 && Kernel::MINOR_VERSION >=5) {
+            $container->addCompilerPass(
+                new \Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass(
+                    'lemon_rest.event_dispatcher',
+                    'lemon_rest.event_listener',
+                    'lemon_rest.event_subscriber'
+                )
+            );
+        } else {
+            $container->addCompilerPass(
+                new \Symfony\Component\HttpKernel\DependencyInjection\RegisterListenersPass(
+                    'lemon_rest.event_dispatcher',
+                    'lemon_rest.event_listener',
+                    'lemon_rest.event_subscriber'
+                )
+            );
+        }
+
+        $container->addCompilerPass(new DoctrineRegistryServicePass());
         $container->addCompilerPass(new RegisterFormatPass());
         $container->addCompilerPass(new RegisterResourcePass());
         $container->addCompilerPass(new RegisterMappingsPass());
-        $container->addCompilerPass(new RegisterListenersPass(
-            'lemon_rest.event_dispatcher',
-            'lemon_rest.event_listener',
-            'lemon_rest.event_subscriber'
-        ));
         // This is basically copy-pasted from JMSSerializerBundle
         $container->addCompilerPass($this->getServiceMapPass('jms_serializer.serialization_visitor', 'format',
             function(ContainerBuilder $container, Definition $def) {

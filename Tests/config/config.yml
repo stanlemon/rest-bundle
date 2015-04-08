@@ -11,13 +11,11 @@ framework:
         resource: "%kernel.root_dir%/config/routing.yml"
 
 monolog:
-    channels: [commandline]
     handlers:
         stdout:
             type:  stream
             path:  "php://temp"
             level: debug
-            channels: app
 
 doctrine:
     dbal:
@@ -38,3 +36,17 @@ doctrine:
                         type: annotation
                         prefix: Lemon\RestBundle\Tests\Fixtures\
                         dir: %kernel.root_dir%/Fixtures/
+
+doctrine_mongodb:
+    connections:
+        default:
+            server: mongodb://localhost:27017
+            options: {}
+    default_database: test_database
+    document_managers:
+        default:
+            mappings:
+                LemonRestBundle:
+                    type: annotation
+                    prefix: Lemon\RestBundle\Tests\Fixtures\
+                    dir: %kernel.root_dir%/Fixtures/
