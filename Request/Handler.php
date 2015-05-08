@@ -10,6 +10,7 @@ use Lemon\RestBundle\Object\Envelope\EnvelopeFactory;
 use Lemon\RestBundle\Serializer\ConstructorFactory;
 use Lemon\RestBundle\Serializer\DeserializationContext;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -54,13 +55,13 @@ class Handler
         EnvelopeFactory $envelopeFactory,
         ConstructorFactory $serializer,
         FormatNegotiator $negotiator,
-        LoggerInterface $logger
+        LoggerInterface $logger = null
     ) {
         $this->managerFactory = $managerFactory;
         $this->envelopeFactory = $envelopeFactory;
         $this->serializer = $serializer;
         $this->negotiator = $negotiator;
-        $this->logger = $logger;
+        $this->logger = $logger ?: new NullLogger();
     }
 
     /**
