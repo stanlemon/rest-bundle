@@ -181,7 +181,7 @@ lemon_rest:
 Criteria
 =====================
 
-The bundle uses an _Criteria_ object to manage search criteria that gets passed to the ObjectManager. This criteria object specifically filters out reserved terms from a request object, such as _orderBy _limit _offset and _orderDir.  The default behavior, and more specifically the default fields mentioned may not be exactly what you want for your project. That's ok because you can customize the Criteria object that is used. When you create your custom _Criteria_ object the only requirement is that it implements the _Lemon\RestBundle\Object\Criteria_ interface. 
+The bundle uses an _Criteria_ object to manage search criteria that gets passed to the ObjectManager. This criteria object specifically filters out reserved terms from a request object, such as `_orderBy` `_limit` `_offset` and `_orderDir`.  The default behavior, and more specifically the default fields mentioned may not be exactly what you want for your project. That's ok because you can customize the Criteria object that is used. When you create your custom _Criteria_ object the only requirement is that it implements the _Lemon\RestBundle\Object\Criteria_ interface. 
 
 To switch to a different _Criteria_ object create a class implementing _Lemon\RestBundle\Object\Criteria_ and add the following to your application's semantic configuration
 
@@ -193,7 +193,7 @@ lemon_rest:
 MongoDB Support & Other Doctrine Registry's
 ============================================
 
-This bundle can be used with other implementations of Doctrine.  Support has been explicitly tested for with MongoDB, but the internals of _LemonRestBundle_ are such that anything adhereing to _Doctrine\Common\Persistence_ should be fair game.  If you want to use MongoDB or any other Doctrine implementation all you need to do is to tell LemonRestBundle which Doctrine Registry service to use, just add this to your _config.yml__:
+This bundle can be used with other implementations of Doctrine.  Support has been explicitly tested for with MongoDB, but the internals of _LemonRestBundle_ are such that anything adhereing to _Doctrine\Common\Persistence_ should be fair game.  If you want to use MongoDB or any other Doctrine implementation all you need to do is to tell LemonRestBundle which Doctrine Registry service to use, just add this to your _config.yml_:
 
 ```yaml
 lemon_rest:
