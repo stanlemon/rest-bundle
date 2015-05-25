@@ -3,10 +3,22 @@ namespace Lemon\RestBundle\Object;
 
 class Definition
 {
+    const GET = 'GET';
+    const POST = 'POST';
+    const PUT = 'PUT';
+    const DELETE = 'DELETE';
+    const OPTIONS = 'OPTIONS';
+
+    /**
+     * @var string
+     */
     protected $name;
-    
+
+    /**
+     * @var string
+     */
     protected $class;
-    
+
     /**
      * @var bool
      */
@@ -26,7 +38,7 @@ class Definition
      * @var bool
      */
     protected $delete = true;
-    
+
     /**
      * @var bool
      */
@@ -59,29 +71,52 @@ class Definition
     {
         return $this->class;
     }
-    
+
     public function canSearch()
     {
         return $this->search;
     }
-    
+
     public function canCreate()
     {
         return $this->create;
     }
-    
+
     public function canUpdate()
     {
         return $this->update;
     }
-    
+
     public function canDelete()
     {
         return $this->delete;
     }
-    
+
     public function canPartialUpdate()
     {
         return $this->partialUpdate;
+    }
+
+    public function getOptions($isResource = false)
+    {
+        $options = array(self::OPTIONS);
+
+        if ($this->canCreate() && !$isResource) {
+            $options[] = self::POST;
+        }
+        if ($this->canUpdate() && $isResource) {
+            $options[] = self::PUT;
+        }
+        if ($this->canDelete() && $isResource) {
+            $options[] = self::DELETE;
+        }
+        if ($this->canSearch() && !$isResource) {
+            $options[] = self::GET;
+        }
+        if ($isResource) {
+            $options[] = self::GET;
+        }
+
+        return $options;
     }
 }

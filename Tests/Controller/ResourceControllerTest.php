@@ -2,6 +2,8 @@
 
 namespace Lemon\RestBundle\Tests\Controller;
 
+use Lemon\RestBundle\Object\Definition;
+use Lemon\RestBundle\Tests\Fixtures\Place;
 use Lemon\RestBundle\Tests\FunctionalTestCase;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Object\Criteria\DefaultCriteria;
@@ -1267,5 +1269,104 @@ abstract class ResourceControllerTest extends FunctionalTestCase
 
         //Error here;
         $this->assertCount(2, $refresh->cars[0]->places);
+    }
+
+    public function testInvalidMethod()
+    {
+        $registry = $this->container->get('lemon_rest.object_registry');
+
+        $definition = new Definition('place', 'Lemon\RestBundle\Tests\Fixtures\Place', true, false, false, true, false);
+
+        $registry->add($definition);
+
+        $place1 = new Place();
+        $place1->name = "Seymour";
+
+        $this->em->persist($place1);
+        $this->em->flush($place1);
+        $this->em->clear();
+
+        $place2 = new Place();
+        $place2->name = "Brownstown";
+
+        $this->em->persist($place2);
+        $this->em->flush($place2);
+        $this->em->clear();
+
+        $places = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Place')->findAll();
+
+        $this->assertCount(2, $places);
+
+        $request = $this->makeRequest(
+            'POST',
+            '/place',
+            json_encode(array(
+                'name' => 'Smallville',
+            ))
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->postAction($request, 'place');
+
+        $this->assertEquals(405, $response->getStatusCode());
+
+        $request = $this->makeRequest(
+            'GET',
+            '/place'
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->listAction($request, 'place');
+
+        $this->assertEquals(2, $response->headers->get('X-Total-Count'));
+    }
+
+    public function testOptions()
+    {
+        $registry = $this->container->get('lemon_rest.object_registry');
+
+        $definition = new Definition('place', 'Lemon\RestBundle\Tests\Fixtures\Place', true, false, false, true, false);
+
+        $registry->add($definition);
+
+        $request = $this->makeRequest(
+            'OPTIONS',
+            '/place'
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->optionsAction($request, 'place');
+
+        $this->assertEquals('OPTIONS, GET', $response->headers->get('Allowed'));
+
+        $request = $this->makeRequest(
+            'OPTIONS',
+            '/place/1'
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->optionsAction($request, 'place', 1);
+
+        $this->assertEquals('OPTIONS, DELETE, GET', $response->headers->get('Allowed'));
+
+        $request = $this->makeRequest(
+            'OPTIONS',
+            '/person'
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->optionsAction($request, 'person');
+
+        $this->assertEquals('OPTIONS, POST, GET', $response->headers->get('Allowed'));
+
+        $request = $this->makeRequest(
+            'OPTIONS',
+            '/person/1'
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->optionsAction($request, 'person', 1);
+
+        $this->assertEquals('OPTIONS, PUT, DELETE, GET', $response->headers->get('Allowed'));
     }
 }
