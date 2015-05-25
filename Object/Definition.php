@@ -6,7 +6,12 @@ class Definition
     protected $name;
     
     protected $class;
-    
+
+    /**
+     * @var \ReflectionClass
+     */
+    protected $reflection;
+
     /**
      * @var bool
      */
@@ -58,6 +63,14 @@ class Definition
     public function getClass()
     {
         return $this->class;
+    }
+
+    public function getReflection()
+    {
+        if (is_null($this->reflection)) {
+            $this->reflection = new \ReflectionClass($this->class);
+        }
+        return $this->reflection;
     }
     
     public function canSearch()

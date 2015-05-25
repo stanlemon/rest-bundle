@@ -3,6 +3,9 @@ namespace Lemon\RestBundle\Object;
 
 class Registry
 {
+    /**
+     * @var Definition[]
+     */
     protected $classes = array();
 
     /**
@@ -19,6 +22,9 @@ class Registry
         $this->classes[$definition->getName()] = $definition;
     }
 
+    /**
+     * @return Definition[]
+     */
     public function all()
     {
         return $this->classes;
@@ -37,11 +43,44 @@ class Registry
     }
 
     /**
+     * @param $className
+     * @return Definition
+     */
+    public function getByClass($className)
+    {
+        foreach ($this->classes as $definition) {
+            if ($definition->getClass() == $className) {
+                return $definition;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf(
+            "Invalid class \"%s\"",
+            $className
+        ));
+
+    }
+
+    /**
      * @param string $name
      * @return bool
      */
     public function has($name)
     {
         return array_key_exists($name, $this->classes);
+    }
+
+    /**
+     * @param $className
+     * @return bool
+     */
+    public function hasClass($className)
+    {
+        foreach ($this->classes as $definition) {
+            if ($definition->getClass() == $className) {
+                return true;
+            }
+        }
+        return false;
     }
 }

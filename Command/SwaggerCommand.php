@@ -1,6 +1,7 @@
 <?php
 namespace Lemon\RestBundle\Command;
 
+use Lemon\RestBundle\Object\Definition;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -9,6 +10,7 @@ class SwaggerCommand extends ContainerAwareCommand
 {
     protected $input;
     protected $output;
+    protected $models = array();
 
     protected function configure()
     {
@@ -38,17 +40,15 @@ class SwaggerCommand extends ContainerAwareCommand
         /** @var \Lemon\RestBundle\Object\Registry $objectRegistry */
         $objectRegistry = $this->getContainer()->get('lemon_rest.object_registry');
 
-        foreach ($objectRegistry->getClasses() as $alias => $class) {
+        foreach ($objectRegistry->all() as $alias => $definition) {
             $main['apis'][] = array(
                 //"description" => $class,
                 "path" => "/{$alias}",
             );
 
-            $reflection = new \ReflectionClass($class);
-
             $this->models = array();
 
-            $this->makeModel($class);
+            $this->makeModel($definition);
 
             $objects[$alias] = array(
                 "swaggerVersion" => "1.2",
@@ -63,8 +63,8 @@ class SwaggerCommand extends ContainerAwareCommand
                         "operations" => array(
                             array(
                                 "method" => "GET",
-                                "nickname" => "get" . ucfirst($alias),
-                                "type" => $reflection->getShortName(),
+                                "nickname" => "get" . ucfirst($definition->getName()),
+                                "type" => $definition->getName(),
                                 "produces" => array(
                                     "application/json",
                                     "application/xml",
@@ -72,13 +72,13 @@ class SwaggerCommand extends ContainerAwareCommand
                             ),
                             array(
                                 "method" => "DELETE",
-                                "nickname" => "delete" . ucfirst($alias),
+                                "nickname" => "delete" . ucfirst($definition->getName()),
                                 "type" => "void",
                             ),
                             array(
                                 "method" => "PUT",
-                                "nickname" => "put" . ucfirst($alias),
-                                "type" => $reflection->getShortName(),
+                                "nickname" => "put" . ucfirst($definition->getName()),
+                                "type" => $definition->getName(),
                                 "produces" => array(
                                     "application/json",
                                     "application/xml",
@@ -90,8 +90,8 @@ class SwaggerCommand extends ContainerAwareCommand
                             ),
                             array(
                                 "method" => "PATCH",
-                                "nickname" => "patch" . ucfirst($alias),
-                                "type" => $reflection->getShortName(),
+                                "nickname" => "patch" . ucfirst($definition->getName()),
+                                "type" => $definition->getName(),
                                 "produces" => array(
                                     "application/json",
                                     "application/xml",
@@ -104,12 +104,12 @@ class SwaggerCommand extends ContainerAwareCommand
                         ),
                     ),
                     array(
-                        "path" => $router->generate('lemon_rest_post', array('resource' => $alias)),
+                        "path" => $router->generate('lemon_rest_post', array('resource' => $definition->getName())),
                         "operations" => array(
                             array(
                                 "method" => "POST",
-                                "nickname" => "post" . ucfirst($alias),
-                                "type" => $reflection->getShortName(),
+                                "nickname" => "post" . ucfirst($definition->getName()),
+                                "type" => $definition->getName(),
                                 "produces" => array(
                                     "application/json",
                                     "application/xml",
@@ -121,10 +121,10 @@ class SwaggerCommand extends ContainerAwareCommand
                             ),
                             array(
                                 "method" => "GET",
-                                "nickname" => "search" . ucfirst($alias),
+                                "nickname" => "search" . ucfirst($definition->getName()),
                                 "type" => "array",
                                 "items" => array(
-                                    "\$ref" => $reflection->getShortName(),
+                                    "\$ref" => $definition->getName(),
                                 ),
                                 "produces" => array(
                                     "application/json",
@@ -139,24 +139,25 @@ class SwaggerCommand extends ContainerAwareCommand
 
         $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES; // | JSON_UNESCAPED_UNICODE;
 
-        file_put_contents("../api.json", json_encode($main, $options));
+        file_put_contents(getcwd() . DIRECTORY_SEPARATOR ."api.json", json_encode($main, $options));
 
         foreach ($objects as $name => $object) {
-            file_put_contents("../api/{$name}", json_encode($object, $options));
+            file_put_contents(getcwd() . DIRECTORY_SEPARATOR . "api/{$name}", json_encode($object, $options));
         }
     }
 
-    protected $models = array();
-
-    protected function makeModel($class)
+    protected function makeModel(Definition $definition)
     {
-        $reflection = new \ReflectionClass($class);
+        /** @var \Lemon\RestBundle\Object\Registry $objectRegistry */
+        $objectRegistry = $this->getContainer()->get('lemon_rest.object_registry');
 
-        if (isset($this->models[$reflection->getShortName()])) {
+        $reflection = $definition->getReflection();
+
+        if (isset($this->models[$definition->getName()])) {
             return;
         }
 
-        $this->models[$reflection->getShortName()] = array();
+        $this->models[$definition->getName()] = array();
 
         /** @var \Metadata\MetadataFactory $metadataFactory */
         $metadataFactory = $this->getContainer()->get('jms_serializer.metadata_factory');
@@ -170,7 +171,7 @@ class SwaggerCommand extends ContainerAwareCommand
             "properties" => array(),
         );
 
-        $classMetadata = $metadataFactory->getMetadataForClass($class);
+        $classMetadata = $metadataFactory->getMetadataForClass($definition->getClass());
 
         foreach ($classMetadata->propertyMetadata as $propertyMetadata) {
             if ($propertyMetadata->type == null) {
@@ -189,7 +190,9 @@ class SwaggerCommand extends ContainerAwareCommand
                 );
             } else {
                 if (!empty($propertyMetadata->type['params'])) {
-                    $this->makeModel($propertyMetadata->type['params'][0]['name']);
+                    $name = $propertyMetadata->type['params'][0]['name'];
+                    $def = $objectRegistry->getByClass($name);
+                    $this->makeModel($def);
 
                     $complex = new \ReflectionClass($propertyMetadata->type['params'][0]['name']);
 
@@ -200,7 +203,12 @@ class SwaggerCommand extends ContainerAwareCommand
                         ),
                     );
                 } else {
-                    $this->makeModel($propertyMetadata->type['name']);
+                    $name = $propertyMetadata->type['name'];
+
+                    if ($objectRegistry->hasClass($name)) {
+                        $def = $objectRegistry->getByClass($name);
+                        $this->makeModel($def);
+                    }
 
                     $complex = new \ReflectionClass($propertyMetadata->type['name']);
 
@@ -211,6 +219,6 @@ class SwaggerCommand extends ContainerAwareCommand
             }
         }
 
-        $this->models[$reflection->getShortName()] = $model;
+        $this->models[$definition->getName()] = $model;
     }
 }
