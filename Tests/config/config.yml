@@ -11,14 +11,11 @@ framework:
         resource: "%kernel.root_dir%/config/routing.yml"
 
 monolog:
-    channels: [commandline]
     handlers:
         stdout:
             type:  stream
-            path:  "php://stdout"
+            path:  "php://temp"
             level: debug
-            channels: app
-            formatter: monolog_line_formatter
 
 doctrine:
     dbal:
@@ -40,7 +37,16 @@ doctrine:
                         prefix: Lemon\RestBundle\Tests\Fixtures\
                         dir: %kernel.root_dir%/Fixtures/
 
-services:
-    monolog_line_formatter:
-        class: Monolog\Formatter\LineFormatter
-        arguments: [null, null, true, false]
+doctrine_mongodb:
+    connections:
+        default:
+            server: mongodb://localhost:27017
+            options: {}
+    default_database: test_database
+    document_managers:
+        default:
+            mappings:
+                LemonRestBundle:
+                    type: annotation
+                    prefix: Lemon\RestBundle\Tests\Fixtures\
+                    dir: %kernel.root_dir%/Fixtures/

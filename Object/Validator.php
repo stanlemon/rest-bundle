@@ -2,7 +2,7 @@
 namespace Lemon\RestBundle\Object;
 
 use Lemon\RestBundle\Object\Exception\InvalidException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\ValidatorInterface;
 
 class Validator
 {

@@ -2,12 +2,14 @@
 namespace Lemon\RestBundle\Controller;
 
 use Lemon\RestBundle\Object\Criteria\CriteriaFactory;
-use Lemon\RestBundle\Object\Manager;
+use Lemon\RestBundle\Object\IdHelper;
+use Lemon\RestBundle\Object\ManagerInterface;
 use Lemon\RestBundle\Request\Handler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
 
-class RestController
+class ResourceController
 {
     /**
      * @var Handler
@@ -21,17 +23,24 @@ class RestController
      * @var CriteriaFactory
      */
     protected $criteriaFactory;
+    /**
+     * @var RouterInterface
+     */
+    protected $router;
 
     /**
      * @param Handler $handler
      * @param CriteriaFactory $criteriaFactory
+     * @param RouterInterface $router
      */
     public function __construct(
         Handler $handler,
-        CriteriaFactory $criteriaFactory
+        CriteriaFactory $criteriaFactory,
+        RouterInterface $router
     ) {
         $this->handler = $handler;
         $this->criteriaFactory = $criteriaFactory;
+        $this->router = $router;
         $this->response = new Response();
     }
 
@@ -50,7 +59,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager) use ($response, $criteria) {
+            function (ManagerInterface $manager) use ($response, $criteria) {
                 $results = $manager->search($criteria);
 
                 $response->headers->set('X-Total-Count', $results->getTotal());
@@ -72,7 +81,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager) use ($id) {
+            function (ManagerInterface $manager) use ($id) {
                 return $manager->retrieve($id);
             }
         );
@@ -85,12 +94,27 @@ class RestController
      */
     public function postAction(Request $request, $resource)
     {
+        $response = $this->response;
+        $router = $this->router;
+
         return $this->handler->handle(
             $request,
             $this->response,
             $resource,
-            function (Manager $manager, $object) {
-                return $manager->create($object);
+            function (ManagerInterface $manager, $object) use ($response, $resource, $router) {
+                $manager->create($object);
+
+                $response->setStatusCode(201);
+                $response->headers->set('Location', $router->generate(
+                    'lemon_rest_get',
+                    array(
+                        'resource' => $resource,
+                        'id' => IdHelper::getId($object),
+                    ),
+                    RouterInterface::ABSOLUTE_URL
+                ));
+
+                return $object;
             }
         );
     }
@@ -107,7 +131,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager, $object) use ($id) {
+            function (ManagerInterface $manager, $object) use ($id) {
                 $reflection = new \ReflectionObject($object);
                 $property = $reflection->getProperty('id');
                 $property->setAccessible(true);
@@ -132,7 +156,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager, $object) use ($id) {
+            function (ManagerInterface $manager, $object) use ($id) {
                 $manager->partialUpdate($object);
 
                 return $object;
@@ -154,7 +178,7 @@ class RestController
             $request,
             $this->response,
             $resource,
-            function (Manager $manager) use ($response, $id) {
+            function (ManagerInterface $manager) use ($response, $id) {
                 $response->setStatusCode(204);
 
                 $manager->delete($id);

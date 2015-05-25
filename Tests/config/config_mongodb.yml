@@ -1,0 +1,5 @@
+imports:
+    - { resource: config.yml }
+
+lemon_rest:
+    doctrine_registry_service_id: doctrine_mongodb

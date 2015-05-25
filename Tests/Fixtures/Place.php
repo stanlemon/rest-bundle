@@ -3,7 +3,6 @@ namespace Lemon\RestBundle\Tests\Fixtures;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
-use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -11,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Entity()
  * @MongoDB\Document
  */
-class Tag
+class Place
 {
     /**
      * @ORM\Column(name="id", type="integer", nullable=false)
@@ -24,8 +23,14 @@ class Tag
 
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
-     * @Assert\NotBlank()
      * @MongoDB\String()
      */
     public $name;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Lemon\RestBundle\Tests\Fixtures\Car", inversedBy="places")
+     * @ORM\JoinColumn(name="car_id", referencedColumnName="id")
+     * @MongoDB\ReferenceOne(targetDocument="Lemon\RestBundle\Tests\Fixtures\Car", inversedBy="places"))
+     */
+    public $car;
 }

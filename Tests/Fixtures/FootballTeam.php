@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Entity()
  * @MongoDB\Document
  */
-class Tag
+class FootballTeam
 {
     /**
      * @ORM\Column(name="id", type="integer", nullable=false)
@@ -28,4 +28,18 @@ class Tag
      * @MongoDB\String()
      */
     public $name;
+
+    /**
+     * @ORM\Column(name="league", type="string", length=255, nullable=false)
+     * @Serializer\Until("1.0")
+     * @MongoDB\String()
+     */
+    public $league;
+
+    /**
+     * @ORM\Column(name="conference", type="string", length=255, nullable=false)
+     * @Serializer\Since("1.1")
+     * @MongoDB\String()
+     */
+    public $conference;
 }

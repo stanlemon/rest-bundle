@@ -1,34 +1,35 @@
 <?php
 namespace Lemon\RestBundle\Object;
 
-use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
+use Symfony\Bridge\Doctrine\ManagerRegistry as Doctrine;
 use Lemon\RestBundle\Event\ObjectEvent;
 use Lemon\RestBundle\Event\PostSearchEvent;
 use Lemon\RestBundle\Event\PreSearchEvent;
 use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Model\SearchResults;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
+use Lemon\RestBundle\Object\Exception\UnsupportedMethodException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class Manager
+class Manager implements ManagerInterface
 {
     protected $doctrine;
     protected $eventDispatcher;
-    protected $class;
+    protected $objectDefinition;
 
     /**
      * @param Doctrine $doctrine
      * @param EventDispatcher $eventDispatcher
-     * @param string $class
+     * @param Definition $objectDefinition
      */
     public function __construct(
         Doctrine $doctrine,
         EventDispatcher $eventDispatcher,
-        $class
+        Definition $objectDefinition
     ) {
         $this->doctrine = $doctrine;
         $this->eventDispatcher = $eventDispatcher;
-        $this->class = $class;
+        $this->objectDefinition = $objectDefinition;
     }
 
     /**
@@ -36,15 +37,15 @@ class Manager
      */
     public function getClass()
     {
-        return $this->class;
+        return $this->objectDefinition->getClass();
     }
 
     /**
-     * @return \Doctrine\Common\Persistence\ObjectManager|object
+     * @return \Doctrine\Common\Persistence\ObjectManager
      */
     protected function getManager()
     {
-        return $this->doctrine->getManagerForClass($this->class);
+        return $this->doctrine->getManagerForClass($this->getClass());
     }
 
     /**
@@ -52,8 +53,13 @@ class Manager
      */
     protected function getRepository()
     {
-        return $this->doctrine->getManagerForClass($this->class)
-            ->getRepository($this->class);
+        return $this->doctrine->getManagerForClass($this->getClass())
+            ->getRepository($this->getClass());
+    }
+    
+    protected function throwUnsupportedMethodException()
+    {
+        throw new UnsupportedMethodException();
     }
 
     /**
@@ -62,45 +68,27 @@ class Manager
      */
     public function search(Criteria $criteria)
     {
+        !$this->objectDefinition->canSearch() && $this->throwUnsupportedMethodException();
+
         $this->eventDispatcher->dispatch(RestEvents::PRE_SEARCH, new PreSearchEvent($criteria));
 
-        /** @var \Doctrine\ORM\QueryBuilder $qb */
-        $qb = $this->getManager()->createQueryBuilder('o');
-        $qb->select($qb->expr()->count('o'))
-            ->from($this->class, 'o');
-
-        $metadata = $this->getManager()->getClassMetadata($this->class);
+        /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
+        $metadata = $this->getManager()->getClassMetadata($this->getClass());
 
         foreach ($criteria as $key => $value) {
-            if ($metadata->hasField($key)) {
-                if ($metadata->getTypeOfField($key) == 'string') {
-                    $qb->andWhere('o.' . $key . ' LIKE :' . $key);
-                    $qb->setParameter($key, '%' . $value . '%');
-                } else {
-                    $qb->andWhere('o.' . $key . ' = :' . $key);
-                    $qb->setParameter($key, $value);
-                }
-            } // Should we throw an Exception here?
-        }
-        $query = $qb->getQuery();
-
-        $total = $query->getSingleScalarResult();
-
-        $qb->select('o')
-            ->setFirstResult($criteria->getOffset())
-            ->setMaxResults($criteria->getLimit());
-
-        $orderBy = $criteria->getOrderBy();
-
-        if (is_array($orderBy)) {
-            $qb->orderBy('o.' . key($orderBy), $orderBy[key($orderBy)]);
+            if (!$metadata->hasField($key) && !$metadata->hasAssociation($key)) {
+                $criteria->remove($key);
+            }
         }
 
-        $query = $qb->getQuery();
+        $allObjects = $this->getRepository()->findBy(
+            $criteria->toArray(),
+            $criteria->getOrderBy()
+        );
 
-        $objects = $query->execute();
+        $objects = array_slice($allObjects, $criteria->getOffset(), $criteria->getLimit());
 
-        $results = new SearchResults($objects, $total);
+        $results = new SearchResults($objects, count($allObjects));
 
         $this->eventDispatcher->dispatch(RestEvents::POST_SEARCH, new PostSearchEvent($results));
 
@@ -113,6 +101,8 @@ class Manager
      */
     public function create($object)
     {
+        !$this->objectDefinition->canCreate() && $this->throwUnsupportedMethodException();
+
         $em = $this->getManager();
 
         $this->eventDispatcher->dispatch(RestEvents::PRE_CREATE, new ObjectEvent($object));
@@ -144,6 +134,8 @@ class Manager
      */
     public function update($object)
     {
+        !$this->objectDefinition->canUpdate() && $this->throwUnsupportedMethodException();
+
         $em = $this->getManager();
 
         $original = $this->retrieve(IdHelper::getId($object));
@@ -163,7 +155,8 @@ class Manager
 
     public function partialUpdate($object)
     {
-        /** @var \Doctrine\ORM\EntityManager $em */
+        !$this->objectDefinition->canPartialUpdate() && $this->throwUnsupportedMethodException();
+
         $em = $this->getManager();
 
         $em->persist($object);
@@ -178,6 +171,8 @@ class Manager
      */
     public function delete($id)
     {
+        !$this->objectDefinition->canDelete() && $this->throwUnsupportedMethodException();
+
         $object = $this->retrieve($id);
 
         $em = $this->getManager();

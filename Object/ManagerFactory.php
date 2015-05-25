@@ -1,10 +1,10 @@
 <?php
 namespace Lemon\RestBundle\Object;
 
-use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
+use Symfony\Bridge\Doctrine\ManagerRegistry as Doctrine;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class ManagerFactory
+class ManagerFactory implements ManagerFactoryInterface
 {
     /**
      * @var Registry
@@ -40,12 +40,12 @@ class ManagerFactory
      */
     public function create($resource)
     {
-        $class = $this->registry->getClass($resource);
+        $definition = $this->registry->get($resource);
 
         return new Manager(
             $this->doctrine,
             $this->eventDispatcher,
-            $class
+            $definition
         );
     }
 }

@@ -4,20 +4,24 @@ namespace Lemon\RestBundle\Request;
 
 use Lemon\RestBundle\Object\Exception\InvalidException;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
-use Lemon\RestBundle\Object\ManagerFactory;
+use Lemon\RestBundle\Object\Exception\UnsupportedMethodException;
+use Lemon\RestBundle\Object\ManagerFactoryInterface;
 use Lemon\RestBundle\Object\Envelope\EnvelopeFactory;
 use Lemon\RestBundle\Serializer\ConstructorFactory;
+use Lemon\RestBundle\Serializer\DeserializationContext;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use JMS\Serializer\SerializerInterface;
-use Negotiation\FormatNegotiatorInterface;
+use JMS\Serializer\SerializationContext;
+use Negotiation\FormatNegotiator;
 
 class Handler
 {
     /**
-     * @var \Lemon\RestBundle\Object\ManagerFactory
+     * @var \Lemon\RestBundle\Object\ManagerFactoryInterface
      */
     protected $managerFactory;
     /**
@@ -30,7 +34,7 @@ class Handler
     protected $serializer;
 
     /**
-     * @var \Negotiation\FormatNegotiatorInterface
+     * @var \Negotiation\FormatNegotiator
      */
     protected $negotiator;
 
@@ -40,24 +44,24 @@ class Handler
     protected $logger;
 
     /**
-     * @param ManagerFactory $managerFactory
+     * @param ManagerFactoryInterface $managerFactory
      * @param EnvelopeFactory $envelopeFactory
      * @param SerializerInterface $serializer
-     * @param FormatNegotiatorInterface $negotiator
+     * @param FormatNegotiator $negotiator
      * @param LoggerInterface $logger
      */
     public function __construct(
-        ManagerFactory $managerFactory,
+        ManagerFactoryInterface $managerFactory,
         EnvelopeFactory $envelopeFactory,
         ConstructorFactory $serializer,
-        FormatNegotiatorInterface $negotiator,
-        LoggerInterface $logger
+        FormatNegotiator $negotiator,
+        LoggerInterface $logger = null
     ) {
         $this->managerFactory = $managerFactory;
         $this->envelopeFactory = $envelopeFactory;
         $this->serializer = $serializer;
         $this->negotiator = $negotiator;
-        $this->logger = $logger;
+        $this->logger = $logger ?: new NullLogger();
     }
 
     /**
@@ -69,22 +73,29 @@ class Handler
      */
     public function handle(Request $request, Response $response, $resource, $callback)
     {
-        $manager = $this->managerFactory->create($resource);
-        $class = $manager->getClass();
+        $accept = $this->negotiator->getBest($request->headers->get('Accept'));
 
-        $format = $this->negotiator->getBestFormat(
-            $request->headers->get('Accept')
-        );
+        $format = $this->negotiator->getFormat($accept->getValue());
+        
+        if ($format == 'html') {
+            $format = 'json';
+        }
 
-        $response->headers->set('Content-Type', $request->headers->get('Accept'));
+        $response->headers->set('Content-Type', $accept->getValue());
 
         try {
+            $manager = $this->managerFactory->create($resource);
+
+            $context = new DeserializationContext();
+            $context->enableMaxDepthChecks();
+
             $object = $this->serializer->create(
-                strtolower($request->getMethod()) == 'patch' ? 'doctrine' : 'default'
+                $request->isMethod('patch') ? 'doctrine' : 'default'
             )->deserialize(
                 $request->getContent(),
-                $class,
-                $format
+                $manager->getClass(),
+                $format,
+                $context
             );
 
             $data = $this->envelopeFactory->create(
@@ -103,6 +114,12 @@ class Handler
                 "code" => 404,
                 "message" => $e->getMessage(),
             );
+        } catch (UnsupportedMethodException $e) {
+            $response->setStatusCode(405);
+            $data = array(
+                "code" => 405,
+                "message" => $e->getMessage(),
+            );
         } catch (HttpException $e) {
             $response->setStatusCode($e->getStatusCode());
             $data = array(
@@ -115,11 +132,17 @@ class Handler
             $response->setStatusCode(500);
             $data = array(
                 "code" => 500,
-                "message" => $e->getMessage(),
+                "message" => $e->getMessage()
             );
         }
 
-        $output = $this->serializer->create('default')->serialize($data, $format);
+        $context = SerializationContext::create()->enableMaxDepthChecks();
+
+        if ($accept->hasParameter('version')) {
+            $context->setVersion($accept->getParameter('version'));
+        }
+
+        $output = $this->serializer->create('default')->serialize($data, $format, $context);
 
         $response->setContent($output);
 

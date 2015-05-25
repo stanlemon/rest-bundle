@@ -19,9 +19,19 @@ class Extension extends BaseExtension
 
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('lemon_doctrine_registry_service_id', $config['doctrine_registry_service_id']);
         $container->setParameter('lemon_rest_object_envelope_class', $config['envelope']);
         $container->setParameter('lemon_rest_object_criteria_class', $config['criteria']);
         $container->setParameter('lemon_rest_mappings', $config['mappings']);
+        $container->setParameter('lemon_rest_formats', $config['formats']);
+
+        // Force pretty print for JMS on, no one likes their JSON ugly
+        if (defined('JSON_PRETTY_PRINT')) {
+            $container->setParameter(
+                'jms_serializer.json_serialization_visitor.options',
+                $container->getParameter('jms_serializer.json_serialization_visitor.options') | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+            );
+        }
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');

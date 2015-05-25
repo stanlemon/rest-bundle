@@ -2,7 +2,8 @@
 namespace Lemon\RestBundle\Tests\Object;
 
 use Lemon\RestBundle\Object\ManagerFactory;
-use \Lemon\RestBundle\Object\Registry;
+use Lemon\RestBundle\Object\Registry;
+use Lemon\RestBundle\Object\Definition;
 
 /**
  * @coversDefaultClass \Lemon\RestBundle\Object\ManagerFactory
@@ -16,7 +17,7 @@ class ManagerFactoryTest extends \Xpmock\TestCase
         $doctrine = $this->mock('Doctrine\Bundle\DoctrineBundle\Registry')->new();
 
         $registry = new Registry();
-        $registry->addClass('person', 'Lemon\RestBundle\Tests\Fixtures\Person');
+        $registry->add(new Definition('person', 'Lemon\RestBundle\Tests\Fixtures\Person'));
 
         $managerFactory = new ManagerFactory(
             $registry,

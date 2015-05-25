@@ -8,13 +8,13 @@ use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\Context;
 use JMS\Serializer\JsonDeserializationVisitor;
-use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
+use Symfony\Bridge\Doctrine\ManagerRegistry as Doctrine;
 use Lemon\RestBundle\Object\IdHelper;
 
 class IdCollectionHandler implements SubscribingHandlerInterface
 {
     /**
-     * @var \Doctrine\Bundle\DoctrineBundle\Registry
+     * @var \Symfony\Bridge\Doctrine\ManagerRegistry
      */
     protected $doctrine;
 
@@ -63,7 +63,7 @@ class IdCollectionHandler implements SubscribingHandlerInterface
 
         $class = $type['params'][0]['name'];
 
-        /** @var \Doctrine\ORM\EntityRepository $repository */
+        /** @var \Doctrine\Common\Persistence\ObjectRepository $repository */
         $repository = $this->doctrine->getManagerForClass($class)->getRepository($class);
 
         foreach ($data as $key => $value) {

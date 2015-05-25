@@ -1,14 +1,13 @@
 <?php
 namespace Lemon\RestBundle\Object;
 
-use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
-use Doctrine\ORM\UnitOfWork;
+use Symfony\Bridge\Doctrine\ManagerRegistry as Doctrine;
 use Metadata\MetadataFactory;
 
 class Processor
 {
     /**
-     * @var \Doctrine\Bundle\DoctrineBundle\Registry
+     * @var \Symfony\Bridge\Doctrine\ManagerRegistry
      */
     protected $doctrine;
     /**
@@ -52,12 +51,12 @@ class Processor
         $reflection = new \ReflectionClass($class);
         $em = $this->doctrine->getManagerForClass($class);
 
-        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
+        /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
         $metadata = $em->getMetadataFactory()->getMetadataFor($class);
 
         // Look for relationships, compare against preloaded entity
-        foreach ($metadata->getAssociationMappings() as $association) {
-            $property = $reflection->getProperty($association['fieldName']);
+        foreach ($metadata->getAssociationNames() as $fieldName) {
+            $property = $reflection->getProperty($fieldName);
             $property->setAccessible(true);
 
             $value = $property->getValue($object);
@@ -66,12 +65,10 @@ class Processor
                 continue;
             }
 
-            if (in_array($association['type'], array(4, 8))) {
+            if ($metadata->isCollectionValuedAssociation($fieldName)) {
                 foreach ($value as $v) {
                     $this->processIds($v);
                 }
-            } else {
-                $this->processIds($value);
             }
         }
     }
@@ -88,12 +85,32 @@ class Processor
 
         $reflection = new \ReflectionClass($class);
 
-        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
+        /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
         $metadata = $em->getMetadataFactory()->getMetadataFor($class);
 
         // Look for relationships, compare against preloaded entity
-        foreach ($metadata->getAssociationMappings() as $association) {
-            $property = $reflection->getProperty($association['fieldName']);
+        foreach ($metadata->getAssociationNames() as $fieldName) {
+            // This can happen for Doctrine's Mongo ODM because while it adheres to the interface it throws an exception :(
+            try {
+                $mappedBy = $metadata->getAssociationMappedByTargetField($fieldName);
+            } catch (\BadMethodCallException $e) {
+                $mappedBy = null;
+
+                // Not defined by the interface, but both ORM & Mongo have it and we can use it to get what we want
+                if (method_exists($metadata, 'getFieldMapping')) {
+                    $mapping = $metadata->getFieldMapping($fieldName);
+
+                    if (isset($mapping['association']) && !empty($mapping['mappedBy'])) {
+                        $mappedBy = $mapping['mappedBy'];
+                    }
+                }
+            }
+
+            if (!$reflection->hasProperty($fieldName)) {
+                continue;
+            }
+
+            $property = $reflection->getProperty($fieldName);
             $property->setAccessible(true);
 
             $value = $property->getValue($object);
@@ -102,15 +119,20 @@ class Processor
                 continue;
             }
 
-            if (in_array($association['type'], array(4, 8))) {
+            if ($metadata->isCollectionValuedAssociation($fieldName)) {
                 foreach ($value as $k => $v) {
                     // If the parent object is new, or if the relation has already been persisted
                     // set the mappedBy to the current object so that ids fill in properly
-                    if ($this->isNew($object) && isset($association['mappedBy'])) {
+                    if ($this->isNew($object) && !empty($mappedBy)) {
                         $ref = new \ReflectionObject($v);
-                        $prop = $ref->getProperty($association['mappedBy']);
-                        $prop->setAccessible(true);
-                        $prop->setValue($v, $object);
+
+                        if ($ref->hasProperty($mappedBy)) {
+                            $prop = $ref->getProperty($mappedBy);
+                            $prop->setAccessible(true);
+                            $prop->setValue($v, $object);
+
+                            $this->processRelationships($v);
+                        }
                     }
 
                     $vid = IdHelper::getId($v);
@@ -135,8 +157,10 @@ class Processor
                         }
                     }
                 }
-            } else {
-                $this->processRelationships($value, $entity ? $property->getValue($entity) : null);
+            } elseif ($metadata->isSingleValuedAssociation($fieldName)) {
+                if ($this->isNew($object) && !$this->isNew($value)) {
+                    $property->setValue($object, $em->merge($value));
+                }
             }
         }
     }
@@ -147,9 +171,7 @@ class Processor
      */
     protected function isNew($object)
     {
-        $em = $this->doctrine->getManagerForClass(get_class($object));
-
-        return $em->getUnitOfWork()->getEntityState($object) === UnitOfWork::STATE_NEW;
+        return IdHelper::getId($object) === null;
     }
 
     /**
@@ -182,12 +204,13 @@ class Processor
         }
 
         $em = $this->doctrine->getManagerForClass($class);
-        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
+        /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
         $metadata = $em->getMetadataFactory()->getMetadataFor($class);
 
-        foreach ($metadata->getAssociationMappings() as $association) {
-            if (in_array($association['type'], array(4, 8))) {
-                $property = $reflection->getProperty($association['fieldName']);
+        // Look for relationships, compare against preloaded entity
+        foreach ($metadata->getAssociationNames() as $fieldName) {
+            if ($metadata->isCollectionValuedAssociation($fieldName)) {
+                $property = $reflection->getProperty($fieldName);
                 $property->setAccessible(true);
 
                 if ($property->getValue($object)) {
