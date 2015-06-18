@@ -26,7 +26,7 @@ class Extension extends BaseExtension
         $container->setParameter('lemon_rest_formats', $config['formats']);
 
         // Force pretty print for JMS on, no one likes their JSON ugly
-        if (defined('JSON_PRETTY_PRINT')) {
+        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
             $container->setParameter(
                 'jms_serializer.json_serialization_visitor.options',
                 $container->getParameter('jms_serializer.json_serialization_visitor.options') | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
