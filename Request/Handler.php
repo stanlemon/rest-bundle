@@ -46,7 +46,7 @@ class Handler
     /**
      * @param ManagerFactoryInterface $managerFactory
      * @param EnvelopeFactory $envelopeFactory
-     * @param SerializerInterface $serializer
+     * @param ConstructorFactory $serializer
      * @param FormatNegotiator $negotiator
      * @param LoggerInterface $logger
      */
@@ -145,6 +145,16 @@ class Handler
         $output = $this->serializer->create('default')->serialize($data, $format, $context);
 
         $response->setContent($output);
+
+        return $response;
+    }
+
+    public function options(Request $request, Response $response, $resource, $id = null)
+    {
+        $manager = $this->managerFactory->create($resource);
+
+        $response->headers->set('Allowed', implode(", ", $manager->getOptions(!is_null($id))), true);
+        $response->setContent(null);
 
         return $response;
     }

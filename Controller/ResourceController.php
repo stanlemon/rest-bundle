@@ -185,4 +185,14 @@ class ResourceController
             }
         );
     }
+
+    public function optionsAction(Request $request, $resource, $id = null)
+    {
+        return $this->handler->options(
+            $request,
+            $this->response,
+            $resource,
+            $id
+        );
+    }
 }

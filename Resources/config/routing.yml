@@ -33,3 +33,14 @@ lemon_rest_delete:
     path: /{resource}/{id}
     defaults: { _controller: lemon_rest.resource_controller:deleteAction }
     methods: [DELETE]
+
+lemon_rest_options:
+    path: /{resource}
+    defaults: { _controller: lemon_rest.resource_controller:optionsAction }
+    methods: [OPTIONS]
+
+lemon_rest_options_id:
+    path: /{resource}/{id}
+    defaults: { _controller: lemon_rest.resource_controller:optionsAction }
+    methods: [OPTIONS]
+

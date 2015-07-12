@@ -184,4 +184,13 @@ class Manager implements ManagerInterface
 
         $this->eventDispatcher->dispatch(RestEvents::POST_DELETE, new ObjectEvent($object));
     }
+
+    /**
+     * @param bool $isResource
+     * @return array
+     */
+    public function getOptions($isResource = false)
+    {
+        return $this->objectDefinition->getOptions($isResource);
+    }
 }
