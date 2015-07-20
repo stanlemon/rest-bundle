@@ -75,20 +75,30 @@ class Manager implements ManagerInterface
         /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
         $metadata = $this->getManager()->getClassMetadata($this->getClass());
 
+        $identifierFieldsNames = $metadata->getIdentifier();
+        $identifierFieldName = reset($identifierFieldsNames);
+        $countQueryBuilder = $this->getManager()->createQueryBuilder();
+        $expressionBuilder = $countQueryBuilder->expr();
+        $whereConditions = $expressionBuilder->eq(1, 1);
         foreach ($criteria as $key => $value) {
             if (!$metadata->hasField($key) && !$metadata->hasAssociation($key)) {
                 $criteria->remove($key);
             }
+            $whereConditions = $expressionBuilder->andX($whereConditions, $expressionBuilder->eq("e.{$key}", $value));
         }
 
-        $allObjects = $this->getRepository()->findBy(
-            $criteria->toArray(),
-            $criteria->getOrderBy()
+        $filteringCriteria = $criteria->toArray();
+        $objects = $this->getRepository()->findBy(
+            $filteringCriteria,
+            /*$orderBy =*/$criteria->getOrderBy(),
+            /*$limit =*/$criteria->getLimit(),
+            /*$offset =*/$criteria->getOffset()
         );
 
-        $objects = array_slice($allObjects, $criteria->getOffset(), $criteria->getLimit());
-
-        $results = new SearchResults($objects, count($allObjects));
+        $countQuery = $countQueryBuilder->select("count(e.{$identifierFieldName})")->from($this->getClass(), 'e')->where($whereConditions)->getQuery();
+        $totalObjectsCount = (int) $countQuery->getSingleScalarResult();
+                
+        $results = new SearchResults($objects, $totalObjectsCount);
 
         $this->eventDispatcher->dispatch(RestEvents::POST_SEARCH, new PostSearchEvent($results));
 
