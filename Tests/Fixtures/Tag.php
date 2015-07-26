@@ -25,7 +25,7 @@ class Tag
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      * @Assert\NotBlank()
-     * @MongoDB\String()
+     * @MongoDB\Field(type="string")
      */
     public $name;
 }
