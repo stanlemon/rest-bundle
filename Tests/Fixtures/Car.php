@@ -23,13 +23,13 @@ class Car
 
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
-     * @MongoDB\String()
+      * @MongoDB\Field(type="string")
      */
     public $name;
 
     /**
      * @ORM\Column(name="year", type="string", length=255, nullable=false)
-     * @MongoDB\Int()
+     * @MongoDB\Field(type="int")
      */
     public $year;
 
@@ -43,7 +43,7 @@ class Car
     /**
      * @ORM\Column(name="created", type="datetime", nullable=true)
      * @Serializer\ReadOnly()
-     * @MongoDB\Date()
+     * @MongoDB\Field(type="date")
      */
     public $created;
 

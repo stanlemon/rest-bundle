@@ -25,21 +25,21 @@ class FootballTeam
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      * @Assert\NotBlank()
-     * @MongoDB\String()
+     * @MongoDB\Field(type="string")
      */
     public $name;
 
     /**
      * @ORM\Column(name="league", type="string", length=255, nullable=false)
      * @Serializer\Until("1.0")
-     * @MongoDB\String()
+     * @MongoDB\Field(type="string")
      */
     public $league;
 
     /**
      * @ORM\Column(name="conference", type="string", length=255, nullable=false)
      * @Serializer\Since("1.1")
-     * @MongoDB\String()
+     * @MongoDB\Field(type="string")
      */
     public $conference;
 }

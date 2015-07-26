@@ -26,33 +26,33 @@ class Person
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      * @Assert\NotBlank()
-     * @MongoDB\String()
+     * @MongoDB\Field(type="string")
      */
     public $name;
 
     /**
      * @ORM\Column(name="ssn", type="string", length=255, nullable=true)
      * @Serializer\ReadOnly()
-     * @MongoDB\String()
+     * @MongoDB\Field(type="string")
      */
     public $ssn;
 
     /**
      * @ORM\Column(name="favorite_color", type="string", length=255, nullable=true)
-     * @MongoDB\String()
+     * @MongoDB\Field(type="string")
      */
     public $favoriteColor;
 
     /**
      * @ORM\Column(name="created", type="datetime", nullable=true)
-     * @MongoDB\Date()
+     * @MongoDB\Field(type="date")
      * @Serializer\ReadOnly()
      */
     public $created;
 
     /**
      * @ORM\Column(name="updated", type="datetime", nullable=true)
-     * @MongoDB\Date()
+     * @MongoDB\Field(type="date")
      * @Serializer\ReadOnly()
      */
     public $updated;

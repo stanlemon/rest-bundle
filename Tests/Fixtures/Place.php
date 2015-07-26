@@ -23,7 +23,7 @@ class Place
 
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
-     * @MongoDB\String()
+     * @MongoDB\Field(type="string")
      */
     public $name;
 
