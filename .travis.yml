@@ -54,11 +54,11 @@ matrix:
 before_script:
   - if [[ $TRAVIS_PHP_VERSION != 'hhvm' && $TRAVIS_PHP_VERSION != '7.0' ]]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - composer self-update
-  - composer require --prefer-dist --ignore-platform-reqs doctrine/common:~2.4 doctrine/dbal:${DOCTRINE_VERSION} doctrine/orm:${DOCTRINE_VERSION}
-  - if [[ $TRAVIS_PHP_VERSION == 'hhvm' || $TRAVIS_PHP_VERSION == '7.0' ]]; then composer require --prefer-dist mongofill/mongofill=dev-master --no-update; fi
-  - composer require --prefer-dist --ignore-platform-reqs symfony/framework-bundle:${SYMFONY_VERSION}  symfony/framework-bundle:${SYMFONY_VERSION} symfony/dependency-injection:${SYMFONY_VERSION} symfony/yaml:${SYMFONY_VERSION} symfony/finder:${SYMFONY_VERSION} symfony/validator:${SYMFONY_VERSION} symfony/browser-kit:${SYMFONY_VERSION} symfony/form:${SYMFONY_VERSION} symfony/monolog-bundle:${SYMFONY_VERSION}
-  - if [[ $TRAVIS_PHP_VERSION != 'hhvm' && $TRAVIS_PHP_VERSION != '7.0' ]]; then composer install  --prefer-dist; fi
-  - if [[ $TRAVIS_PHP_VERSION == 'hhvm' || $TRAVIS_PHP_VERSION == '7.0' ]]; then composer install  --prefer-dist --ignore-platform-reqs; fi
+  - composer require --ignore-platform-reqs doctrine/common:~2.4 doctrine/dbal:${DOCTRINE_VERSION} doctrine/orm:${DOCTRINE_VERSION}
+  - if [[ $TRAVIS_PHP_VERSION == 'hhvm' || $TRAVIS_PHP_VERSION == '7.0' ]]; then composer require mongofill/mongofill=dev-master --no-update; fi
+  - composer require --ignore-platform-reqs symfony/framework-bundle:${SYMFONY_VERSION}  symfony/framework-bundle:${SYMFONY_VERSION} symfony/dependency-injection:${SYMFONY_VERSION} symfony/yaml:${SYMFONY_VERSION} symfony/finder:${SYMFONY_VERSION} symfony/validator:${SYMFONY_VERSION} symfony/browser-kit:${SYMFONY_VERSION} symfony/form:${SYMFONY_VERSION} symfony/monolog-bundle:${SYMFONY_VERSION}
+  - if [[ $TRAVIS_PHP_VERSION != 'hhvm' && $TRAVIS_PHP_VERSION != '7.0' ]]; then composer install ; fi
+  - if [[ $TRAVIS_PHP_VERSION == 'hhvm' || $TRAVIS_PHP_VERSION == '7.0' ]]; then composer install  --ignore-platform-reqs; fi
 
 script: ./vendor/bin/phpunit  --coverage-clover=coverage.clover
 
