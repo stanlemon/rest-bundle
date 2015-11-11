@@ -89,14 +89,19 @@ class Handler
             $context = new DeserializationContext();
             $context->enableMaxDepthChecks();
 
-            $object = $this->serializer->create(
-                $request->isMethod('patch') ? 'doctrine' : 'default'
-            )->deserialize(
-                $request->getContent(),
-                $manager->getClass(),
-                $format,
-                $context
-            );
+            $object = null;
+            $content = $request->getContent();
+
+            if (!empty($content)) {
+                $object = $this->serializer->create(
+                    $request->isMethod('patch') ? 'doctrine' : 'default'
+                )->deserialize(
+                    $request->getContent(),
+                    $manager->getClass(),
+                    $format,
+                    $context
+                );
+            }
 
             $data = $this->envelopeFactory->create(
                 $callback($manager, $object)
