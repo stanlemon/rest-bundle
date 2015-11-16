@@ -77,14 +77,24 @@ class Manager implements ManagerInterface
 
         $identifierFieldsNames = $metadata->getIdentifier();
         $identifierFieldName = reset($identifierFieldsNames);
-        $countQueryBuilder = $this->getManager()->createQueryBuilder();
-        $expressionBuilder = $countQueryBuilder->expr();
-        $whereConditions = $expressionBuilder->eq(1, 1);
+        $countQueryBuilder = $this->getManager()->createQueryBuilder($this->getClass());
+        $isMongoDB = false;
+        if(method_exists($countQueryBuilder, $method_name = "field")){
+            $isMongoDB = true;
+        }
+        if($isMongoDB === false){
+            $expressionBuilder = $countQueryBuilder->expr();
+            $whereConditions = $expressionBuilder->eq(1, 1);
+        }
         foreach ($criteria as $key => $value) {
             if (!$metadata->hasField($key) && !$metadata->hasAssociation($key)) {
                 $criteria->remove($key);
             }
-            $whereConditions = $expressionBuilder->andX($whereConditions, $expressionBuilder->eq("e.{$key}", $value));
+            if($isMongoDB === false){
+                $whereConditions = $expressionBuilder->andX($whereConditions, $expressionBuilder->eq("e.{$key}", $value));
+            }else{
+                $countQueryBuilder->field($key)->equals($value);
+            }
         }
 
         $filteringCriteria = $criteria->toArray();
@@ -95,8 +105,12 @@ class Manager implements ManagerInterface
             /*$offset =*/$criteria->getOffset()
         );
 
-        $countQuery = $countQueryBuilder->select("count(e.{$identifierFieldName})")->from($this->getClass(), 'e')->where($whereConditions)->getQuery();
-        $totalObjectsCount = (int) $countQuery->getSingleScalarResult();
+        if($isMongoDB === false){
+            $countQuery = $countQueryBuilder->select("count(e.{$identifierFieldName})")->from($this->getClass(), 'e')->where($whereConditions)->getQuery();
+            $totalObjectsCount = (int) $countQuery->getSingleScalarResult();
+        }else{
+            $totalObjectsCount = (int)$countQueryBuilder->getQuery()->execute()->count();
+        }
                 
         $results = new SearchResults($objects, $totalObjectsCount);
 
