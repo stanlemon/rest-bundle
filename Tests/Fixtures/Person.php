@@ -46,7 +46,7 @@ class Person
     /**
      * @ORM\Column(name="created", type="datetime", nullable=true)
      * @MongoDB\Field(type="date")
-     * @Serializer\ReadOnly()
+     * 
      */
     public $created;
 

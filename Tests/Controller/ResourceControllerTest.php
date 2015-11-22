@@ -43,18 +43,23 @@ abstract class ResourceControllerTest extends FunctionalTestCase
     {
         $person1 = new Person();
         $person1->name = "Stan Lemon";
+        $person1->created = new \DateTime();
 
         $person2 = new Person();
         $person2->name = "Sara Lemon";
+        $person2->created = new \DateTime();
 
         $person3 = new Person();
         $person3->name = "Lucy Lemon";
+        $person3->created = new \DateTime();
 
         $person4 = new Person();
         $person4->name = "Evelyn Lemon";
+        $person4->created = new \DateTime();
 
         $person5 = new Person();
         $person5->name = "Henry Lemon";
+        $person5->created = new \DateTime();
 
         $this->em->persist($person1);
         $this->em->persist($person2);
@@ -81,6 +86,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $this->assertEquals($person5->id, $data[0]->id);
         $this->assertEquals($person3->id, $data[1]->id);
         $this->assertEquals($person2->id, $data[2]->id);
+        $this->assertEquals(5, $response->headers->get("x-total-count"));
     }
 
     public function testGetAction()
@@ -100,7 +106,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
 
         $data = json_decode($response->getContent());
 
-        $this->assertTrue(!isset($data->created), "Excluded fields should not appear");
+        $this->assertTrue(!isset($data->updated), "Excluded fields should not appear");
 
         $this->assertEquals($person->id, $data->id);
         $this->assertEquals($person->name, $data->name);
@@ -126,10 +132,11 @@ abstract class ResourceControllerTest extends FunctionalTestCase
 
     public function testPostAction()
     {
+        $created = date(DATE_ISO8601);
         $request = $this->makeRequest(
             'POST',
             '/person',
-            json_encode(array('name' => 'Stan Lemon', 'created' => date('Y-m-d H:i:s')))
+            json_encode(array('name' => 'Stan Lemon', 'created' => $created))
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
@@ -150,7 +157,8 @@ abstract class ResourceControllerTest extends FunctionalTestCase
 
         $this->assertNotNull($refresh);
         $this->assertEquals("Stan Lemon", $refresh->name);
-        $this->assertNull($refresh->created, "Excluded properties, even when passed should not be set");
+        $this->assertEquals(new \DateTime($created), $refresh->created);
+        $this->assertNull($refresh->updated, "Excluded properties, even when passed should not be set");
     }
 
     public function testPutAction()
@@ -164,13 +172,14 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $this->em->flush($person);
         $this->em->clear();
 
+        $created = date(DATE_ISO8601);
         $request = $this->makeRequest(
             'PUT',
             '/person/' . $person->id,
             json_encode(array(
                 'id' => $person->id,
                 'name' => $person->name,
-                'created' => date('Y-m-d H:i:s'),
+                'created' => $created,
             ))
         );
 
@@ -189,7 +198,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $this->assertNotNull($refresh);
         $this->assertEquals($person->id, $refresh->id);
         $this->assertEquals($person->name, $refresh->name);
-        $this->assertEquals($person->created, $refresh->created, "Excluded fields do not get updated when passed in");
+        $this->assertEquals(new \DateTime($created), $refresh->created);
         $this->assertEquals($person->updated, $refresh->updated, "Excluded fields not get updated when not passed in");
     }
 
@@ -972,7 +981,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $request = $this->makeRequest(
             'POST',
             '/person',
-            json_encode(array('name' => 'Stan Lemon', 'created' => date('Y-m-d H:i:s')))
+            json_encode(array('name' => 'Stan Lemon', 'created' => date(DATE_ISO8601)))
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
@@ -996,7 +1005,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $request = $this->makeRequest(
             'POST',
             '/person',
-            json_encode(array('name' => 'Stan Lemon', 'created' => date('Y-m-d H:i:s')))
+            json_encode(array('name' => 'Stan Lemon', 'created' => date(DATE_ISO8601)))
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */

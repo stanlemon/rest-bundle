@@ -34,7 +34,7 @@ class LazyJsonDeserializationVisitor extends JsonDeserializationVisitor
     {
         $name = $this->namingStrategy->translateName($metadata);
 
-        $types = array('NULL', 'string', 'integer', 'boolean', 'double', 'float', 'array', 'ArrayCollection');
+        $types = array('NULL', 'string', 'integer', 'boolean', 'double', 'float', 'array', 'ArrayCollection', 'DateTime');        
 
         if (isset($data[$name]) && is_scalar($data[$name]) && !in_array($metadata->type['name'], $types)) {
             /** @var DeserializationContext $context */
