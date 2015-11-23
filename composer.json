@@ -30,7 +30,8 @@
         "doctrine/orm": "~2.3",
         "doctrine/mongodb": "~1.2",
         "doctrine/mongodb-odm": "~1.0",
-        "doctrine/mongodb-odm-bundle": "~3.0"
+        "doctrine/mongodb-odm-bundle": "~3.0",
+        "mongofill/mongofill": "dev-master@dev"
     },
     "autoload": {
         "psr-4": {

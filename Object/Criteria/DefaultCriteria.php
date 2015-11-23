@@ -68,14 +68,18 @@ class DefaultCriteria extends ArrayCollection implements Criteria
     }
 
     /**
-     * @return null
+     * @return string
      */
     public function getOrderBy()
     {
-        if ($this->orderBy) {
-            return array($this->orderBy => $this->orderDir);
-        } else {
-            return null;
-        }
+        return $this->orderBy;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderDir()
+    {
+        return $this->orderDir;
     }
 }

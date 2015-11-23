@@ -9,6 +9,8 @@ use Lemon\RestBundle\Event\RestEvents;
 use Lemon\RestBundle\Model\SearchResults;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
 use Lemon\RestBundle\Object\Exception\UnsupportedMethodException;
+use Lemon\RestBundle\Object\Repository\OrmRepositoryWrapper;
+use Lemon\RestBundle\Object\Repository\MongoRepositoryWrapper;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Manager implements ManagerInterface
@@ -49,12 +51,26 @@ class Manager implements ManagerInterface
     }
 
     /**
-     * @return \Doctrine\Common\Persistence\ObjectRepository
+     * @return \Lemon\RestBundle\Object\Repository
      */
     protected function getRepository()
     {
-        return $this->doctrine->getManagerForClass($this->getClass())
-            ->getRepository($this->getClass());
+        $manager = $this->getManager();
+        $repository = $manager->getRepository($this->getClass());
+        
+        if ($repository instanceof Repository) {
+            return $repository;
+        }
+
+        if ($manager instanceof \Doctrine\ORM\EntityManager) {
+            return new OrmRepositoryWrapper($repository);
+        }
+        
+        if ($manager instanceof \Doctrine\ODM\MongoDB\DocumentManager) {
+            return new MongoRepositoryWrapper($repository);
+        }
+        
+        throw new \RuntimeException("I have no idea what to do with this repository class!");
     }
     
     protected function throwUnsupportedMethodException()
@@ -72,47 +88,10 @@ class Manager implements ManagerInterface
 
         $this->eventDispatcher->dispatch(RestEvents::PRE_SEARCH, new PreSearchEvent($criteria));
 
-        /** @var \Doctrine\Common\Persistence\Mapping\ClassMetadata $metadata */
-        $metadata = $this->getManager()->getClassMetadata($this->getClass());
-
-        $identifierFieldsNames = $metadata->getIdentifier();
-        $identifierFieldName = reset($identifierFieldsNames);
-        $countQueryBuilder = $this->getManager()->createQueryBuilder($this->getClass());
-        $isMongoDB = false;
-        if(method_exists($countQueryBuilder, $method_name = "field")){
-            $isMongoDB = true;
-        }
-        if($isMongoDB === false){
-            $expressionBuilder = $countQueryBuilder->expr();
-            $whereConditions = $expressionBuilder->eq(1, 1);
-        }
-        foreach ($criteria as $key => $value) {
-            if (!$metadata->hasField($key) && !$metadata->hasAssociation($key)) {
-                $criteria->remove($key);
-            }
-            if($isMongoDB === false){
-                $whereConditions = $expressionBuilder->andX($whereConditions, $expressionBuilder->eq("e.{$key}", $value));
-            }else{
-                $countQueryBuilder->field($key)->equals($value);
-            }
-        }
-
-        $filteringCriteria = $criteria->toArray();
-        $objects = $this->getRepository()->findBy(
-            $filteringCriteria,
-            /*$orderBy =*/$criteria->getOrderBy(),
-            /*$limit =*/$criteria->getLimit(),
-            /*$offset =*/$criteria->getOffset()
-        );
-
-        if($isMongoDB === false){
-            $countQuery = $countQueryBuilder->select("count(e.{$identifierFieldName})")->from($this->getClass(), 'e')->where($whereConditions)->getQuery();
-            $totalObjectsCount = (int) $countQuery->getSingleScalarResult();
-        }else{
-            $totalObjectsCount = (int)$countQueryBuilder->getQuery()->execute()->count();
-        }
-                
-        $results = new SearchResults($objects, $totalObjectsCount);
+        $total = $this->getRepository()->count($criteria);
+        $objects = $this->getRepository()->search($criteria);
+        
+        $results = new SearchResults($objects, $total);
 
         $this->eventDispatcher->dispatch(RestEvents::POST_SEARCH, new PostSearchEvent($results));
 
@@ -146,7 +125,7 @@ class Manager implements ManagerInterface
      */
     public function retrieve($id)
     {
-        if (!($object = $this->getRepository()->findOneBy(array('id' => $id)))) {
+        if (!($object = $this->getRepository()->findById($id))) {
             throw new NotFoundException("Object not found");
         }
         return $object;
