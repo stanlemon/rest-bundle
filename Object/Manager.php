@@ -88,8 +88,10 @@ class Manager implements ManagerInterface
 
         $this->eventDispatcher->dispatch(RestEvents::PRE_SEARCH, new PreSearchEvent($criteria));
 
-        $total = $this->getRepository()->count($criteria);
-        $objects = $this->getRepository()->search($criteria);
+        $repository = $this->getRepository();
+
+        $total = $repository->count($criteria);
+        $objects = $repository->search($criteria);
         
         $results = new SearchResults($objects, $total);
 
