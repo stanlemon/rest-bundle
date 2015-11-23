@@ -83,11 +83,16 @@ class OrmRepositoryWrapper implements Repository
 	 */
 	protected function buildWhereClause(QueryBuilder $qb, Criteria $criteria)
 	{
+		$values = array();
+
         foreach ($criteria as $key => $value) {
             if ($this->metadata->hasField($key) || $this->metadata->hasAssociation($key)) {
-				$qb->andWhere('e.' . $key, $value);
+				$qb->andWhere('e.' . $key . ' = :' . $key);
+				$values[$key] = $value;
 			}
         }
+		
+		$qb->setParameters($values);
 	}
 
 	/**
