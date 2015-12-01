@@ -22,9 +22,9 @@ class LemonRestBundle extends Bundle
     {
         parent::build($container);
 
-        if (Kernel::MAJOR_VERSION >= 2 && Kernel::MINOR_VERSION >=5) {
+        if (Kernel::MAJOR_VERSION == 2 && Kernel::MINOR_VERSION <=5) {
             $container->addCompilerPass(
-                new \Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass(
+                new \Symfony\Component\HttpKernel\DependencyInjection\RegisterListenersPass(
                     'lemon_rest.event_dispatcher',
                     'lemon_rest.event_listener',
                     'lemon_rest.event_subscriber'
@@ -32,7 +32,7 @@ class LemonRestBundle extends Bundle
             );
         } else {
             $container->addCompilerPass(
-                new \Symfony\Component\HttpKernel\DependencyInjection\RegisterListenersPass(
+                new \Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass(
                     'lemon_rest.event_dispatcher',
                     'lemon_rest.event_listener',
                     'lemon_rest.event_subscriber'

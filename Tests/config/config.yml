@@ -10,13 +10,6 @@ framework:
     router:
         resource: "%kernel.root_dir%/config/routing.yml"
 
-monolog:
-    handlers:
-        stdout:
-            type:  stream
-            path:  "php://temp"
-            level: debug
-
 doctrine:
     dbal:
         default_connection: default
@@ -50,3 +43,7 @@ doctrine_mongodb:
                     type: annotation
                     prefix: Lemon\RestBundle\Tests\Fixtures\
                     dir: %kernel.root_dir%/Fixtures/
+
+services:
+    logger:
+        class: Psr\Log\NullLogger

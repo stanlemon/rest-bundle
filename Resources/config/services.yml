@@ -7,26 +7,26 @@ services:
     lemon_rest.resource_controller:
         class: Lemon\RestBundle\Controller\ResourceController
         arguments:
-            - @lemon_rest.handler
-            - @lemon_rest.object_criteria_factory
-            - @router
+            - "@lemon_rest.handler"
+            - "@lemon_rest.object_criteria_factory"
+            - "@router"
 
     lemon_rest.index_controller:
         class: Lemon\RestBundle\Controller\IndexController
         arguments:
-            - @lemon_rest.format_negotiator
-            - @jms_serializer
-            - @lemon_rest.object_registry
-            - @router
+            - "@lemon_rest.format_negotiator"
+            - "@jms_serializer"
+            - "@lemon_rest.object_registry"
+            - "@router"
 
     lemon_rest.handler:
         class: Lemon\RestBundle\Request\Handler
         arguments:
-            - @lemon_rest.object_manager_factory
-            - @lemon_rest.object_envelope_factory
-            - @lemon_rest.serializer.constructor_factory
-            - @lemon_rest.format_negotiator
-            - @?logger
+            - "@lemon_rest.object_manager_factory"
+            - "@lemon_rest.object_envelope_factory"
+            - "@lemon_rest.serializer.constructor_factory"
+            - "@lemon_rest.format_negotiator"
+            - "@?logger"
 
     lemon_rest.format_negotiator:
         class: Negotiation\FormatNegotiator
@@ -34,19 +34,19 @@ services:
     lemon_rest.event_dispatcher:
         class: Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher
         arguments:
-            - @service_container
+            - "@service_container"
 
     lemon_rest.event.processor_subscriber:
         class: Lemon\RestBundle\Event\ProcessorSubscriber
         arguments:
-            - @lemon_rest.object_processor
+            - "@lemon_rest.object_processor"
         tags:
             - { name: lemon_rest.event_subscriber }
 
     lemon_rest.event.validator_subscriber:
         class: Lemon\RestBundle\Event\ValidatorSubscriber
         arguments:
-            - @lemon_rest.object_validator
+            - "@lemon_rest.object_validator"
         tags:
             - { name: lemon_rest.event_subscriber }
 
@@ -54,20 +54,20 @@ services:
     lemon_rest.object_manager_factory:
         class: Lemon\RestBundle\Object\ManagerFactory
         arguments:
-            - @lemon_rest.object_registry
-            - @lemon_doctrine
-            - @lemon_rest.event_dispatcher
+            - "@lemon_rest.object_registry"
+            - "@lemon_doctrine"
+            - "@lemon_rest.event_dispatcher"
 
     lemon_rest.object_processor:
         class: Lemon\RestBundle\Object\Processor
         arguments:
-            - @lemon_doctrine
-            - @jms_serializer.metadata_factory
+            - "@lemon_doctrine"
+            - "@jms_serializer.metadata_factory"
 
     lemon_rest.object_validator:
         class: Lemon\RestBundle\Object\Validator
         arguments:
-            - @validator
+            - "@validator"
 
     lemon_rest.object_registry:
         class: Lemon\RestBundle\Object\Registry
@@ -85,7 +85,7 @@ services:
     lemon_rest.serializer.id_collection.handler:
         class: Lemon\RestBundle\Serializer\IdCollectionHandler
         arguments:
-            - @lemon_doctrine
+            - "@lemon_doctrine"
         tags:
             - { name: jms_serializer.subscribing_handler }
 
@@ -97,23 +97,23 @@ services:
     lemon_rest.serializer.doctrine_object_constructor:
         class: JMS\Serializer\Construction\DoctrineObjectConstructor
         arguments:
-            - @lemon_doctrine
-            - @jms_serializer.unserialize_object_constructor
+            - "@lemon_doctrine"
+            - "@jms_serializer.unserialize_object_constructor"
 
     lemon_rest.serializer.object_constructor:
         class: Lemon\RestBundle\Serializer\Construction\ToggleDoctrineObjectConstructor
         arguments:
-            - @lemon_rest.serializer.doctrine_object_constructor
-            - @jms_serializer.unserialize_object_constructor
+            - "@lemon_rest.serializer.doctrine_object_constructor"
+            - "@jms_serializer.unserialize_object_constructor"
 
     lemon_rest.serializer.constructor_factory:
         class: Lemon\RestBundle\Serializer\ConstructorFactory
         arguments:
-            - @jms_serializer.metadata_factory
-            - @jms_serializer.handler_registry
-            - @lemon_rest.serializer.collection
-            - @lemon_rest.serializer.collection
-            - @jms_serializer.event_dispatcher
+            - "@jms_serializer.metadata_factory"
+            - "@jms_serializer.handler_registry"
+            - "@lemon_rest.serializer.collection"
+            - "@lemon_rest.serializer.collection"
+            - "@jms_serializer.event_dispatcher"
         calls:
-            - [ addObjectConstructor, ['default', @lemon_rest.serializer.object_constructor] ]
-            - [ addObjectConstructor, ['doctrine', @lemon_rest.serializer.doctrine_object_constructor] ]
+            - [ addObjectConstructor, ["default", "@lemon_rest.serializer.object_constructor"] ]
+            - [ addObjectConstructor, ["doctrine", "@lemon_rest.serializer.doctrine_object_constructor"] ]
