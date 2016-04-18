@@ -58,9 +58,9 @@ class ToggleDoctrineObjectConstructor implements ObjectConstructorInterface
         array $type,
         DeserializationContext $context
     ) {
-        if ($context instanceof \Lemon\RestBundle\Serializer\DeserializationContext
-            && $context->shouldUseDoctrineConstructor())
-        {
+        if ($context instanceof \Lemon\RestBundle\Serializer\DeserializationContext &&
+            $context->shouldUseDoctrineConstructor()
+        ) {
             $this->useDoctrine();
         }
 

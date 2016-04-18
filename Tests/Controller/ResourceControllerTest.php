@@ -36,7 +36,11 @@ abstract class ResourceControllerTest extends FunctionalTestCase
             }
         }
 
-        $this->assertTrue($found, sprintf("Array did not have an object whose property %s had value %s", $key, $expected));
+        $this->assertTrue($found, sprintf(
+            "Array did not have an object whose property %s had value %s",
+            $key,
+            $expected
+        ));
     }
 
     public function testListAction()
@@ -220,7 +224,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $this->assertNotNull($person);
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
-        $response = $this->controller->deleteAction($request, 'person', $person->id);;
+        $response = $this->controller->deleteAction($request, 'person', $person->id);
 
         $this->assertEquals("null", $response->getContent());
         $this->assertEquals(204, $response->getStatusCode());
@@ -424,11 +428,11 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $response = $this->controller->postAction($request, 'person');
 
         $data = json_decode($response->getContent());
-        
+
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
             'id' => $data->id
         ));
-            
+
         $this->assertNotNull($refresh);
         $this->assertEquals("Stan Lemon", $refresh->name);
         $this->assertNotNull($refresh->mother);
@@ -1116,7 +1120,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneByName("Stan Lemon");
 
         $this->assertNotNull($refresh);
-		$this->assertEquals("Stan Lemon", $refresh->name);
+        $this->assertEquals("Stan Lemon", $refresh->name);
         $this->assertNotNull($refresh->mother);
         $this->assertEquals($mother->id, $refresh->mother->id);
         $this->assertEquals($mother->name, $refresh->mother->name);
@@ -1182,7 +1186,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         ));
 
         $this->assertNotNull($person);
-        $this->assertEquals(array('Mustang'), array_map(function($car) {
+        $this->assertEquals(array('Mustang'), array_map(function ($car) {
             return $car->name;
         }, $person->cars->toArray()));
     }
@@ -1221,7 +1225,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         ));
 
         $this->assertNotNull($person);
-        $this->assertEquals(array('Mustang'), array_map(function($car) {
+        $this->assertEquals(array('Mustang'), array_map(function ($car) {
             return $car->name;
         }, $person->cars->toArray()));
     }

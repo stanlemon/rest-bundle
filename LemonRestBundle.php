@@ -45,13 +45,17 @@ class LemonRestBundle extends Bundle
         $container->addCompilerPass(new RegisterResourcePass());
         $container->addCompilerPass(new RegisterMappingsPass());
         // This is basically copy-pasted from JMSSerializerBundle
-        $container->addCompilerPass($this->getServiceMapPass('jms_serializer.serialization_visitor', 'format',
-            function(ContainerBuilder $container, Definition $def) {
+        $container->addCompilerPass($this->getServiceMapPass(
+            'jms_serializer.serialization_visitor',
+            'format',
+            function (ContainerBuilder $container, Definition $def) {
                 $container->getDefinition('lemon_rest.serializer.constructor_factory')->replaceArgument(2, $def);
             }
         ));
-        $container->addCompilerPass($this->getServiceMapPass('jms_serializer.deserialization_visitor', 'format',
-            function(ContainerBuilder $container, Definition $def) {
+        $container->addCompilerPass($this->getServiceMapPass(
+            'jms_serializer.deserialization_visitor',
+            'format',
+            function (ContainerBuilder $container, Definition $def) {
                 $container->getDefinition('lemon_rest.serializer.constructor_factory')->replaceArgument(3, $def);
             }
         ));
