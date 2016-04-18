@@ -15,4 +15,6 @@ interface Criteria extends Collection
     public function getOffset();
 
     public function getOrderBy();
+
+    public function getOrderDir();
 }

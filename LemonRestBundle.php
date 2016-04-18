@@ -22,9 +22,9 @@ class LemonRestBundle extends Bundle
     {
         parent::build($container);
 
-        if (Kernel::MAJOR_VERSION >= 2 && Kernel::MINOR_VERSION >=5) {
+        if (Kernel::MAJOR_VERSION == 2 && Kernel::MINOR_VERSION <=5) {
             $container->addCompilerPass(
-                new \Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass(
+                new \Symfony\Component\HttpKernel\DependencyInjection\RegisterListenersPass(
                     'lemon_rest.event_dispatcher',
                     'lemon_rest.event_listener',
                     'lemon_rest.event_subscriber'
@@ -32,7 +32,7 @@ class LemonRestBundle extends Bundle
             );
         } else {
             $container->addCompilerPass(
-                new \Symfony\Component\HttpKernel\DependencyInjection\RegisterListenersPass(
+                new \Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass(
                     'lemon_rest.event_dispatcher',
                     'lemon_rest.event_listener',
                     'lemon_rest.event_subscriber'
@@ -45,13 +45,17 @@ class LemonRestBundle extends Bundle
         $container->addCompilerPass(new RegisterResourcePass());
         $container->addCompilerPass(new RegisterMappingsPass());
         // This is basically copy-pasted from JMSSerializerBundle
-        $container->addCompilerPass($this->getServiceMapPass('jms_serializer.serialization_visitor', 'format',
-            function(ContainerBuilder $container, Definition $def) {
+        $container->addCompilerPass($this->getServiceMapPass(
+            'jms_serializer.serialization_visitor',
+            'format',
+            function (ContainerBuilder $container, Definition $def) {
                 $container->getDefinition('lemon_rest.serializer.constructor_factory')->replaceArgument(2, $def);
             }
         ));
-        $container->addCompilerPass($this->getServiceMapPass('jms_serializer.deserialization_visitor', 'format',
-            function(ContainerBuilder $container, Definition $def) {
+        $container->addCompilerPass($this->getServiceMapPass(
+            'jms_serializer.deserialization_visitor',
+            'format',
+            function (ContainerBuilder $container, Definition $def) {
                 $container->getDefinition('lemon_rest.serializer.constructor_factory')->replaceArgument(3, $def);
             }
         ));

@@ -34,7 +34,8 @@ class LazyJsonDeserializationVisitor extends JsonDeserializationVisitor
     {
         $name = $this->namingStrategy->translateName($metadata);
 
-        $types = array('NULL', 'string', 'integer', 'boolean', 'double', 'float', 'array', 'ArrayCollection', 'DateTime');        
+        $types = array('NULL', 'string', 'integer', 'boolean', 'double', 'float', 'array', 'ArrayCollection',
+            'DateTime');
 
         if (isset($data[$name]) && is_scalar($data[$name]) && !in_array($metadata->type['name'], $types)) {
             /** @var DeserializationContext $context */
@@ -49,8 +50,12 @@ class LazyJsonDeserializationVisitor extends JsonDeserializationVisitor
             return;
         }
 
-        if ( ! $metadata->type) {
-            throw new RuntimeException(sprintf('You must define a type for %s::$%s.', $metadata->reflection->class, $metadata->name));
+        if (!$metadata->type) {
+            throw new RuntimeException(sprintf(
+                'You must define a type for %s::$%s.',
+                $metadata->reflection->class,
+                $metadata->name
+            ));
         }
 
         $v = $data[$name] !== null ? $this->getNavigator()->accept($data[$name], $metadata->type, $context) : null;

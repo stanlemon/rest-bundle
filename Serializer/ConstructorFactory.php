@@ -23,8 +23,7 @@ class ConstructorFactory
         MapInterface $serializationVisitors,
         MapInterface $deserializationVisitors,
         EventDispatcherInterface $eventDispatcher
-    )
-    {
+    ) {
         $this->factory = $factory;
         $this->handlerRegistry = $handlerRegistry;
         $this->serializationVisitors = $serializationVisitors;

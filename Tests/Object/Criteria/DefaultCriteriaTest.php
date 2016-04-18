@@ -21,10 +21,8 @@ class DefaultCriteriaTest extends \PHPUnit_Framework_TestCase
         $criteria = new DefaultCriteria($data);
 
         $this->assertEquals(array('foo' => 'bar'), $criteria->toArray());
-        $this->assertEquals(
-            array('firstName' => DefaultCriteria::ORDER_DIR_DESC),
-            $criteria->getOrderBy()
-        );
+        $this->assertEquals('firstName', $criteria->getOrderBy());
+        $this->assertEquals(DefaultCriteria::ORDER_DIR_DESC, $criteria->getOrderDir());
         $this->assertEquals(5, $criteria->getLimit());
         $this->assertEquals(1, $criteria->getOffset());
     }
@@ -40,6 +38,7 @@ class DefaultCriteriaTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($data, $criteria->toArray());
         $this->assertNull($criteria->getOrderBy());
+        $this->assertNotNull($criteria->getOrderDir());
         $this->assertEquals(DefaultCriteria::DEFAULT_LIMIT, $criteria->getLimit());
         $this->assertEquals(DefaultCriteria::DEFAULT_OFFSET, $criteria->getOffset());
     }
@@ -54,7 +53,8 @@ class DefaultCriteriaTest extends \PHPUnit_Framework_TestCase
         $criteria = new DefaultCriteria($data);
 
         $this->assertNotNull($criteria->getOrderBy());
-        $this->assertEquals(array('foo' => DefaultCriteria::ORDER_DIR_ASC), $criteria->getOrderBy());
+        $this->assertEquals('foo', $criteria->getOrderBy());
+        $this->assertEquals(DefaultCriteria::ORDER_DIR_ASC, $criteria->getOrderDir());
 
         $data = array(
             DefaultCriteria::ORDER_BY => 'foo',
@@ -64,6 +64,7 @@ class DefaultCriteriaTest extends \PHPUnit_Framework_TestCase
         $criteria = new DefaultCriteria($data);
 
         $this->assertNotNull($criteria->getOrderBy());
-        $this->assertEquals(array('foo' => DefaultCriteria::ORDER_DIR_DESC), $criteria->getOrderBy());
+        $this->assertEquals('foo', $criteria->getOrderBy());
+        $this->assertEquals(DefaultCriteria::ORDER_DIR_DESC, $criteria->getOrderDir());
     }
 }

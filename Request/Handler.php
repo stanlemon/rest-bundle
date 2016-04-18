@@ -14,7 +14,6 @@ use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
 use Negotiation\FormatNegotiator;
 
@@ -141,7 +140,21 @@ class Handler
             );
         }
 
+        $groups = array(
+            'Default',
+            'lemon_rest',
+            'lemon_rest_' . $resource,
+            'lemon_rest_' . $resource . '_' . strtolower($request->getMethod()),
+        );
+
+        if (is_object($data)) {
+            $groups[] = 'lemon_rest_' . $resource . '_view';
+        } else {
+            $groups[] = 'lemon_rest_' . $resource . '_list';
+        }
+
         $context = SerializationContext::create()->enableMaxDepthChecks();
+        $context->setGroups($groups);
 
         if ($accept->hasParameter('version')) {
             $context->setVersion($accept->getParameter('version'));

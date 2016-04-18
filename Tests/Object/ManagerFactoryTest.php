@@ -8,13 +8,15 @@ use Lemon\RestBundle\Object\Definition;
 /**
  * @coversDefaultClass \Lemon\RestBundle\Object\ManagerFactory
  */
-class ManagerFactoryTest extends \Xpmock\TestCase
+class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testCreatesManagerWithCorrectClass()
     {
-        $eventDispatcher = $this->mock('Symfony\Component\EventDispatcher\EventDispatcher')->new();
-        $doctrine = $this->mock('Doctrine\Bundle\DoctrineBundle\Registry')->new();
+        $eventDispatcher = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcher')->getMock();
+        $doctrine = $this->getMockBuilder('Doctrine\Bundle\DoctrineBundle\Registry')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $registry = new Registry();
         $registry->add(new Definition('person', 'Lemon\RestBundle\Tests\Fixtures\Person'));

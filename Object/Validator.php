@@ -2,19 +2,21 @@
 namespace Lemon\RestBundle\Object;
 
 use Lemon\RestBundle\Object\Exception\InvalidException;
-use Symfony\Component\Validator\ValidatorInterface;
 
 class Validator
 {
     /**
-     * @var ValidatorInterface
+     * This interface changed from Symfony 2.3 to 2.5, but we only rely upon the first parameter - which
+     * is the same between version.
+     *
+     * @var Symfony\Component\Validator\ValidatorInterface\ValidatorInterface|Symfony\Component\Validator\Validaotr\ValidatorInterface\ValidatorInterface
      */
     protected $validator;
 
     /**
-     * @param ValidatorInterface $validator
+     * @param Symfony\Component\Validator\ValidatorInterface\ValidatorInterface|Symfony\Component\Validator\Validaotr\ValidatorInterface\ValidatorInterface $validator
      */
-    public function __construct(ValidatorInterface $validator)
+    public function __construct($validator)
     {
         $this->validator = $validator;
     }
