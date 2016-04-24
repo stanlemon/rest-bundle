@@ -13,9 +13,11 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use JMS\Serializer\SerializationContext;
 use Negotiation\FormatNegotiator;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class Handler
 {
@@ -31,12 +33,14 @@ class Handler
      * @var ConstructorFactory
      */
     protected $serializer;
-
     /**
      * @var \Negotiation\FormatNegotiator
      */
     protected $negotiator;
-
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    protected $authorizationChecker;
     /**
      * @var LoggerInterface
      */
@@ -47,6 +51,7 @@ class Handler
      * @param EnvelopeFactory $envelopeFactory
      * @param ConstructorFactory $serializer
      * @param FormatNegotiator $negotiator
+     * @param AuthorizationCheckerInterface $authorizationChecker
      * @param LoggerInterface $logger
      */
     public function __construct(
@@ -54,12 +59,14 @@ class Handler
         EnvelopeFactory $envelopeFactory,
         ConstructorFactory $serializer,
         FormatNegotiator $negotiator,
+        AuthorizationCheckerInterface $authorizationChecker,
         LoggerInterface $logger = null
     ) {
         $this->managerFactory = $managerFactory;
         $this->envelopeFactory = $envelopeFactory;
         $this->serializer = $serializer;
         $this->negotiator = $negotiator;
+        $this->authorizationChecker = $authorizationChecker;
         $this->logger = $logger ?: new NullLogger();
     }
 
@@ -84,6 +91,10 @@ class Handler
 
         try {
             $manager = $this->managerFactory->create($resource);
+
+            if (!$this->authorizationChecker->isGranted($request->getMethod(), $manager->getClass())) {
+                throw new AccessDeniedHttpException('Access Denied');
+            }
 
             $context = new DeserializationContext();
             $context->enableMaxDepthChecks();

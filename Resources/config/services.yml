@@ -4,6 +4,9 @@ services:
     lemon_doctrine:
         alias: doctrine
 
+    lemon_rest.authorization_checker:
+        alias: lemon_rest.authorization.default_authorization_checker
+
     lemon_rest.resource_controller:
         class: Lemon\RestBundle\Controller\ResourceController
         arguments:
@@ -26,6 +29,7 @@ services:
             - "@lemon_rest.object_envelope_factory"
             - "@lemon_rest.serializer.constructor_factory"
             - "@lemon_rest.format_negotiator"
+            - "@lemon_rest.authorization_checker"
             - "@?logger"
 
     lemon_rest.format_negotiator:
@@ -117,3 +121,6 @@ services:
         calls:
             - [ addObjectConstructor, ["default", "@lemon_rest.serializer.object_constructor"] ]
             - [ addObjectConstructor, ["doctrine", "@lemon_rest.serializer.doctrine_object_constructor"] ]
+
+    lemon_rest.authorization.default_authorization_checker:
+        class: Lemon\RestBundle\Authorization\DefaultAuthorizationChecker

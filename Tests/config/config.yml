@@ -30,6 +30,11 @@ doctrine:
                         prefix: Lemon\RestBundle\Tests\Fixtures\
                         dir: %kernel.root_dir%/Fixtures/
 
+lemon_rest:
+    authorization_checker_service_id: lemon_rest.test_authorization_checker
+
 services:
     logger:
         class: Psr\Log\NullLogger
+    lemon_rest.test_authorization_checker:
+        class: Lemon\RestBundle\Tests\Fixtures\TestAuthorizationChecker
