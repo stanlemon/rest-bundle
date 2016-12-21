@@ -30,6 +30,7 @@ Setting up the bundle
       {
           $bundles = array(
               // ...
+              new JMS\SerializerBundle\JMSSerializerBundle(),
               new Lemon\RestBundle\LemonRestBundle()
           );
       }
