@@ -37,7 +37,7 @@ Setting up the bundle
   }
   ```
   
-  4. Add routing to your routing.yaml
+  4. Add routing to your `routing.yml`:
   
   ```yaml 
   lemon_rest:
