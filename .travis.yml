@@ -8,16 +8,13 @@ matrix:
   include:
     - php: 5.6
     - php: 7.0
-      env: COMPOSER_FLAGS="--ignore-platform-reqs"
     - php: hhvm
-      env: COMPOSER_FLAGS="--ignore-platform-reqs"
 
 before_script:
   - rm -f ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
-  - if [[ $TRAVIS_PHP_VERSION != 'hhvm' && $TRAVIS_PHP_VERSION != '7.0' ]]; then echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
-  - composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
+  - composer update --prefer-dist --no-interaction --ignore-platform-reqs $COMPOSER_FLAGS
 
-script: phpunit  --coverage-clover=coverage.clover
+script: ./vendor/bin/phpunit  --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
