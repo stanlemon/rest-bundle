@@ -145,7 +145,9 @@ class Manager implements ManagerInterface
 
         $original = $this->retrieve(IdHelper::getId($object));
 
-        $object = $em->merge($object);
+        if ($em->contains($object) === false) {
+            $object = $em->merge($object);
+        }
 
         $this->eventDispatcher->dispatch(RestEvents::PRE_UPDATE, new ObjectEvent($object, $original));
 
@@ -163,7 +165,9 @@ class Manager implements ManagerInterface
 
         $em = $this->getManager();
 
-        $object = $em->merge($object);
+        if ($em->contains($object) === false) {
+            $object = $em->merge($object);
+        }
 
         $em->flush();
         $em->refresh($object);
@@ -182,7 +186,9 @@ class Manager implements ManagerInterface
 
         $em = $this->getManager();
 
-        $object = $em->merge($object);
+        if ($em->contains($object) === false) {
+            $object = $em->merge($object);
+        }
 
         $this->eventDispatcher->dispatch(RestEvents::PRE_DELETE, new ObjectEvent($object));
 
