@@ -57,7 +57,7 @@ class Manager implements ManagerInterface
     {
         $manager = $this->getManager();
         $repository = $manager->getRepository($this->getClass());
-        
+
         if ($repository instanceof Repository) {
             return $repository;
         }
@@ -65,14 +65,14 @@ class Manager implements ManagerInterface
         if ($manager instanceof \Doctrine\ORM\EntityManager) {
             return new OrmRepositoryWrapper($repository);
         }
-        
+
         if ($manager instanceof \Doctrine\ODM\MongoDB\DocumentManager) {
             return new MongoRepositoryWrapper($repository);
         }
-        
+
         throw new \RuntimeException("I have no idea what to do with this repository class!");
     }
-    
+
     protected function throwUnsupportedMethodException()
     {
         throw new UnsupportedMethodException();
@@ -92,7 +92,7 @@ class Manager implements ManagerInterface
 
         $total = $repository->count($criteria);
         $objects = $repository->search($criteria);
-        
+
         $results = new SearchResults($objects, $total);
 
         $this->eventDispatcher->dispatch(RestEvents::POST_SEARCH, new PostSearchEvent($results));
@@ -145,11 +145,10 @@ class Manager implements ManagerInterface
 
         $original = $this->retrieve(IdHelper::getId($object));
 
-        $this->eventDispatcher->dispatch(RestEvents::PRE_UPDATE, new ObjectEvent($object, $original));
-
         $object = $em->merge($object);
 
-        $em->persist($object);
+        $this->eventDispatcher->dispatch(RestEvents::PRE_UPDATE, new ObjectEvent($object, $original));
+
         $em->flush();
         $em->refresh($object);
 
@@ -164,7 +163,8 @@ class Manager implements ManagerInterface
 
         $em = $this->getManager();
 
-        $em->persist($object);
+        $object = $em->merge($object);
+
         $em->flush();
         $em->refresh($object);
 
@@ -181,6 +181,8 @@ class Manager implements ManagerInterface
         $object = $this->retrieve($id);
 
         $em = $this->getManager();
+
+        $object = $em->merge($object);
 
         $this->eventDispatcher->dispatch(RestEvents::PRE_DELETE, new ObjectEvent($object));
 
