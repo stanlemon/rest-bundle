@@ -131,13 +131,8 @@ class ResourceController
             $request,
             $this->response,
             $resource,
-            function (ManagerInterface $manager, $object) use ($id) {
-                $reflection = new \ReflectionObject($object);
-                $property = $reflection->getProperty('id');
-                $property->setAccessible(true);
-                $property->setValue($object, $id);
-
-                $manager->update($object);
+            function (ManagerInterface $manager, $object) {
+                $manager->partialUpdate($object);
 
                 return $object;
             }
@@ -156,7 +151,7 @@ class ResourceController
             $request,
             $this->response,
             $resource,
-            function (ManagerInterface $manager, $object) use ($id) {
+            function (ManagerInterface $manager, $object) {
                 $manager->partialUpdate($object);
 
                 return $object;
