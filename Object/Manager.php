@@ -13,6 +13,11 @@ use Lemon\RestBundle\Object\Repository\OrmRepositoryWrapper;
 use Lemon\RestBundle\Object\Repository\MongoRepositoryWrapper;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * Class Manager
+ *
+ * @package Lemon\RestBundle\Object
+ */
 class Manager implements ManagerInterface
 {
     protected $doctrine;
@@ -73,6 +78,9 @@ class Manager implements ManagerInterface
         throw new \RuntimeException("I have no idea what to do with this repository class!");
     }
 
+    /**
+     * @throws UnsupportedMethodException
+     */
     protected function throwUnsupportedMethodException()
     {
         throw new UnsupportedMethodException();
@@ -80,6 +88,7 @@ class Manager implements ManagerInterface
 
     /**
      * @param Criteria $criteria
+     *
      * @return SearchResults
      */
     public function search(Criteria $criteria)
@@ -101,7 +110,8 @@ class Manager implements ManagerInterface
     }
 
     /**
-     * @param object $object
+     * @param mixed $object
+     *
      * @return mixed
      */
     public function create($object)
@@ -123,7 +133,8 @@ class Manager implements ManagerInterface
 
     /**
      * @param integer $id
-     * @return object
+     *
+     * @return mixed
      */
     public function retrieve($id)
     {
@@ -134,8 +145,9 @@ class Manager implements ManagerInterface
     }
 
     /**
-     * @param object $object
-     * @return object
+     * @param mixed $object
+     *
+     * @return mixed
      */
     public function update($object)
     {
@@ -159,6 +171,11 @@ class Manager implements ManagerInterface
         return $object;
     }
 
+    /**
+     * @param mixed $object
+     *
+     * @return mixed
+     */
     public function partialUpdate($object)
     {
         !$this->objectDefinition->canPartialUpdate() && $this->throwUnsupportedMethodException();
@@ -176,7 +193,9 @@ class Manager implements ManagerInterface
     }
 
     /**
-     * @param integer $id
+     * @param int $id
+     *
+     * @return mixed
      */
     public function delete($id)
     {
@@ -196,10 +215,13 @@ class Manager implements ManagerInterface
         $em->flush();
 
         $this->eventDispatcher->dispatch(RestEvents::POST_DELETE, new ObjectEvent($object));
+
+        return $object;
     }
 
     /**
      * @param bool $isResource
+     *
      * @return array
      */
     public function getOptions($isResource = false)
