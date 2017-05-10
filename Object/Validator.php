@@ -35,7 +35,7 @@ class Validator
                 $flattenedErros[$error->getPropertyPath()] = $error->getMessage();
             }
 
-            throw new InvalidException("Object is invalid", $flattenedErros);
+            throw new InvalidException("An error occured.\n".implode(" \n", $flattenedErros), $flattenedErros);
         }
     }
 }
