@@ -86,7 +86,7 @@ class OrmRepositoryWrapper implements Repository
         foreach ($criteria as $field => $value) {
             $value = trim($value);
 
-            if (empty($value) === false) {
+            if (strlen($value) > 0) {
                 $fields = [$field];
 
                 if (strpos($field, '_id') !== false) {
@@ -94,16 +94,35 @@ class OrmRepositoryWrapper implements Repository
                 }
 
                 foreach ($fields as $fieldName) {
-                    if (
-                        $this->metadata->hasField($fieldName)
-                        || $this->metadata->hasAssociation($fieldName)
-                    ) {
-                        if ($this->metadata->getTypeOfField($fieldName) === 'string') {
-                            $qb->andWhere('e.' . $fieldName . ' LIKE :' . $fieldName);
-                            $qb->setParameter($fieldName, sprintf('%%%s%%', $value));
-                        } else {
-                            $qb->andWhere('e.' . $fieldName . ' = :' . $fieldName);
-                            $qb->setParameter($fieldName, $value);
+                    if ($this->metadata->hasAssociation($fieldName)) {
+                        $qb->andWhere('e.' . $fieldName . ' = :' . $fieldName);
+                        $qb->setParameter($fieldName, $value);
+                    } else {
+                        $fieldMetaData = array_filter($this->metadata->fieldMappings, function ($mapping) use ($fieldName) {
+                            return (
+                                ($mapping['fieldName'] === $fieldName)
+                                || ($mapping['columnName'] === $fieldName)
+                            );
+                        });
+
+                        if (count($fieldMetaData) === 1) {
+                            $fieldMetaData = current($fieldMetaData);
+                            $fieldName = $fieldMetaData['fieldName'];
+
+                            if ($fieldMetaData['type'] === 'string') {
+                                $qb->andWhere('e.'.$fieldName.' LIKE :'.$fieldName);
+                                $qb->setParameter($fieldName, sprintf('%%%s%%', $value));
+                            } elseif ($fieldMetaData['type'] === 'boolean') {
+                                $value = strtolower($value);
+
+                                if (in_array($value, ['1', 'true', '0', 'false'])) {
+                                    $qb->andWhere('e.' . $fieldName . ' = :' . $fieldName);
+                                    $qb->setParameter($fieldName, in_array($value, ['1', 'true']));
+                                }
+                            } else {
+                                $qb->andWhere('e.' . $fieldName . ' = :' . $fieldName);
+                                $qb->setParameter($fieldName, $value);
+                            }
                         }
                     }
                 }
