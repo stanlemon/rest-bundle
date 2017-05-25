@@ -119,6 +119,15 @@ class OrmRepositoryWrapper implements Repository
                                     $qb->andWhere('e.' . $fieldName . ' = :' . $fieldName);
                                     $qb->setParameter($fieldName, in_array($value, ['1', 'true']));
                                 }
+                            } elseif (
+                                ($fieldMetaData['type'] === 'date')
+                                || ($fieldMetaData['type'] === 'datetime')
+                                || ($fieldMetaData['type'] === 'datetimez')
+                            ) {
+                                $date = new \DateTime($value);
+
+                                $qb->andWhere('e.'.$fieldName.' LIKE :'.$fieldName);
+                                $qb->setParameter($fieldName, sprintf('%s%%', $date->format('Y-m-d')));
                             } else {
                                 $qb->andWhere('e.' . $fieldName . ' = :' . $fieldName);
                                 $qb->setParameter($fieldName, $value);
