@@ -13,6 +13,11 @@ use Lemon\RestBundle\Object\Repository\OrmRepositoryWrapper;
 use Lemon\RestBundle\Object\Repository\MongoRepositoryWrapper;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * Class Manager
+ *
+ * @package Lemon\RestBundle\Object
+ */
 class Manager implements ManagerInterface
 {
     protected $doctrine;
@@ -57,7 +62,7 @@ class Manager implements ManagerInterface
     {
         $manager = $this->getManager();
         $repository = $manager->getRepository($this->getClass());
-        
+
         if ($repository instanceof Repository) {
             return $repository;
         }
@@ -65,14 +70,17 @@ class Manager implements ManagerInterface
         if ($manager instanceof \Doctrine\ORM\EntityManager) {
             return new OrmRepositoryWrapper($repository);
         }
-        
+
         if ($manager instanceof \Doctrine\ODM\MongoDB\DocumentManager) {
             return new MongoRepositoryWrapper($repository);
         }
-        
+
         throw new \RuntimeException("I have no idea what to do with this repository class!");
     }
-    
+
+    /**
+     * @throws UnsupportedMethodException
+     */
     protected function throwUnsupportedMethodException()
     {
         throw new UnsupportedMethodException();
@@ -80,6 +88,7 @@ class Manager implements ManagerInterface
 
     /**
      * @param Criteria $criteria
+     *
      * @return SearchResults
      */
     public function search(Criteria $criteria)
@@ -92,7 +101,7 @@ class Manager implements ManagerInterface
 
         $total = $repository->count($criteria);
         $objects = $repository->search($criteria);
-        
+
         $results = new SearchResults($objects, $total);
 
         $this->eventDispatcher->dispatch(RestEvents::POST_SEARCH, new PostSearchEvent($results));
@@ -101,7 +110,8 @@ class Manager implements ManagerInterface
     }
 
     /**
-     * @param object $object
+     * @param mixed $object
+     *
      * @return mixed
      */
     public function create($object)
@@ -123,7 +133,8 @@ class Manager implements ManagerInterface
 
     /**
      * @param integer $id
-     * @return object
+     *
+     * @return mixed
      */
     public function retrieve($id)
     {
@@ -134,8 +145,9 @@ class Manager implements ManagerInterface
     }
 
     /**
-     * @param object $object
-     * @return object
+     * @param mixed $object
+     *
+     * @return mixed
      */
     public function update($object)
     {
@@ -145,11 +157,12 @@ class Manager implements ManagerInterface
 
         $original = $this->retrieve(IdHelper::getId($object));
 
+        if ($em->contains($object) === false) {
+            $object = $em->merge($object);
+        }
+
         $this->eventDispatcher->dispatch(RestEvents::PRE_UPDATE, new ObjectEvent($object, $original));
 
-        $object = $em->merge($object);
-
-        $em->persist($object);
         $em->flush();
         $em->refresh($object);
 
@@ -158,13 +171,21 @@ class Manager implements ManagerInterface
         return $object;
     }
 
+    /**
+     * @param mixed $object
+     *
+     * @return mixed
+     */
     public function partialUpdate($object)
     {
         !$this->objectDefinition->canPartialUpdate() && $this->throwUnsupportedMethodException();
 
         $em = $this->getManager();
 
-        $em->persist($object);
+        if ($em->contains($object) === false) {
+            $object = $em->merge($object);
+        }
+
         $em->flush();
         $em->refresh($object);
 
@@ -172,7 +193,9 @@ class Manager implements ManagerInterface
     }
 
     /**
-     * @param integer $id
+     * @param int $id
+     *
+     * @return mixed
      */
     public function delete($id)
     {
@@ -182,16 +205,23 @@ class Manager implements ManagerInterface
 
         $em = $this->getManager();
 
+        if ($em->contains($object) === false) {
+            $object = $em->merge($object);
+        }
+
         $this->eventDispatcher->dispatch(RestEvents::PRE_DELETE, new ObjectEvent($object));
 
         $em->remove($object);
         $em->flush();
 
         $this->eventDispatcher->dispatch(RestEvents::POST_DELETE, new ObjectEvent($object));
+
+        return $object;
     }
 
     /**
      * @param bool $isResource
+     *
      * @return array
      */
     public function getOptions($isResource = false)

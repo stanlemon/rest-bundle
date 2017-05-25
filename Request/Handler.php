@@ -75,7 +75,7 @@ class Handler
         $accept = $this->negotiator->getBest($request->headers->get('Accept'));
 
         $format = $this->negotiator->getFormat($accept->getValue());
-        
+
         if ($format == 'html') {
             $format = 'json';
         }
@@ -92,14 +92,16 @@ class Handler
             $content = $request->getContent();
 
             if (!empty($content)) {
-                $object = $this->serializer->create(
-                    $request->isMethod('patch') ? 'doctrine' : 'default'
-                )->deserialize(
-                    $request->getContent(),
-                    $manager->getClass(),
-                    $format,
-                    $context
-                );
+                $object = $this
+                    ->serializer
+                    ->create('doctrine')
+                    ->deserialize(
+                        $request->getContent(),
+                        $manager->getClass(),
+                        $format,
+                        $context
+                    )
+                ;
             }
 
             $data = $this->envelopeFactory->create(

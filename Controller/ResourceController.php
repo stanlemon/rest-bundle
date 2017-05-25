@@ -131,32 +131,7 @@ class ResourceController
             $request,
             $this->response,
             $resource,
-            function (ManagerInterface $manager, $object) use ($id) {
-                $reflection = new \ReflectionObject($object);
-                $property = $reflection->getProperty('id');
-                $property->setAccessible(true);
-                $property->setValue($object, $id);
-
-                $manager->update($object);
-
-                return $object;
-            }
-        );
-    }
-
-    /**
-     * @param Request $request
-     * @param string $resource
-     * @param int $id
-     * @return Response
-     */
-    public function patchAction(Request $request, $resource, $id)
-    {
-        return $this->handler->handle(
-            $request,
-            $this->response,
-            $resource,
-            function (ManagerInterface $manager, $object) use ($id) {
+            function (ManagerInterface $manager, $object) {
                 $manager->partialUpdate($object);
 
                 return $object;
@@ -166,8 +141,30 @@ class ResourceController
 
     /**
      * @param Request $request
-     * @param string $resource
-     * @param int $id
+     * @param string  $resource
+     * @param int     $id
+     *
+     * @return Response
+     */
+    public function patchAction(Request $request, $resource, $id)
+    {
+        return $this->handler->handle(
+            $request,
+            $this->response,
+            $resource,
+            function (ManagerInterface $manager, $object) {
+                $manager->partialUpdate($object);
+
+                return $object;
+            }
+        );
+    }
+
+    /**
+     * @param Request $request
+     * @param string  $resource
+     * @param int     $id
+     *
      * @return Response
      */
     public function deleteAction(Request $request, $resource, $id)
@@ -179,13 +176,22 @@ class ResourceController
             $this->response,
             $resource,
             function (ManagerInterface $manager) use ($response, $id) {
-                $response->setStatusCode(204);
+                $response->setStatusCode(200);
 
-                $manager->delete($id);
+                $object = $manager->delete($id);
+
+                return $object;
             }
         );
     }
 
+    /**
+     * @param Request $request
+     * @param string  $resource
+     * @param int     $id
+     *
+     * @return Response
+     */
     public function optionsAction(Request $request, $resource, $id = null)
     {
         return $this->handler->options(
