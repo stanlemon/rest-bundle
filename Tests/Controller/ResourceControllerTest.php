@@ -100,7 +100,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->ssn = '123-45-678';
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest('GET', '/person/' . $person->id);
@@ -173,7 +173,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->updated = new \DateTime("-12 hours");
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $created = date(DATE_ISO8601);
@@ -212,7 +212,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->name = "Stan Lemon";
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest('DELETE', '/person/1');
@@ -242,7 +242,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->name = "Stan Lemon";
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -274,7 +274,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $tag->name = 'baz';
 
         $this->em->persist($tag);
-        $this->em->flush($tag);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -410,7 +410,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $mother->name = "Sharon Lemon";
 
         $this->em->persist($mother);
-        $this->em->flush($mother);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -462,7 +462,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->tags[] = $tag;
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -522,7 +522,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->cars[] = $car;
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -570,7 +570,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->name = "Stan Lemon";
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -634,7 +634,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->cars->add($car2);
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
@@ -706,7 +706,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->cars->add($car2);
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $refresh = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Person')->findOneBy(array(
@@ -747,7 +747,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->name = "Stan Lemon";
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -784,7 +784,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->mother = $mother;
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -833,7 +833,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->mother = $mother;
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -892,7 +892,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->mother = $mother;
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -952,7 +952,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->name = "Stan Lemon";
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -1030,7 +1030,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $person->favoriteColor = 'purple';
 
         $this->em->persist($person);
-        $this->em->flush($person);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -1061,7 +1061,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $footballTeam->league = 'Amercian';
 
         $this->em->persist($footballTeam);
-        $this->em->flush($footballTeam);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -1236,7 +1236,7 @@ class ResourceControllerTest extends FunctionalTestCase
         $tag->name = 'baz';
 
         $this->em->persist($tag);
-        $this->em->flush($tag);
+        $this->em->flush();
         $this->em->clear();
 
         $request = $this->makeRequest(
@@ -1296,14 +1296,14 @@ class ResourceControllerTest extends FunctionalTestCase
         $place1->name = "Seymour";
 
         $this->em->persist($place1);
-        $this->em->flush($place1);
+        $this->em->flush();
         $this->em->clear();
 
         $place2 = new Place();
         $place2->name = "Brownstown";
 
         $this->em->persist($place2);
-        $this->em->flush($place2);
+        $this->em->flush();
         $this->em->clear();
 
         $places = $this->em->getRepository('Lemon\RestBundle\Tests\Fixtures\Place')->findAll();

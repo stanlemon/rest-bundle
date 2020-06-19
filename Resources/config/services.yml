@@ -3,6 +3,8 @@ parameters:
 services:
     lemon_doctrine:
         alias: doctrine
+        # TODO: Revisit making this public
+        public: true
 
     lemon_rest.resource_controller:
         class: Lemon\RestBundle\Controller\ResourceController
@@ -10,6 +12,8 @@ services:
             - "@lemon_rest.handler"
             - "@lemon_rest.object_criteria_factory"
             - "@router"
+        # TODO: Revisit making this public
+        public: true
 
     lemon_rest.index_controller:
         class: Lemon\RestBundle\Controller\IndexController
@@ -18,6 +22,8 @@ services:
             - "@jms_serializer"
             - "@lemon_rest.object_registry"
             - "@router"
+        # TODO: Revisit making this public
+        public: true
 
     lemon_rest.handler:
         class: Lemon\RestBundle\Request\Handler
@@ -35,6 +41,8 @@ services:
         class: Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher
         arguments:
             - "@service_container"
+        # TODO: Revisit making this public
+        public: true
 
     lemon_rest.event.processor_subscriber:
         class: Lemon\RestBundle\Event\ProcessorSubscriber
@@ -71,16 +79,18 @@ services:
 
     lemon_rest.object_registry:
         class: Lemon\RestBundle\Object\Registry
+        # TODO: Revisit making this public
+        public: true
 
     lemon_rest.object_envelope_factory:
         class: Lemon\RestBundle\Object\Envelope\EnvelopeFactory
         arguments:
-            - %lemon_rest_object_envelope_class%
+            - "%lemon_rest_object_envelope_class%"
 
     lemon_rest.object_criteria_factory:
         class: Lemon\RestBundle\Object\Criteria\CriteriaFactory
         arguments:
-            - %lemon_rest_object_criteria_class%
+            - "%lemon_rest_object_criteria_class%"
 
     lemon_rest.serializer.id_collection.handler:
         class: Lemon\RestBundle\Serializer\IdCollectionHandler
