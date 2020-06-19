@@ -10,9 +10,7 @@ class TestKernel extends Kernel
     {
         return array(
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-            new \Symfony\Bundle\MonologBundle\MonologBundle(),
             new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
-            new \Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle(),
             new \JMS\SerializerBundle\JMSSerializerBundle(),
             new \Lemon\RestBundle\LemonRestBundle(),
         );
@@ -20,11 +18,7 @@ class TestKernel extends Kernel
 
     public function registerContainerConfiguration(LoaderInterface $loader)
     {
-        if ($this->getEnvironment() == 'test_mongodb') {
-            $loader->load(__DIR__ . '/config/config_mongodb.yml');
-        } else {
-            $loader->load(__DIR__ . '/config/config.yml');
-        }
+        $loader->load(__DIR__ . '/config/config.yml');
     }
 
     public function getCacheDir()

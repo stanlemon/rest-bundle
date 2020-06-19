@@ -4,27 +4,23 @@ namespace Lemon\RestBundle\Tests\Object;
 use Lemon\RestBundle\Object\ManagerFactory;
 use Lemon\RestBundle\Object\Registry;
 use Lemon\RestBundle\Object\Definition;
+use Lemon\RestBundle\Tests\FunctionalTestCase;
 
 /**
  * @coversDefaultClass \Lemon\RestBundle\Object\ManagerFactory
  */
-class ManagerFactoryTest extends \PHPUnit_Framework_TestCase
+class ManagerFactoryTest extends FunctionalTestCase
 {
 
     public function testCreatesManagerWithCorrectClass()
     {
-        $eventDispatcher = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcher')->getMock();
-        $doctrine = $this->getMockBuilder('Doctrine\Bundle\DoctrineBundle\Registry')
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $registry = new Registry();
         $registry->add(new Definition('person', 'Lemon\RestBundle\Tests\Fixtures\Person'));
 
         $managerFactory = new ManagerFactory(
             $registry,
-            $doctrine,
-            $eventDispatcher
+            $this->container->get('lemon_doctrine'),
+            $this->container->get('lemon_rest.event_dispatcher')
         );
 
         $manager = $managerFactory->create("person");

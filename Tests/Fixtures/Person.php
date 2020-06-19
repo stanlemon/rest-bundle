@@ -3,14 +3,12 @@ namespace Lemon\RestBundle\Tests\Fixtures;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Table()
  * @ORM\Entity()
- * @MongoDB\Document
  */
 class Person
 {
@@ -19,39 +17,33 @@ class Person
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Serializer\Type("string")
-     * @MongoDB\Id
      */
     public $id;
 
     /**
      * @ORM\Column(name="name", type="string", length=255, nullable=false)
      * @Assert\NotBlank()
-     * @MongoDB\Field(type="string")
      */
     public $name;
 
     /**
      * @ORM\Column(name="ssn", type="string", length=255, nullable=true)
      * @Serializer\ReadOnly()
-     * @MongoDB\Field(type="string")
      */
     public $ssn;
 
     /**
      * @ORM\Column(name="favorite_color", type="string", length=255, nullable=true)
-     * @MongoDB\Field(type="string")
      */
     public $favoriteColor;
 
     /**
      * @ORM\Column(name="created", type="datetime", nullable=true)
-     * @MongoDB\Field(type="date")
      */
     public $created;
 
     /**
      * @ORM\Column(name="updated", type="datetime", nullable=true)
-     * @MongoDB\Field(type="date")
      * @Serializer\ReadOnly()
      */
     public $updated;
@@ -59,7 +51,6 @@ class Person
     /**
      * @var \Lemon\RestBundle\Tests\Fixtures\Person
      * @ORM\OneToOne(targetEntity="Lemon\RestBundle\Tests\Fixtures\Person", cascade={"all"})
-     * @MongoDB\ReferenceOne("Lemon\RestBundle\Tests\Fixtures\Person", cascade={"all"})
      */
     public $mother;
 
@@ -70,7 +61,6 @@ class Person
      *  mappedBy="person",
      *  cascade={"all"}
      * )
-     * @MongoDB\ReferenceMany(targetDocument="Lemon\RestBundle\Tests\Fixtures\Car", mappedBy="person", cascade={"all"})
      */
     public $cars;
 
@@ -85,7 +75,6 @@ class Person
      *          @ORM\JoinColumn(name="tag_id", referencedColumnName="id", unique=true)
      *     }
      * )
-     * @MongoDB\ReferenceMany(targetDocument="Lemon\RestBundle\Tests\Fixtures\Tag", cascade={"all"})
      */
     public $tags;
 

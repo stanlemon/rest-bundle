@@ -6,6 +6,10 @@ This changelog references the relevant changes that have been made to LemonRestB
 To get the diff for a specific change, go to https://github.com/stanlemon/rest-bundle/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/stanlemon/rest-bundle/compare/0.7.0...master
 
+* 0.9.0 (2020-06-18)
+ * Update dependencies across the board.
+ * Drop support for Doctrine's Mongo ORM layer.
+
 * 0.8.0 (2015-04-07)
  * Improved compatibility with older versions of symfony and doctrine. LemonRestBundle should work with Doctrine ORM 2.3, 2.4 and 2.5 and with Symfony 2.3, 2.4, 2.5, 2.6 and preliminary support has passed for 2.7.
  * Refactoring direct usages of ORM classes in favor of \Doctrine\Common\Persistence classes, this opened the door up for supporting additional implementations of Doctrine then just the ORM.
