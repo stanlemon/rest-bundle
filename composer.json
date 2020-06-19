@@ -15,6 +15,7 @@
         "doctrine/common": "^2.13.3",
         "doctrine/orm": "^2.7.3",
         "doctrine/doctrine-bundle": "^1.12.10",
+        "ocramius/package-versions": "~1.5.1",
         "jms/serializer": "^1.14.1",
         "jms/serializer-bundle": "^2.4.4",
         "willdurand/negotiation": "^1.5.0"
