@@ -11,7 +11,9 @@
     "require": {
         "php": ">=7.3.0",
         "psr/log": "^1.1.3",
-        "symfony/symfony": "^3.4.42",
+        "symfony/framework-bundle": "^3.4.42",
+        "symfony/yaml": "^3.4.42",
+        "symfony/validator": "^3.4.42",
         "doctrine/common": "^2.13.3",
         "doctrine/orm": "^2.7.3",
         "doctrine/doctrine-bundle": "^1.12.10",
@@ -21,7 +23,9 @@
         "willdurand/negotiation": "^1.5.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^5.7.27"
+        "phpunit/phpunit": "^5.7.27",
+        "symfony/symfony": "^3.4.2",
+        "symfony/phpunit-bridge": "^3.4.2"
     },
     "autoload": {
         "psr-4": {

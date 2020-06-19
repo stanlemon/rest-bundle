@@ -92,7 +92,6 @@ services:
 
     lemon_rest.serializer.collection:
         class: PhpCollection\Map
-        scope: prototype
 
     lemon_rest.serializer.doctrine_object_constructor:
         class: JMS\Serializer\Construction\DoctrineObjectConstructor
