@@ -12,7 +12,7 @@ use Lemon\RestBundle\Tests\Fixtures\Tag;
 use Lemon\RestBundle\Tests\Fixtures\Person;
 use Lemon\RestBundle\Tests\Fixtures\FootballTeam;
 
-abstract class ResourceControllerTest extends FunctionalTestCase
+class ResourceControllerTest extends FunctionalTestCase
 {
     /**
      * @var \Lemon\RestBundle\Controller\ResourceController
@@ -203,7 +203,7 @@ abstract class ResourceControllerTest extends FunctionalTestCase
         $this->assertEquals($person->id, $refresh->id);
         $this->assertEquals($person->name, $refresh->name);
         $this->assertEquals(new \DateTime($created), $refresh->created);
-        $this->assertEquals($person->updated, $refresh->updated, "Excluded fields not get updated when not passed in");
+        $this->assertEquals($person->updated->format('c'), $refresh->updated->format('c'), "Excluded fields not get updated when not passed in");
     }
 
     public function testDeleteAction()

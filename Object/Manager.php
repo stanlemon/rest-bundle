@@ -10,7 +10,6 @@ use Lemon\RestBundle\Model\SearchResults;
 use Lemon\RestBundle\Object\Exception\NotFoundException;
 use Lemon\RestBundle\Object\Exception\UnsupportedMethodException;
 use Lemon\RestBundle\Object\Repository\OrmRepositoryWrapper;
-use Lemon\RestBundle\Object\Repository\MongoRepositoryWrapper;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Manager implements ManagerInterface
@@ -64,10 +63,6 @@ class Manager implements ManagerInterface
 
         if ($manager instanceof \Doctrine\ORM\EntityManager) {
             return new OrmRepositoryWrapper($repository);
-        }
-        
-        if ($manager instanceof \Doctrine\ODM\MongoDB\DocumentManager) {
-            return new MongoRepositoryWrapper($repository);
         }
         
         throw new \RuntimeException("I have no idea what to do with this repository class!");
