@@ -42,7 +42,7 @@ class LemonRestBundle extends Bundle
 
         $container->addCompilerPass(new DoctrineRegistryServicePass());
         $container->addCompilerPass(new RegisterFormatPass());
-        $container->addCompilerPass(new RegisterResourcePass());
+        $container->addCompilerPass(new RegisterResourcePass(), \Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_REMOVING);
         $container->addCompilerPass(new RegisterMappingsPass());
         // This is basically copy-pasted from JMSSerializerBundle
         $container->addCompilerPass($this->getServiceMapPass(

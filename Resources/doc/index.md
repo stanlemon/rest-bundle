@@ -1,25 +1,23 @@
 Setting up the bundle
 =====================
 
-  1. Add LemonRestBundle to your dependencies:
+  1. Add LemonRestBundle via composer:
+
+  ```
+  composer require stanlemon/rest-bundle
+  ```
+
+  or
 
   ```json
-   // composer.json
   {
-     // ...
      "require": {
-         // ...
          "stanlemon/rest-bundle": "dev-master@dev"
      }
   }
   ```
-  2. Use Composer to download and install LemonRestBundle:
 
-  ```bash
-  $ php composer.phar update stanlemon/rest-bundle
-  ```
-
-  3. Register the bundle in your application:
+  2. Register the bundle in your application:
   
   ```php
   // app/AppKernel.php
@@ -37,7 +35,7 @@ Setting up the bundle
   }
   ```
   
-  4. Add routing to your `routing.yml`:
+  3. Add routing to your `routing.yml`:
   
   ```yaml 
   lemon_rest:
@@ -110,8 +108,8 @@ After installing dependencies with composer (including require-dev) simply Run p
 $ ./vendor/bin/phpunit -c ./phpunit.xml
 ```
 
-The _OrmRestControllerTest_ is a functional test that show cases many of the ways which this bundle can be used. There is an additional _MongoRestControllerTest_ which optionally covers using Doctrine's MongoDB ODM with this bundle.
-        
+The _RestControllerTest_ is a functional test that show cases many of the ways which this bundle can be used.
+
 Serialization & Deserialization
 =====================
 
@@ -189,14 +187,4 @@ To switch to a different _Criteria_ object create a class implementing _Lemon\Re
 ```yaml
 lemon_rest:
     criteria: Acme\DemoAppBundle\Rest\MyCriteria
-```
-
-MongoDB Support & Other Doctrine Registry's
-============================================
-
-This bundle can be used with other implementations of Doctrine.  Support has been explicitly tested for with MongoDB, but the internals of _LemonRestBundle_ are such that anything adhereing to _Doctrine\Common\Persistence_ should be fair game.  If you want to use MongoDB or any other Doctrine implementation all you need to do is to tell LemonRestBundle which Doctrine Registry service to use, just add this to your _config.yml_:
-
-```yaml
-lemon_rest:
-    doctrine_registry_service_id: doctrine_mongodb
 ```
