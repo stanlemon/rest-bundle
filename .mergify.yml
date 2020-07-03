@@ -2,7 +2,7 @@ pull_request_rules:
   - name: automatic merge on CI success
     conditions:
       - author=dependabot-preview[bot]
-      - status-success~=test
+      - status-success=continuous-integration/travis-ci/pr
     actions:
       merge:
         method: squash
