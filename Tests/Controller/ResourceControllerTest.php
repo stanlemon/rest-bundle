@@ -1382,4 +1382,34 @@ class ResourceControllerTest extends FunctionalTestCase
 
         $this->assertEquals('OPTIONS, PUT, DELETE, GET', $response->headers->get('Allowed'));
     }
+
+    public function testUnauthorizedRequest()
+    {
+        $footballTeam = new FootballTeam;
+        $footballTeam->name = 'Steelers';
+        $footballTeam->conference = 'AFC';
+        $footballTeam->league = 'Amercian';
+
+        $this->em->persist($footballTeam);
+        $this->em->flush($footballTeam);
+        $this->em->clear();
+
+        $request = $this->makeRequest(
+            'PUT',
+            '/footballTeam/' . $footballTeam->id,
+            json_encode(array(
+                'id' => $footballTeam->id,
+                'name' => $footballTeam->name,
+            ))
+        );
+
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $this->controller->getAction($request, 'footballTeam', $footballTeam->id);
+
+        $data = json_decode($response->getContent());
+
+        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $data->code);
+        $this->assertEquals('Access Denied', $data->message);
+    }
 }

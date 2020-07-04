@@ -16,6 +16,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('doctrine_registry_service_id')
                     ->defaultValue('doctrine')
                 ->end()
+                ->scalarNode('authorization_checker_service_id')
+                    ->defaultValue('lemon_rest.authorization.default_authorization_checker')
+                ->end()
                 ->scalarNode('envelope')
                     ->defaultValue('Lemon\RestBundle\Object\Envelope\FlattenedEnvelope')
                 ->end()
@@ -36,8 +39,12 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('format', true)
                     ->prototype('array')
                     ->beforeNormalization()
-                        ->ifTrue(function ($v) { return is_array($v) && !isset($v['mimeTypes']); })
-                        ->then(function ($v) { return array('mimeTypes' => $v); })
+                        ->ifTrue(function ($v) {
+                            return is_array($v) && !isset($v['mimeTypes']);
+                        })
+                        ->then(function ($v) {
+                            return array('mimeTypes' => $v);
+                        })
                     ->end()
                         ->children()
                             ->arrayNode('mimeTypes')

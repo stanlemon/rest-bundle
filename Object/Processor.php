@@ -90,7 +90,7 @@ class Processor
 
         // Look for relationships, compare against preloaded entity
         foreach ($metadata->getAssociationNames() as $fieldName) {
-            // This can happen for Doctrine's Mongo ODM because while it adheres to the interface it throws an exception :(
+            // This can happen w/ Doctrine Mongo ODM bc while it adheres to the interface it throws an exception :(
             try {
                 $mappedBy = $metadata->getAssociationMappedByTargetField($fieldName);
             } catch (\BadMethodCallException $e) {

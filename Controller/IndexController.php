@@ -38,8 +38,7 @@ class IndexController
         Serializer $serializer,
         Registry $registry,
         RouterInterface $router
-    )
-    {
+    ) {
         $this->negotiator = $negotiator;
         $this->serializer = $serializer;
         $this->registry = $registry;

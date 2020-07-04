@@ -3,6 +3,7 @@
 namespace Lemon\RestBundle;
 
 use JMS\SerializerBundle\DependencyInjection\Compiler\ServiceMapPass;
+use Lemon\RestBundle\DependencyInjection\Compiler\AuthorizationCheckerPass;
 use Lemon\RestBundle\DependencyInjection\Compiler\DoctrineRegistryServicePass;
 use Lemon\RestBundle\DependencyInjection\Compiler\RegisterFormatPass;
 use Lemon\RestBundle\DependencyInjection\Compiler\RegisterMappingsPass;
@@ -41,6 +42,7 @@ class LemonRestBundle extends Bundle
         }
 
         $container->addCompilerPass(new DoctrineRegistryServicePass());
+        $container->addCompilerPass(new AuthorizationCheckerPass());
         $container->addCompilerPass(new RegisterFormatPass());
         $container->addCompilerPass(new RegisterResourcePass(), \Symfony\Component\DependencyInjection\Compiler\PassConfig::TYPE_BEFORE_REMOVING);
         $container->addCompilerPass(new RegisterMappingsPass());
