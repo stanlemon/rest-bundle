@@ -19,7 +19,7 @@ class ResourceControllerTest extends FunctionalTestCase
      */
     protected $controller;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

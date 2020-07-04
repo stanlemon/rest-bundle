@@ -11,7 +11,6 @@ use Lemon\RestBundle\Tests\FunctionalTestCase;
  */
 class ManagerFactoryTest extends FunctionalTestCase
 {
-
     public function testCreatesManagerWithCorrectClass()
     {
         $registry = new Registry();

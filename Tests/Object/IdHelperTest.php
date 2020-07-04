@@ -1,13 +1,14 @@
 <?php
 namespace Lemon\RestBundle\Tests\Object;
 
+use PHPUnit\Framework\TestCase;
 use Lemon\RestBundle\Object\IdHelper;
 use Lemon\RestBundle\Tests\Fixtures\Person;
 
 /**
  * @coversDefaultClass \Lemon\RestBundle\Object\IdHelper
  */
-class IdHelperTest extends \PHPUnit_Framework_TestCase
+class IdHelperTest extends TestCase
 {
     /**
      * @covers ::getId

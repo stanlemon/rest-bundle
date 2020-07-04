@@ -1,12 +1,13 @@
 <?php
 namespace Lemon\RestBundle\Tests\Object\Criteria;
 
+use PHPUnit\Framework\TestCase;
 use Lemon\RestBundle\Object\Criteria\DefaultCriteria;
 
 /**
  * @coversDefaultClass \Lemon\RestBundle\Object\Criteria\DefaultCriteria
  */
-class DefaultCriteriaTest extends \PHPUnit_Framework_TestCase
+class DefaultCriteriaTest extends TestCase
 {
     public function testCriteria()
     {

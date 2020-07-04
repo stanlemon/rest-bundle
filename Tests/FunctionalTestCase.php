@@ -30,7 +30,7 @@ abstract class FunctionalTestCase extends WebTestCase
      */
     protected $serializer;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $class = static::getKernelClass();
 
@@ -59,7 +59,7 @@ abstract class FunctionalTestCase extends WebTestCase
         return 'Lemon\RestBundle\Tests\TestKernel';
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->doctrine->getConnection()->rollback();
     }

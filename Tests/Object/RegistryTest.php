@@ -1,13 +1,14 @@
 <?php
 namespace Lemon\RestBundle\Tests\Object;
 
+use PHPUnit\Framework\TestCase;
 use Lemon\RestBundle\Object\Registry;
 use Lemon\RestBundle\Object\Definition;
 
 /**
  * @coversDefaultClass \Lemon\RestBundle\Object\Registry
  */
-class RegistryTest extends \PHPUnit_Framework_TestCase
+class RegistryTest extends TestCase
 {
     /**
      * @covers ::add()
@@ -40,7 +41,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddClassDoesNotExist()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $registry = new Registry();
         $registry->add(new Definition('foo', '\foo\bar'));
@@ -51,7 +52,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetClassNotInRegistry()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $registry = new Registry();
         $registry->get('\foo\bar');
