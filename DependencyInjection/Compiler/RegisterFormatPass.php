@@ -11,12 +11,12 @@ class RegisterFormatPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        $formatNegotiator = $container->getDefinition('lemon_rest.format_negotiator');
+        $negotiator = $container->getDefinition('lemon_rest.negotiator');
 
         $formats = $container->getParameter('lemon_rest_formats');
 
         foreach ($formats as $format => $value) {
-            $formatNegotiator->addMethodCall('registerFormat', array(
+            $negotiator->addMethodCall('registerFormat', array(
                 $format,
                 $value['mimeTypes'],
                 true

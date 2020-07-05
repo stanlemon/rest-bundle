@@ -6,6 +6,9 @@ This changelog references the relevant changes that have been made to LemonRestB
 To get the diff for a specific change, go to https://github.com/stanlemon/rest-bundle/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/stanlemon/rest-bundle/compare/0.7.0...master
 
+* 0.10.0 (2020-07-04)
+ * Updated willdurand/negotiation, this involves a breaking change where version support no longer works by adding 'version=X' as a parameter in the Accept header. Instead you need to use the Accept-version header.
+
 * 0.9.0 (2020-06-18)
  * Update dependencies across the board.
  * Drop support for Doctrine's Mongo ORM layer.

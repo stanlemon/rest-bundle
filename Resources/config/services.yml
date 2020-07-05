@@ -18,7 +18,7 @@ services:
     lemon_rest.index_controller:
         class: Lemon\RestBundle\Controller\IndexController
         arguments:
-            - "@lemon_rest.format_negotiator"
+            - "@lemon_rest.negotiator"
             - "@jms_serializer"
             - "@lemon_rest.object_registry"
             - "@router"
@@ -31,11 +31,11 @@ services:
             - "@lemon_rest.object_manager_factory"
             - "@lemon_rest.object_envelope_factory"
             - "@lemon_rest.serializer.constructor_factory"
-            - "@lemon_rest.format_negotiator"
+            - "@lemon_rest.negotiator"
             - "@?logger"
 
-    lemon_rest.format_negotiator:
-        class: Negotiation\FormatNegotiator
+    lemon_rest.negotiator:
+        class: Negotiation\Negotiator
 
     lemon_rest.event_dispatcher:
         class: Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher

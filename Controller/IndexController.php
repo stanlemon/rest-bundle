@@ -3,7 +3,7 @@ namespace Lemon\RestBundle\Controller;
 
 use Lemon\RestBundle\Object\Registry;
 use Symfony\Component\HttpFoundation\Request;
-use Negotiation\FormatNegotiator;
+use Negotiation\Negotiator;
 use JMS\Serializer\Serializer;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\Routing\RouterInterface;
 class IndexController
 {
     /**
-     * @var FormatNegotiatorInterface
+     * @var Negotiator
      */
     protected $negotiator;
     /**
@@ -28,13 +28,13 @@ class IndexController
     protected $router;
 
     /**
-     * @param FormatNegotiator $negotiator
+     * @param Negotiator $negotiator
      * @param Serializer $serializer
      * @param Registry $registry
      * @param RouterInterface $router
      */
     public function __construct(
-        FormatNegotiator $negotiator,
+        Negotiator $negotiator,
         Serializer $serializer,
         Registry $registry,
         RouterInterface $router
@@ -52,11 +52,15 @@ class IndexController
      */
     public function indexAction(Request $request)
     {
-        $format = $this->negotiator->getBestFormat(
-            $request->headers->get('Accept')
+        $accept = $this->negotiator->getBest(
+            $request->headers->get('Accept'), 
+            ['application/json', 'text/html', 'application/xml']
         );
 
-        if ($format == 'html') {
+        $value = $accept !== null ? $accept->getValue() : "application/json";
+        $format = substr($value, strpos($value, "/") + 1);
+
+        if (empty($format) || $format == 'html') {
             $format = 'json';
         }
 

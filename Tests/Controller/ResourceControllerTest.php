@@ -1068,8 +1068,11 @@ class ResourceControllerTest extends FunctionalTestCase
             'GET',
             '/footballTeam/' . $footballTeam->id,
             null,
-            array(),
-            array('HTTP_ACCEPT' => 'application/json;version=0.9.2')
+            [],
+            [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_ACCEPT_VERSION' => '0.9.2',
+            ]
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */
@@ -1084,8 +1087,11 @@ class ResourceControllerTest extends FunctionalTestCase
             'GET',
             '/footballTeam/' . $footballTeam->id,
             null,
-            array(),
-            array('HTTP_ACCEPT' => 'application/json;version=1.1.2')
+            [],
+            [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_ACCEPT_VERSION' => '1.1.2',
+            ]
         );
 
         /** @var \Symfony\Component\HttpFoundation\Response $response */

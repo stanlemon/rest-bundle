@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use JMS\Serializer\SerializationContext;
-use Negotiation\FormatNegotiator;
+use Negotiation\Negotiator;
 
 class Handler
 {
@@ -33,7 +33,7 @@ class Handler
     protected $serializer;
 
     /**
-     * @var \Negotiation\FormatNegotiator
+     * @var \Negotiation\Negotiator
      */
     protected $negotiator;
 
@@ -46,14 +46,14 @@ class Handler
      * @param ManagerFactoryInterface $managerFactory
      * @param EnvelopeFactory $envelopeFactory
      * @param ConstructorFactory $serializer
-     * @param FormatNegotiator $negotiator
+     * @param Negotiator $negotiator
      * @param LoggerInterface $logger
      */
     public function __construct(
         ManagerFactoryInterface $managerFactory,
         EnvelopeFactory $envelopeFactory,
         ConstructorFactory $serializer,
-        FormatNegotiator $negotiator,
+        Negotiator $negotiator,
         LoggerInterface $logger = null
     ) {
         $this->managerFactory = $managerFactory;
@@ -72,15 +72,19 @@ class Handler
      */
     public function handle(Request $request, Response $response, $resource, $callback)
     {
-        $accept = $this->negotiator->getBest($request->headers->get('Accept'));
+        $accept = $this->negotiator->getBest(
+            $request->headers->get('Accept'), 
+            ['application/json', 'text/html', 'application/xml']
+        );
 
-        $format = $this->negotiator->getFormat($accept->getValue());
-        
-        if ($format == 'html') {
+        $value = $accept !== null ? $accept->getValue() : "application/json";
+        $format = substr($value, strpos($value, "/") + 1);
+
+        if (empty($format) || $format == 'html') {
             $format = 'json';
         }
 
-        $response->headers->set('Content-Type', $accept->getValue());
+        $response->headers->set('Content-Type', $value);
 
         try {
             $manager = $this->managerFactory->create($resource);
@@ -156,8 +160,8 @@ class Handler
         $context = SerializationContext::create()->enableMaxDepthChecks();
         $context->setGroups($groups);
 
-        if ($accept->hasParameter('version')) {
-            $context->setVersion($accept->getParameter('version'));
+        if ($request->headers->has('Accept-version')) {
+            $context->setVersion($request->headers->get('Accept-version'));
         }
 
         $output = $this->serializer->create('default')->serialize($data, $format, $context);
